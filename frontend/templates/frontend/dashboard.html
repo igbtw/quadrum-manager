@@ -1,0 +1,160 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Visão geral da cantina</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'frontend:pdv' %}" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <path d="M14 2h4v2h-4V2zm0 6h4v4h-4V6zm0 6h4v4h-4V12z"/>
+            </svg>
+            Nova Venda
+        </a>
+    </div>
+</div>
+
+<!-- Estatísticas -->
+<div class="dashboard-stats">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.vendas_dia }}</div>
+        <div class="stat-label">Vendas Hoje</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">R$ {{ stats.faturamento_dia }}</div>
+        <div class="stat-label">Faturamento</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">R$ {{ stats.valor_receber }}</div>
+        <div class="stat-label">A Receber</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.produtos_baixo_estoque|length }}</div>
+        <div class="stat-label">Estoque Baixo</div>
+    </div>
+</div>
+
+<!-- Seções -->
+<div class="dashboard-sections">
+    <!-- Valor a receber -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3 class="section-title">Contas a Receber</h3>
+        </div>
+        <div class="card-body">
+            {% if stats.valor_receber > 0 or stats.valor_vencido > 0 %}
+                <div class="stat">
+                    <div class="stat-value" style="color: var(--color-warning);">R$ {{ stats.valor_receber }}</div>
+                    <div class="stat-label">Pendente</div>
+                </div>
+                {% if stats.valor_vencido > 0 %}
+                <div class="stat" style="margin-top: var(--space-3);">
+                    <div class="stat-value" style="color: var(--color-danger);">R$ {{ stats.valor_vencido }}</div>
+                    <div class="stat-label">Vencido</div>
+                </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-title">Tudo em dia!</div>
+                    <div class="empty-state-description">Nenhuma conta pendente ou vencida</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Produtos com estoque baixo -->
+    <div class="section-card">
+        <div class="section-header">
+            <h3 class="section-title">Produtos com Estoque Baixo</h3>
+        </div>
+        <div class="card-body">
+            {% if stats.produtos_baixo_estoque %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Estoque</th>
+                                <th>Mínimo</th>
+                                <th>Situação</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in stats.produtos_baixo_estoque %}
+                            <tr>
+                                <td>{{ p.nome }}</td>
+                                <td>{{ p.estoque }}</td>
+                                <td>{{ p.estoque_minimo }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if p.estoque == 0 %}badge-danger
+                                        {% else %}badge-warning{% endif %}">
+                                        {% if p.estoque == 0 %}Sem Estoque{% else %}Baixo{% endif %}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-title">Estoque OK</div>
+                    <div class="empty-state-description">Todos os produtos estão com estoque adequado</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Vendas recentes -->
+<div class="section-card" style="margin-top: var(--space-4);">
+    <div class="section-header">
+        <h3 class="section-title">Vendas Recentes</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Cliente</th>
+                        <th>Horário</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venda in stats.vendas_recentes %}
+                    <tr>
+                        <td>{{ venda.codigo }}</td>
+                        <td>{{ venda.pessoa.nome }}</td>
+                        <td>{{ venda.data_hora|date:"H:i" }}</td>
+                        <td>R$ {{ venda.total }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if venda.status == 'CONCLUIDA' %}badge-success
+                                {% elif venda.status == 'CANCELADA' %}badge-danger
+                                {% elif venda.status == 'PENDENTE' %}badge-warning
+                                {% else %}badge-info{% endif %}">
+                                {{ venda.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">Nenhuma venda recente</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Relatórios{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Relatórios</h1>
+        <p class="page-subtitle">Relatórios da cantina</p>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="section-card" style="margin-bottom: var(--space-4);">
+    <div class="card-body" style="padding: var(--space-3) var(--space-4);">
+        <div class="relatorios-filters">
+            <select id="filtro-periodo" class="select" onchange="aplicarFiltro()" style="min-width: 180px;">
+                <option value="">Período</option>
+                <option value="dia">Hoje</option>
+                <option value="semana">Esta semana</option>
+                <option value="mes">Este mês</option>
+                <option value="ano">Este ano</option>
+            </select>
+            <select id="filtro-tipo-relatorio" class="select" onchange="aplicarFiltro()" style="min-width: 180px;">
+                <option value="">Tipo</option>
+                <option value="vendas">Vendas</option>
+                <option value="pessoas">Pessoas</option>
+                <option value="produtos">Produtos</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Resultados do relatório -->
+<div class="section-card">
+    <div class="card-header">
+        <h3 class="card-title">Resultados do Relatório</h3>
+    </div>
+    <div class="card-body">
+        <div class="empty-state" id="relatorio-vazio">
+            Selecione filtros para ver o resultado
+        </div>
+        
+        <div id="relatorio-conteudo" style="display: none;">
+            <div class="dashboard-stats" style="margin-bottom: var(--space-4);">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-geral">R$ 0,00</div>
+                    <div class="stat-label">Total Geral</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="quantidade">0</div>
+                    <div class="stat-label">Quantidade</div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3);" id="relatorio-detalhes">
+                <!-- Detalhes serão inseridos pelo JS -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.aplicarFiltro = function() {
+        const periodo = document.getElementById('filtro-periodo').value;
+        const tipo = document.getElementById('filtro-tipo-relatorio').value;
+        
+        // Simular carregamento de dados
+        const vazia = document.getElementById('relatorio-vazio');
+        const conteudo = document.getElementById('relatorio-conteudo');
+        const detalhes = document.getElementById('relatorio-detalhes');
+        
+        // Mostrar/esconder estados
+        if (periodo && tipo) {
+            vazia.style.display = 'none';
+            conteudo.style.display = 'block';
+            
+            // Dados mock baseados no período e tipo
+            let total = 0;
+            let qtd = 0;
+            const itens = [];
+            
+            if (tipo === 'vendas') {
+                itens.push({ label: 'Vendas do dia', value: 150 });
+                itens.push({ label: 'Ticket médio', value: 25.50 });
+                itens.push({ label: 'Qtd de transações', value: 34 });
+                total = 850;
+                qtd = 34;
+            } else if (tipo === 'pessoas') {
+                itens.push({ label: 'Alunos cadastrados', value: 245 });
+                itens.push({ label: 'Professores', value: 28 });
+                itens.push({ label: 'Funcionários', value: 15 });
+                total = 288;
+                qtd = 288;
+            } else if (tipo === 'produtos') {
+                itens.push({ label: 'Total de produtos', value: 18 });
+                itens.push({ label: 'Produtos com estoque baixo', value: 5 });
+                itens.push({ label: 'Produtos mais vendidos', value: 'X-Burger' });
+                total = 18;
+                qtd = 18;
+            }
+            
+            document.getElementById('total-geral').textContent = 'R$ ' + total.toFixed(2);
+            document.getElementById('quantidade').textContent = qtd;
+            
+            detalhes.innerHTML = '';
+            itens.forEach(item => {
+                const div = document.createElement('div');
+                div.innerHTML = `<div><strong>${item.label}:</strong> ${item.value}${item.unidade || ''}</div>`;
+                detalhes.appendChild(div);
+            });
+        } else {
+            vazia.style.display = 'block';
+            conteudo.style.display = 'none';
+        }
+    };
+    
+    // Inicializar ao carregar
+    aplicarFiltro();
+});
+</script>
+{% endblock %}

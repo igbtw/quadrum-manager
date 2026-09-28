@@ -1,0 +1,169 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Produtos{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Produtos</h1>
+        <p class="page-subtitle">Catálogo de produtos da cantina</p>
+    </div>
+    <div class="page-actions">
+        <button class="btn btn-primary" onclick="openModal('modal-produto')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6zM13 19H8v-2h5v2zm-3-5C8.14 6 5 8.14 5 12s3.14 6 6 6 6-3.14 6-6-3.14-6-6-6z"/>
+            </svg>
+            Novo Produto
+        </button>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="card-header">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);">
+            <h3 class="card-title" style="margin: 0;">Produtos Cadastrados</h3>
+            <div class="produtos-filters" style="display: flex; gap: var(--space-2);">
+                <select id="filtro-categoria" class="select" onchange="filtrarProdutos()" style="min-width: 200px;">
+                    <option value="">Todas categorias</option>
+                    {% for c in categorias %}
+                    <option value="{{ c.id }}">{{ c.nome }}</option>
+                    {% endfor %}
+                </select>
+                <select id="filtro-status" class="select" onchange="filtrarProdutos()" style="min-width: 150px;">
+                    <option value="">Todos status</option>
+                    <option value="ativo">Ativos</option>
+                    <option value="inativo">Inativos</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Preço</th>
+                        <th>Estoque</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="produtos-tabela">
+                {% for produto in produtos %}
+                <tr class="product-row">
+                    <td class="product-name">
+                        <strong>{{ produto.nome }}</strong>
+                        {% if not produto.ativo %}
+                            <span class="badge badge-danger" style="font-size: var(--font-size-xs);">Inativo</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ produto.categoria }}</td>
+                    <td>R$ {{ produto.preco }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if produto.situacao == 'NORMAL' %}badge-status-normal
+                            {% elif produto.situacao == 'BAIXO' %}badge-status-baixo
+                            {% elif produto.situacao == 'SEM ESTOQUE' %}badge-status-sem-estoque
+                            {% else %}badge-status-normal{% endif %}">
+                            {{ produto.situacao }}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-icon" style="width: 32px; height: 32px; padding: 0;" title="Mais detalhes">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 4l-2 8h4l2-8H12zM2 4l8 19 8-19H2zm10 16l-5-5 1.41-1.41L19 14.17l-5 5H7z"/>
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">Nenhum produto cadastrado</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de produto -->
+<div class="modal-overlay" id="modal-produto">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Novo Produto</h2>
+            <button class="modal-close" onclick="closeModal('modal-produto')" aria-label="Fechar">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14.5 11.5l-5 5-5-5H7c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1h2v3h2v-3h2c.55 0 1-.45 1-1l-5-5-5 5c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1h12c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1H15z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form>
+                <div class="row">
+                    <div class="col-span-1">
+                        <div class="form-group">
+                            <label for="nome-produto">Nome do Produto</label>
+                            <input type="text" id="nome-produto" class="input" placeholder="Ex: Coca-Cola 350ml">
+                        </div>
+                    </div>
+                    <div class="col-span-1">
+                        <div class="form-group">
+                            <label for="categoria-produto">Categoria</label>
+                            <select id="categoria-produto" class="select">
+                                {% for c in categorias %}
+                                <option value="{{ c.id }}">{{ c.nome }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-span-1">
+                        <div class="form-group">
+                            <label for="preco-produto">Preço</label>
+                            <input type="number" id="preco-produto" class="input" step="0.01" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="col-span-1">
+                        <div class="form-group">
+                            <label for="estoque-produto">Estoque</label>
+                            <input type="number" id="estoque-produto" class="input" min="0" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-span-1">
+                        <div class="form-group">
+                            <label for="estoque-minimo">Estoque Mínimo</label>
+                            <input type="number" id="estoque-minimo" class="input" min="0" placeholder="10">
+                        </div>
+                    </div>
+                    <div class="col-span-1">
+                        <div class="form-group">
+                            <label>Status</label>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2);">
+                                <label style="display: flex; align-items: center; gap: var(--space-2);">
+                                    <input type="radio" name="status" value="ATIVO" checked>
+                                    <span>Ativo</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: var(--space-2);">
+                                    <input type="radio" name="status" value="INATIVO">
+                                    <span>Inativo</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('modal-produto')">Cancelar</button>
+            <button class="btn btn-primary">Salvar Produto</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

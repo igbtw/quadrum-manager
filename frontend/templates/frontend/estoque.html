@@ -1,0 +1,132 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Estoque{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Estoque</h1>
+        <p class="page-subtitle">Controle de estoque da cantina</p>
+    </div>
+</div>
+
+<!-- Resumo -->
+<div class="dashboard-stats" style="margin-bottom: var(--space-6);">
+    <div class="stat-card">
+        <div class="stat-value" id="total-itens">{{ total_itens }}</div>
+        <div class="stat-label">Total Itens</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="valor-total">
+            R$ {{ valor_total }}
+        </div>
+        <div class="stat-label">Valor Total</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="baixo-estoque">{{ baixo_estoque }}</div>
+        <div class="stat-label">Estoque Baixo</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="sem-estoque">{{ sem_estoque }}</div>
+        <div class="stat-label">Sem Estoque</div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="section-card" style="margin-bottom: var(--space-4);">
+    <div class="card-body" style="padding: var(--space-3) var(--space-4);">
+        <div class="estoque-filters">
+            <select id="filtro-situacao" class="select" onchange="filtrarEstoque()" style="min-width: 200px;">
+                <option value="">Todas situações</option>
+                <option value="NORMAL">Normal</option>
+                <option value="BAIXO">Baixo</option>
+                <option value="SEM ESTOQUE">Sem Estoque</option>
+                <option value="INATIVO">Inativo</option>
+            </select>
+            <select id="filtro-categoria-estoque" class="select" onchange="filtrarEstoque()" style="min-width: 200px;">
+                <option value="">Todas categorias</option>
+                {% for c in categorias %}
+                <option value="{{ c.id }}">{{ c.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de produtos com estoque -->
+<div class="section-card">
+    <div class="card-header">
+        <h3 class="card-title">Produtos por Situação</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Categoria</th>
+                        <th>Estoque</th>
+                        <th>Mínimo</th>
+                        <th>Situação</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="produtos-estoque-tabela">
+                    {% for p in produtos %}
+                    <tr class="product-row" data-situacao="{{ p.situacao }}" data-categoria="{{ p.categoria_id }}" data-ativo="{{ p.ativo }}">
+                        <td class="product-name">
+                            <strong>{{ p.nome }}</strong>
+                        </td>
+                        <td>{{ p.categoria }}</td>
+                        <td>{{ p.estoque }}</td>
+                        <td>{{ p.estoque_minimo }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if p.situacao == 'NORMAL' %}badge-status-normal
+                                {% elif p.situacao == 'BAIXO' %}badge-status-baixo
+                                {% elif p.situacao == 'SEM ESTOQUE' %}badge-status-sem-estoque
+                                {% else %}badge-status-normal{% endif %}">
+                                {{ p.situacao }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if p.ativo %}badge-success{% else %}badge-danger{% endif %}">
+                                {% if p.ativo %}Ativo{% else %}Inativo{% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">Nenhum produto encontrado</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Função para filtrar estoque
+    window.filtrarEstoque = function() {
+        const situacao = document.getElementById('filtro-situacao').value;
+        const categoria = document.getElementById('filtro-categoria-estoque').value;
+        
+        document.querySelectorAll('#produtos-estoque-tabela tr').forEach(row => {
+            if (row.classList.contains('empty-state')) return;
+            
+            let show = true;
+            if (situacao && row.dataset.situacao !== situacao) show = false;
+            if (categoria && row.dataset.categoria !== categoria) show = false;
+            
+            row.style.display = show ? '' : 'none';
+        });
+    };
+});
+</script>
+{% endblock %}

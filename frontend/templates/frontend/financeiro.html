@@ -1,0 +1,128 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Financeiro{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Financeiro</h1>
+        <p class="page-subtitle">Contas a receber e pagamentos</p>
+    </div>
+</div>
+
+<!-- Resumo -->
+<div class="financeiro-summary">
+    <div class="stat-card">
+        <div class="stat-value" style="color: var(--color-primary);">R$ {{ total_receber|default:0 }}</div>
+        <div class="stat-label">Total a Receber</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" style="color: var(--color-danger);">R$ {{ total_vencido|default:0 }}</div>
+        <div class="stat-label">Total Vencido</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ contas_pendentes|default:0 }}</div>
+        <div class="stat-label">Contas Pendentes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ contas_vencidas|default:0 }}</div>
+        <div class="stat-label">Contas Vencidas</div>
+    </div>
+</div>
+
+<!-- Contas a receber -->
+<div class="financeiro-cards">
+    <div class="section-card">
+        <div class="card-header">
+            <h3 class="card-title">Contas a Receber</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Pessoa</th>
+                            <th>Valor</th>
+                            <th>Vencimento</th>
+                            <th>Status</th>
+                            <th>Descrição</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contas-tabela">
+                    {% for c in contas %}
+                    <tr style="border-bottom: 1px solid var(--color-border-light);">
+                        <td>{{ c.pessoa.nome }}</td>
+                        <td>R$ {{ c.valor }}</td>
+                        <td>{{ c.vencimento|date:"d/m/Y" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if c.status == 'PENDENTE' %}badge-warning
+                                {% elif c.status == 'VENCIDA' %}badge-danger
+                                {% else %}badge-info{% endif %}">
+                                {{ c.status }}
+                            </span>
+                        </td>
+                        <td>{{ c.descricao }}</td>
+                        <td>
+                            <button class="btn btn-icon" style="width: 32px; height: 32px; padding: 0;" title="Receber">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 5.01l-3.09 6.91L8 10l-3 4 9-11 9 11-3-4L12 5.01zM2 4l6 20 6-20H2zm10 16l-5 5h2l-5-5h-2z"/>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">Nenhuma conta cadastrada</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagamentos recentes -->
+    <div class="section-card">
+        <div class="card-header">
+            <h3 class="card-title">Pagamentos Recentes</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Pessoa</th>
+                            <th>Valor</th>
+                            <th>Data</th>
+                            <th>Forma</th>
+                            <th>Referência</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pagamentos-recentes">
+                    {% for p in pagamentos %}
+                    <tr style="border-bottom: 1px solid var(--color-border-light);">
+                        <td>{{ p.pessoa.nome }}</td>
+                        <td>R$ {{ p.valor }}</td>
+                        <td>{{ p.data|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="badge badge-info" style="font-size: var(--font-size-xs);">
+                                {{ p.forma }}
+                            </span>
+                        </td>
+                        <td>{{ p.referencia }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="empty-state">Nenhum pagamento registrado</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

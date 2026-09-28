@@ -1,0 +1,6 @@
+# Production dependencies for CantinaOS
+# Install with: pip install -r requirements.txt -r requirements-prod.txt
+
+gunicorn>=21.0,<22.0
+psycopg2-binary>=2.9,<3.0
+python-dotenv>=1.0,<2.0

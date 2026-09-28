@@ -1,0 +1,257 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Nova Venda{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Nova Venda</h1>
+        <p class="page-subtitle">Registrar venda na cantina</p>
+    </div>
+</div>
+
+<div class="pdv-layout">
+    <!-- Painel esquerdo: Produtos -->
+    <div class="pdv-products">
+        <div class="card" style="margin-bottom: 0; border-radius: 0;">
+            <div class="card-header">
+                <h3 class="card-title">Buscar Produtos</h3>
+            </div>
+            <div class="card-body" style="padding: var(--space-3);">
+                <div class="search-input-wrapper">
+                    <input type="search" id="buscarProduto" class="search-input" placeholder="Digite o nome do produto..." aria-label="Buscar produto">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.5 14h-.3a1 1 0 0 1-.9-.9V9.5a.5.5 0 0 1 1 0V13h-.5a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 1 0V13h-.2a1 1 0 0 1-.9-.9V9.5a.5.5 0 0 1 1 0v.5a1 1 0 0 1-.7.3H14v2.1h1.7a1 1 0 0 1 .7.3v.5a1 1 0 0 1-.7.3H15z"/>
+                        <path d="m18.5 12-6.5-6.5c-.2-.2-.3-.4-.3-.6V2c0-.3-.1-.5-.3-.6l1.5-1.5c.1-.1.2-.2.3-.2s.2.2.3.2l1.5 1.5c.2.2.2.4 0 .6L18.5 12z"/>
+                        <path d="M2 4.6c0-1.1.9-2 2-2h12v2H2v-2zm0 10c0-1.1.9-2 2-2h6v2h-6v-2zm5.5-8c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5h-5z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="pdv-categories">
+            {% for categoria in categorias %}
+            <button class="category-btn" onclick="filtrarPorCategoria({{ categoria.id }})">
+                {{ categoria.nome }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <div class="pdv-products-list" id="resultados-produtos">
+            {% for produto in produtos %}
+            <div class="product-card {% if not produto.ativo %}inactive{% endif %}" data-categoria="{{ produto.categoria_id }}" data-nome="{{ produto.nome|lower }}" data-id="{{ produto.id }}">
+                <div class="product-card-header">
+                    <span class="product-card-name">{{ produto.nome }}</span>
+                    <span class="product-card-price">R$ {{ produto.preco }}</span>
+                </div>
+                <div class="product-card-stock">Estoque: {{ produto.estoque }} | Mín: {{ produto.estoque_minimo }}</div>
+            </div>
+            {% empty %}
+            <div style="text-align: center; color: var(--color-text-muted); padding: var(--space-4);">
+                Nenhum produto encontrado
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Painel direito: Carrinho -->
+    <div class="pdv-cart">
+        <div class="cart-header">
+            <h3 class="cart-title">Carrinho</h3>
+        </div>
+        <div class="cart-items" id="carrinho-itens">
+            <div id="carrinho-itens-vazio" class="empty-state" style="padding: var(--space-6);">
+                Carrinho vazio
+            </div>
+            <table id="carrinho-tabela" class="table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Qtd</th>
+                        <th>Subtotal</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="carrinho-tabela-body">
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="text-align: right; font-weight: var(--font-weight-semibold);">Subtotal</td>
+                        <td id="carrinho-subtotal" style="font-weight: var(--font-weight-bold); color: var(--color-primary);">R$ 0,00</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-summary">
+                <span>Total</span>
+                <span class="cart-total" id="carrinho-total">R$ 0,00</span>
+            </div>
+            <div class="cart-payment">
+                {% for fp in formas_pagamento %}
+                <label class="payment-option">
+                    <input type="radio" name="forma_pagamento" value="{{ fp.id }}">
+                    <span class="payment-option-label">{{ fp.nome }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <div class="cart-actions">
+                <button class="btn btn-secondary" onclick="limparCarrinho()">Limpar</button>
+                <button class="btn btn-primary" onclick="finalizarVenda()">Finalizar Venda</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let carrinho = [];
+
+    const searchInput = document.getElementById('buscarProduto');
+    let searchTerm = '';
+
+    searchInput.addEventListener('input', function(e) {
+        searchTerm = e.target.value.toLowerCase();
+        filtrarProdutos();
+    });
+
+    window.filtrarPorCategoria = function(categoriaId) {
+        // Atualizar botões ativos
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        // Filtrar produtos
+        document.querySelectorAll('.product-card').forEach(card => {
+            const cat = card.dataset.categoria;
+            if (!categoriaId || cat == categoriaId) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    };
+
+    window.filtrarProdutos = function() {
+        document.querySelectorAll('.product-card').forEach(card => {
+            const nome = card.dataset.nome;
+            const catMatch = card.style.display !== 'none';
+            if (nome.includes(searchTerm) && catMatch) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    };
+
+    // Adicionar ao carrinho
+    window.adicionarAoCarrinho = function(produtoId, nome, preco) {
+        const existente = carrinho.find(i => i.id == produtoId);
+        if (existente) {
+            existente.qtd += 1;
+        } else {
+            carrinho.push({
+                id: produtoId,
+                nome: nome,
+                preco: parseFloat(preco),
+                qtd: 1
+            });
+        }
+        renderizarCarrinho();
+    };
+
+    window.removerItemCarrinho = function(idx) {
+        carrinho.splice(idx, 1);
+        renderizarCarrinho();
+    };
+
+    window.incrementarQtd = function(idx) {
+        carrinho[idx].qtd += 1;
+        renderizarCarrinho();
+    };
+
+    window.decrementarQtd = function(idx) {
+        if (carrinho[idx].qtd <= 1) {
+            removerItemCarrinho(idx);
+        } else {
+            carrinho[idx].qtd -= 1;
+            renderizarCarrinho();
+        }
+    };
+
+    function renderizarCarrinho() {
+        const tabelaBody = document.getElementById('carrinho-tabela-body');
+        const carrinhoVazio = document.getElementById('carrinho-itens-vazio');
+        const tabela = document.getElementById('carrinho-tabela');
+
+        if (carrinho.length === 0) {
+            tabela.style.display = 'none';
+            carrinhoVazio.style.display = 'block';
+        } else {
+            tabela.style.display = 'table';
+            carrinhoVazio.style.display = 'none';
+            let subtotal = 0;
+            tabelaBody.innerHTML = '';
+
+            carrinho.forEach((item, idx) => {
+                const subtotalItem = item.preco * item.qtd;
+                subtotal += subtotalItem;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.nome}</td>
+                    <td style="display: flex; align-items: center; gap: var(--space-2);">
+                        <button onclick="decrementarQtd(${idx})" class="btn btn-icon" style="width: 28px; height: 28px; padding: 0;">−</button>
+                        <span style="min-width: 24px; text-align: center;">${item.qtd}</span>
+                        <button onclick="incrementarQtd(${idx})" class="btn btn-icon" style="width: 28px; height: 28px; padding: 0;">+</button>
+                    </td>
+                    <td>R$ ${subtotalItem.toFixed(2)}</td>
+                    <td><button class="btn btn-icon btn-danger" onclick="removerItemCarrinho(${idx})" style="width: 28px; height: 28px; padding: 0;">×</button></td>
+                `;
+                tabelaBody.appendChild(tr);
+            });
+
+            document.getElementById('carrinho-subtotal').textContent = 'R$ ' + subtotal.toFixed(2);
+            document.getElementById('carrinho-total').textContent = 'R$ ' + subtotal.toFixed(2);
+        }
+    }
+
+    // Delegação de eventos para adicionar ao carrinho
+    document.getElementById('resultados-produtos').addEventListener('click', function(e) {
+        const card = e.target.closest('.product-card');
+        if (card && !card.classList.contains('inactive')) {
+            const id = parseInt(card.dataset.id);
+            const nome = card.querySelector('.product-card-name').textContent;
+            const preco = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
+            adicionarAoCarrinho(id, nome, preco);
+        }
+    });
+
+    window.limparCarrinho = function() {
+        carrinho = [];
+        renderizarCarrinho();
+    };
+
+    window.finalizarVenda = function() {
+        if (carrinho.length === 0) {
+            alert('Carrinho vazio!');
+            return;
+        }
+        
+        const formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked');
+        if (!formaPagamento) {
+            alert('Selecione uma forma de pagamento!');
+            return;
+        }
+
+        // Simular finalização
+        alert('Venda finalizada com sucesso! (Simulação)');
+        limparCarrinho();
+    };
+});
+</script>
+{% endblock %}

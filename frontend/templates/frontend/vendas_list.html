@@ -1,0 +1,69 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Vendas{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Vendas</h1>
+        <p class="page-subtitle">Histórico de vendas realizadas</p>
+    </div>
+    <div class="page-actions">
+        <a href="{% url 'frontend:pdv' %}" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <path d="M14 2h4v2h-4V2zm0 6h4v4h-4V6zm0 6h4v4h-4V12z"/>
+            </svg>
+            Nova Venda
+        </a>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Data/Hora</th>
+                        <th>Cliente</th>
+                        <th>Tipo</th>
+                        <th>Itens</th>
+                        <th>Total</th>
+                        <th>Pagamento</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for venda in vendas %}
+                    <tr>
+                        <td>{{ venda.codigo }}</td>
+                        <td>{{ venda.data_hora|date:"d/m/Y H:i" }}</td>
+                        <td>{{ venda.pessoa.nome }}</td>
+                        <td><span class="badge badge-info">{{ venda.pessoa.tipo }}</span></td>
+                        <td>{{ venda.itens|length }} item{{ venda.itens|length|pluralize:"s" }}</td>
+                        <td>R$ {{ venda.total }}</td>
+                        <td>{{ venda.forma_pagamento }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if venda.status == 'CONCLUIDA' %}badge-success
+                                {% elif venda.status == 'CANCELADA' %}badge-danger
+                                {% elif venda.status == 'PENDENTE' %}badge-warning
+                                {% else %}badge-info{% endif %}">
+                                {{ venda.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="empty-state">Nenhuma venda registrada</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

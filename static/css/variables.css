@@ -1,0 +1,132 @@
+/* ========================================
+   VARIABLES.CSS - Design tokens
+   ======================================== */
+
+:root {
+    /* ===== Cores ===== */
+    /* Primária - azul profissional */
+    --color-primary: #1e3a5f;
+    --color-primary-hover: #162d4a;
+    --color-primary-light: #e8eef5;
+    --color-primary-text: #ffffff;
+
+    /* Neutros */
+    --color-bg: #f8f9fa;
+    --color-bg-elevated: #ffffff;
+    --color-bg-hover: #f0f2f5;
+    --color-border: #dee2e6;
+    --color-border-light: #e9ecef;
+    --color-text: #212529;
+    --color-text-muted: #6c757d;
+    --color-text-light: #adb5bd;
+
+    /* Estados */
+    --color-success: #1a7f37;
+    --color-success-bg: #e8f5e9;
+    --color-success-border: #a5d6a7;
+
+    --color-warning: #b8860b;
+    --color-warning-bg: #fff8e1;
+    --color-warning-border: #ffe082;
+
+    --color-danger: #c62828;
+    --color-danger-bg: #fdecea;
+    --color-danger-border: #ef9a9a;
+
+    --color-info: #0d6efd;
+    --color-info-bg: #e7f1ff;
+    --color-info-border: #b6d4fe;
+
+    /* Sombra */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+
+    /* ===== Espaçamento ===== */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* ===== Tipografia ===== */
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-family-mono: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+
+    --font-size-xs: 0.75rem;    /* 11px */
+    --font-size-sm: 0.8125rem;  /* 13px */
+    --font-size-base: 0.875rem; /* 14px */
+    --font-size-lg: 0.9375rem;  /* 15px */
+    --font-size-xl: 1rem;       /* 16px */
+    --font-size-2xl: 1.125rem;  /* 18px */
+    --font-size-3xl: 1.25rem;   /* 20px */
+    --font-size-4xl: 1.5rem;    /* 24px */
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    --line-height-tight: 1.25;
+    --line-height-base: 1.5;
+    --line-height-relaxed: 1.625;
+
+    /* ===== Bordas ===== */
+    --radius-sm: 3px;
+    --radius-md: 5px;
+    --radius-lg: 8px;
+    --radius-full: 9999px;
+
+    --border-width: 1px;
+    --border-color: var(--color-border);
+
+    /* ===== Componentes ===== */
+    --btn-height-sm: 28px;
+    --btn-height-md: 36px;
+    --btn-height-lg: 44px;
+    --btn-padding-x-sm: 10px;
+    --btn-padding-x-md: 16px;
+    --btn-padding-x-lg: 24px;
+
+    --input-height-sm: 28px;
+    --input-height-md: 36px;
+    --input-height-lg: 44px;
+    --input-padding-x: 12px;
+
+    --sidebar-width: 240px;
+    --sidebar-collapsed-width: 56px;
+    --header-height: 56px;
+
+    /* ===== Transições ===== */
+    --transition-fast: 100ms ease;
+    --transition-base: 150ms ease;
+    --transition-slow: 250ms ease;
+
+    /* ===== Z-index ===== */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-toast: 600;
+    --z-tooltip: 700;
+}
+
+/* Dark mode (opcional - não usado por enquanto) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-bg: #1a1d21;
+        --color-bg-elevated: #212529;
+        --color-bg-hover: #2d3238;
+        --color-border: #3d4248;
+        --color-border-light: #343a40;
+        --color-text: #f8f9fa;
+        --color-text-muted: #adb5bd;
+        --color-text-light: #6c757d;
+        --color-primary-light: #1e3a5f;
+    }
+}

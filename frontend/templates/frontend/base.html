@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Cantina Escolar{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+</head>
+<body>
+    <div class="layout">
+        {% include "frontend/sidebar.html" %}
+
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <button class="mobile-menu-btn" aria-label="Abrir menu" onclick="toggleSidebar()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 18h18v2H3v-2zm0-8h18v2H3v-2zm0-8h18v2H3V5zm0-4h18v2H3v-2z"/>
+                    </svg>
+                </button>
+
+                <form class="search-form" role="search">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15.5 14h-.3a1 1 0 0 1-.9-.9V9.5a.5.5 0 0 1 1 0V13h-.5a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 1 0V13h-.2a1 1 0 0 1-.9-.9V9.5a.5.5 0 0 1 1 0v.5a1 1 0 0 1-.7.3H14v2.1h1.7a1 1 0 0 1 .7.3v.5a1 1 0 0 1-.7.3H15z"/>
+                            <path d="m18.5 12-6.5-6.5c-.2-.2-.3-.4-.3-.6V2c0-.3-.1-.5-.3-.6l1.5-1.5c.1-.1.2-.2.3-.2s.2.2.3.2l1.5 1.5c.2.2.2.4 0 .6L18.5 12z"/>
+                            <path d="M2 4.6c0-1.1.9-2 2-2h12v2H2v-2zm0 10c0-1.1.9-2 2-2h6v2h-6v-2zm5.5-8c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5h-5z"/>
+                        </svg>
+                        <input class="search-input" type="search" placeholder="Buscar produtos, pessoas..." aria-label="Buscar">
+                    </div>
+                </form>
+            </div>
+
+            <div class="header-right">
+                <button class="header-action" aria-label="Notificações" onclick="showNotification()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="18" cy="5" r="3"/>
+                        <circle cx="5" cy="18" r="3"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                </button>
+                <button class="header-action" aria-label="Mensagens">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22 7l-5-5-5 5H7c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1h2v3h2v-3h2c.55 0 1-.45 1-1l-5-5-5 5V7c0-.55.45-1 1-1h9c.55 0 1 .45 1 1v2z"/>
+                    </svg>
+                </button>
+                <div class="user-info">
+                    <div class="user-avatar">U</div>
+                    <div class="user-details">
+                        <div class="user-name">Usuário</div>
+                        <div class="user-role">Padrão</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="main">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

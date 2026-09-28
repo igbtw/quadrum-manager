@@ -1,0 +1,147 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Pessoas{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Pessoas</h1>
+        <p class="page-subtitle">Cadastro e consulta de pessoas</p>
+    </div>
+</div>
+
+<div class="section-card" style="margin-bottom: var(--space-4);">
+    <div class="card-header">
+        <h3 class="card-title">Novo Cadastro</h3>
+    </div>
+    <div class="card-body">
+        <form id="form-pessoa" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4);">
+            <div class="form-group">
+                <label>Nome</label>
+                <input type="text" class="input" placeholder="Nome completo" required>
+            </div>
+            <div class="form-group">
+                <label>Tipo</label>
+                <select class="select" required>
+                    <option value="ALUNO">ALUNO</option>
+                    <option value="PROFESSOR">PROFESSOR</option>
+                    <option value="FUNCIONÁRIO">FUNCIONÁRIO</option>
+                    <option value="VISITANTE">VISITANTE</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Matrícula</label>
+                <input type="text" class="input" placeholder="Matrícula" required>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2);">
+                    <label style="display: flex; align-items: center; gap: var(--space-2);">
+                        <input type="radio" name="status" value="ATIVO" checked>
+                        <span>Ativo</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: var(--space-2);">
+                        <input type="radio" name="status" value="INATIVO">
+                        <span>Inativo</span>
+                    </label>
+                </div>
+            </div>
+            <div style="grid-column: 1 / -1; display: flex; gap: var(--space-2);">
+                <button type="submit" class="btn btn-primary">Salvar</button>
+                <button type="reset" class="btn btn-secondary">Limpar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="card-header">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);">
+            <h3 class="card-title" style="margin: 0;">Lista de Pessoas</h3>
+            <div class="pessoas-filters" style="display: flex; gap: var(--space-2);">
+                <select id="filtro-tipo" class="select" onchange="filtrarPessoas()" style="min-width: 180px;">
+                    <option value="">Todos tipos</option>
+                    <option value="ALUNO">ALUNO</option>
+                    <option value="PROFESSOR">PROFESSOR</option>
+                    <option value="FUNCIONÁRIO">FUNCIONÁRIO</option>
+                    <option value="VISITANTE">VISITANTE</option>
+                </select>
+                <select id="filtro-status-pessoa" class="select" onchange="filtrarPessoas()" style="min-width: 150px;">
+                    <option value="">Todos status</option>
+                    <option value="ATIVO">Ativo</option>
+                    <option value="INATIVO">Inativo</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Matrícula</th>
+                        <th>Saldo</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="pessoas-tabela">
+                {% for p in pessoas %}
+                <tr data-tipo="{{ p.tipo }}" data-status="{{ p.status }}">
+                    <td>{{ p.nome }}</td>
+                    <td>
+                        <span class="badge badge-primary" style="font-size: var(--font-size-xs);">
+                            {{ p.tipo }}
+                        </span>
+                    </td>
+                    <td>{{ p.matricula }}</td>
+                    <td>
+                        <span style="font-weight: var(--font-weight-medium); 
+                            {% if p.saldo < 0 %}color: var(--color-danger);
+                            {% elif p.saldo > 0 %}color: var(--color-success);
+                            {% else %}color: var(--color-text-muted);{% endif %}">
+                            R$ {{ p.saldo }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge 
+                            {% if p.status == 'ATIVO' %}badge-success{% else %}badge-danger{% endif %}"
+                            style="font-size: var(--font-size-xs);">
+                            {{ p.status }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-state">Nenhuma pessoa cadastrada</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.filtrarPessoas = function() {
+        const tipo = document.getElementById('filtro-tipo').value;
+        const status = document.getElementById('filtro-status-pessoa').value;
+        
+        document.querySelectorAll('#pessoas-tabela tr').forEach(row => {
+            if (row.classList.contains('empty-state')) return;
+            
+            let show = true;
+            if (tipo && row.dataset.tipo !== tipo) show = false;
+            if (status && row.dataset.status !== status) show = false;
+            
+            row.style.display = show ? '' : 'none';
+        });
+    };
+});
+</script>
+{% endblock %}
