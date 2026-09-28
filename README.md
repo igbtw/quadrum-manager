@@ -14,16 +14,16 @@ Sistema de gerenciamento de cantina escolar desenvolvido em Django.
 
 ```bash
 # Linux/macOS
-python -m venv venv
-source venv/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 
 # Windows (PowerShell)
-python -m venv venv
-venv\Scripts\Activate.ps1
+python -m venv .venv
+.venv\Scripts\Activate.ps1
 
 # Windows (cmd)
-python -m venv venv
-venv\Scripts\activate.bat
+python -m venv .venv
+.venv\Scripts\activate.bat
 ```
 
 ### 2. Instalar dependências
@@ -69,6 +69,11 @@ cantinaos/
 │   ├── views.py            # Views (lógica de apresentação)
 │   ├── mock_data.py        # Dados mockados para desenvolvimento
 │   ├── urls.py             # URLs do frontend
+│   ├── models.py           # Modelos (placeholder)
+│   ├── admin.py            # Admin (placeholder)
+│   ├── apps.py             # Configuração do app
+│   ├── tests.py            # Testes
+│   ├── migrations/         # Migrações
 │   └── templates/          # Templates Django
 ├── static/                 # Arquivos estáticos
 │   ├── css/
@@ -134,43 +139,15 @@ export DATABASE_URL="postgres://user:pass@host:5432/dbname"
 gunicorn config.wsgi:application --bind 0.0.0.0:8000
 ```
 
-Ou use o ASGI com uvicorn/daphne:
-```bash
-uvicorn config.asgi:application --host 0.0.0.0 --port 8000
-```
+## Arquivos que NÃO devem ser commitados
 
-## Arquivos Estáticos em Produção
-
-```bash
-# Coleta arquivos estáticos
-python manage.py collectstatic --noinput
-
-# Sirva via nginx/Apache ou CDN
-# Configure STATIC_ROOT no servidor web
-```
-
-## Banco de Dados
-
-### Desenvolvimento (SQLite)
-Padrão, não requer configuração adicional.
-
-### Produção (PostgreSQL)
-Recomendado para produção. Configure via `DATABASE_URL` ou variáveis `DB_*`.
-
-```bash
-# Exemplo DATABASE_URL
-postgres://usuario:senha@host:5432/nome_do_banco
-```
-
-## Preparação para AWS
-
-O projeto está preparado para deploy em AWS:
-
-1. **Elastic Beanstalk / EC2 / ECS**: Use `gunicorn` (WSGI) ou `uvicorn` (ASGI)
-2. **RDS PostgreSQL**: Configure via `DATABASE_URL`
-3. **S3 + CloudFront**: Para arquivos estáticos/media (configure `STATICFILES_STORAGE` customizado)
-4. **ALB/NLB**: Terminação SSL no load balancer
-5. **Secrets Manager / Parameter Store**: Para `DJANGO_SECRET_KEY`, credenciais de banco, etc.
+- `.env` - Contém credenciais e configurações sensíveis
+- `.venv/` - Ambiente virtual Python
+- `__pycache__/` - Arquivos compilados Python
+- `db.sqlite3` - Banco de dados local
+- `*.pyc` - Arquivos compilados Python
+- `media/` - Arquivos enviados pelo usuário
+- `staticfiles/` - Arquivos estáticos coletados
 
 ## Comandos Úteis
 
@@ -199,7 +176,7 @@ python manage.py test
 - **Banco Dev**: SQLite
 - **Banco Prod**: PostgreSQL
 - **Servidor Dev**: `runserver`
-- **Servidor Prod**: Gunicorn (WSGI) / Uvicorn (ASGI)
+- **Servidor Prod**: Gunicorn (WSGI)
 
 ## Licença
 
