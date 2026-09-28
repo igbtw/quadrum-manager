@@ -10,7 +10,7 @@
     padding: var(--btn-padding-x-md) var(--btn-padding-x-lg);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
-    border: none;
+    border: var(--border-width) solid transparent;
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
@@ -18,11 +18,11 @@
 }
 
 .btn:focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
 }
 
-.btn:hover:not(:focus-visible):not(:disabled) {
+.btn:hover:not(:disabled) {
     background: var(--color-bg-hover);
 }
 
@@ -38,16 +38,18 @@
 .btn-primary {
     background: var(--color-primary);
     color: var(--color-primary-text);
+    border-color: var(--color-primary);
 }
 
 .btn-primary:hover:not(:disabled) {
     background: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
 }
 
 .btn-secondary {
     background: var(--color-bg);
     color: var(--color-text);
-    border: var(--border-width) solid var(--color-border);
+    border-color: var(--color-border);
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -57,11 +59,11 @@
 .btn-danger {
     background: var(--color-danger-bg);
     color: var(--color-danger);
-    border: var(--border-width) solid var(--color-danger-border);
+    border-color: var(--color-danger-border);
 }
 
 .btn-danger:hover:not(:disabled) {
-    background: #ef9a9a;
+    background: #fee2e2;
 }
 
 .btn-small {
@@ -93,11 +95,11 @@
 .input:focus {
     border-color: var(--color-primary);
     background: var(--color-bg-elevated);
-    box-shadow: 0 0 0 3px var(--color-primary-light);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .input:focus:invalid {
-    box-shadow: 0 0 0 3px var(--color-danger-light);
+    box-shadow: 0 0 0 3px var(--color-danger-bg);
 }
 
 .input-small {
@@ -548,4 +550,30 @@
 .badge-status-atual {
     background: var(--color-success-bg);
     color: var(--color-success);
+}
+
+/* ===== Theme Toggle ===== */
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.theme-toggle button {
+    width: 40px;
+    height: 40px;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg);
+    color: var(--color-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+}
+
+.theme-toggle button:hover {
+    background: var(--color-bg-hover);
+    border-color: var(--color-primary);
 }

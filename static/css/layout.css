@@ -30,7 +30,6 @@
     overflow-y: auto;
 }
 
-/* Ensure sidebar is above header on desktop */
 @media (min-width: 1025px) {
     .sidebar {
         z-index: calc(var(--z-sticky) + 1);
@@ -230,7 +229,7 @@
 .search-input:focus {
     border-color: var(--color-primary);
     background: var(--color-bg-elevated);
-    box-shadow: 0 0 0 3px var(--color-primary-light);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .search-input::placeholder {

@@ -2,12 +2,34 @@
 // MAIN.JS - JavaScript vanilla para o frontend
 // ========================================
 
+/* ===== Theme Management ===== */
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    } else {
+        document.documentElement.setAttribute('data-theme', systemPrefersDark ? 'dark' : 'light');
+    }
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+}
+
 /* ===== Inicialização ===== */
 document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tema
+    initTheme();
+    
     // Inicializar tooltips e modais
     initModals();
     
-    // Inicializar carrinhos e carrinhos
+    // Inicializar carrinhos
     initCarrinhos();
     
     // Inicializar filtros
@@ -46,11 +68,14 @@ function initModals() {
     };
 
     // Fechar ao clicar no overlay
-    document.getElementById('sidebarOverlay').addEventListener('click', function() {
-        const sidebar = document.getElementById('sidebar');
-        if (sidebar) sidebar.classList.remove('open');
-        this.classList.remove('visible');
-    });
+    const overlay = document.getElementById('sidebarOverlay');
+    if (overlay) {
+        overlay.addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) sidebar.classList.remove('open');
+            this.classList.remove('visible');
+        });
+    }
 
     // Fechar com ESC
     document.addEventListener('keydown', function(e) {
@@ -220,5 +245,6 @@ function debounce(func, wait) {
 window.Cantina = {
     formatarMoeda,
     showNotification: window.showNotification,
-    toggleSidebar: window.toggleSidebar
+    toggleSidebar: window.toggleSidebar,
+    toggleTheme: toggleTheme
 };

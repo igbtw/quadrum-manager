@@ -15,6 +15,7 @@ html {
     font-size: 14px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
 }
 
 body {
@@ -24,6 +25,8 @@ body {
     color: var(--color-text);
     background-color: var(--color-bg);
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 img, picture, video, canvas, svg {
@@ -50,14 +53,12 @@ table {
     border-spacing: 0;
 }
 
-:focus-visible {
-    outline: 2px solid var(--color-primary);
-    outline-offset: 2px;
-}
-
-:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 0;
+    font: inherit;
 }
 
 /* Scrollbar sutil */
@@ -72,9 +73,20 @@ table {
 
 ::-webkit-scrollbar-thumb {
     background: var(--color-border);
-    border-radius: 4px;
+    border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--color-text-muted);
+}
+
+/* Focus visible */
+:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
 }
