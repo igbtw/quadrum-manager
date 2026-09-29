@@ -270,6 +270,14 @@
     -webkit-overflow-scrolling: touch;
 }
 
+/* Numeric column alignment */
+.table td.numeric,
+.table th.numeric {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-family-mono);
+}
+
 /* ===== Card ===== */
 .card {
     background: var(--color-bg-elevated);

@@ -98,8 +98,8 @@
                             {% for p in stats.produtos_baixo_estoque %}
                             <tr>
                                 <td>{{ p.nome }}</td>
-                                <td>{{ p.estoque }}</td>
-                                <td>{{ p.estoque_minimo }}</td>
+                                <td class="numeric">{{ p.estoque }}</td>
+                                <td class="numeric">{{ p.estoque_minimo }}</td>
                                 <td>
                                     <span class="badge 
                                         {% if p.estoque == 0 %}badge-danger
@@ -135,7 +135,7 @@
                         <th>Código</th>
                         <th>Cliente</th>
                         <th>Horário</th>
-                        <th>Total</th>
+                        <th class="numeric">Total</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -145,7 +145,7 @@
                         <td>{{ venda.codigo }}</td>
                         <td>{{ venda.pessoa.nome }}</td>
                         <td>{{ venda.data_hora|date:"H:i" }}</td>
-                        <td style="font-weight: var(--font-weight-semibold); color: var(--color-primary);">R$ {{ venda.total }}</td>
+                        <td class="numeric" style="font-weight: var(--font-weight-semibold); color: var(--color-primary);">R$ {{ venda.total }}</td>
                         <td>
                             <span class="badge 
                                 {% if venda.status == 'CONCLUIDA' %}badge-success

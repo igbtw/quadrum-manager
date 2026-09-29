@@ -43,7 +43,7 @@
                     <thead>
                         <tr>
                             <th>Pessoa</th>
-                            <th>Valor</th>
+                            <th class="numeric">Valor</th>
                             <th>Vencimento</th>
                             <th>Status</th>
                             <th>Descrição</th>
@@ -54,7 +54,7 @@
                     {% for c in contas %}
                     <tr style="border-bottom: 1px solid var(--color-border-light);">
                         <td>{{ c.pessoa.nome }}</td>
-                        <td>R$ {{ c.valor }}</td>
+                        <td class="numeric">R$ {{ c.valor }}</td>
                         <td>{{ c.vencimento|date:"d/m/Y" }}</td>
                         <td>
                             <span class="badge 
@@ -95,7 +95,7 @@
                     <thead>
                         <tr>
                             <th>Pessoa</th>
-                            <th>Valor</th>
+                            <th class="numeric">Valor</th>
                             <th>Data</th>
                             <th>Forma</th>
                             <th>Referência</th>
@@ -105,7 +105,7 @@
                     {% for p in pagamentos %}
                     <tr style="border-bottom: 1px solid var(--color-border-light);">
                         <td>{{ p.pessoa.nome }}</td>
-                        <td>R$ {{ p.valor }}</td>
+                        <td class="numeric">R$ {{ p.valor }}</td>
                         <td>{{ p.data|date:"d/m/Y H:i" }}</td>
                         <td>
                             <span class="badge badge-info" style="font-size: var(--font-size-xs);">
@@ -125,4 +125,6 @@
         </div>
     </div>
 </div>
-{% endblock %}
+{% endblock %}````
+
+frontend/templates/frontend/produtos.html

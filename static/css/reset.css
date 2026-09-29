@@ -2,7 +2,6 @@
    RESET.CSS - Normalização básica
    ======================================== */
 
-/* ===== Box Sizing & Reset ===== */
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -62,7 +61,7 @@ button {
     font: inherit;
 }
 
-/* ===== Scrollbar ===== */
+/* Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -81,7 +80,7 @@ button {
     background: var(--color-text-muted);
 }
 
-/* ===== Focus Visible ===== */
+/* Focus visible */
 :focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
@@ -92,7 +91,7 @@ button {
     opacity: 0.5;
 }
 
-/* ===== Selection ===== */
+/* Selection */
 ::selection {
     background: var(--color-primary-light);
     color: var(--color-primary);

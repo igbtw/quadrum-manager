@@ -66,8 +66,8 @@
                     <tr>
                         <th>Produto</th>
                         <th>Categoria</th>
-                        <th>Estoque</th>
-                        <th>Mínimo</th>
+                        <th class="numeric">Estoque</th>
+                        <th class="numeric">Mínimo</th>
                         <th>Situação</th>
                         <th>Status</th>
                     </tr>
@@ -79,8 +79,8 @@
                             <strong>{{ p.nome }}</strong>
                         </td>
                         <td>{{ p.categoria }}</td>
-                        <td>{{ p.estoque }}</td>
-                        <td>{{ p.estoque_minimo }}</td>
+                        <td class="numeric">{{ p.estoque }}</td>
+                        <td class="numeric">{{ p.estoque_minimo }}</td>
                         <td>
                             <span class="badge 
                                 {% if p.situacao == 'NORMAL' %}badge-status-normal
@@ -129,4 +129,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 });
 </script>
-{% endblock %}
+{% endblock %}````
+
+frontend/templates/frontend/pessoas.html
