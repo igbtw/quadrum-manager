@@ -2,51 +2,11 @@
    PAGES.CSS - Estilos específicos por página
    ======================================== */
 
-.stat-card {
-    background: var(--color-bg-elevated);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--space-4);
-}
-
-.stat-card .stat-value {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-primary);
-}
-
-.stat-card .stat-label {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-}
-
-/* Section card variant */
-.section-card {
-    background: var(--color-bg-elevated);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-md);
-    overflow: hidden;
-}
-
-.section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-3) var(--space-4);
-    border-bottom: var(--border-width) solid var(--color-border);
-}
-
-.section-title {
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-text);
-}
-
 /* ===== PDV ===== */
 .pdv-layout {
     display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: var(--space-4);
+    grid-template-columns: 1fr 360px;
+    gap: var(--space-3);
 }
 
 .pdv-products {
@@ -54,83 +14,40 @@
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-md);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.pdv-products-header {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.pdv-products-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+
+.pdv-search {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: var(--border-width) solid var(--color-border);
 }
 
 .pdv-categories {
     display: flex;
     gap: var(--space-2);
-    padding: var(--space-3) var(--space-4);
+    padding: var(--space-2) var(--space-4);
     border-bottom: var(--border-width) solid var(--color-border);
     overflow-x: auto;
-}
-
-.category-btn {
-    padding: var(--space-1) var(--space-3);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-full);
-    background: var(--color-bg);
-    color: var(--color-text);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all var(--transition-fast);
-}
-
-.category-btn:hover,
-.category-btn.active {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
-    color: var(--color-primary-text);
+    -webkit-overflow-scrolling: touch;
 }
 
 .pdv-products-list {
+    flex: 1;
     padding: var(--space-3);
-    max-height: calc(100vh - 250px);
     overflow-y: auto;
-}
-
-.product-card {
-    background: var(--color-bg);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--space-3);
-    margin-bottom: var(--space-2);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.product-card:hover {
-    border-color: var(--color-primary);
-    box-shadow: var(--shadow-sm);
-}
-
-.product-card.inactive {
-    opacity: 0.5;
-}
-
-.product-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2);
-}
-
-.product-card-name {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text);
-}
-
-.product-card-price {
-    font-size: var(--font-size-md);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-primary);
-}
-
-.product-card-stock {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
+    min-height: 0;
 }
 
 .pdv-cart {
@@ -141,7 +58,8 @@
     flex-direction: column;
     height: fit-content;
     position: sticky;
-    top: var(--space-4);
+    top: calc(var(--header-height) + var(--space-4));
+    max-height: calc(100vh - var(--header-height) - var(--space-4) * 2);
 }
 
 .cart-header {
@@ -150,7 +68,7 @@
 }
 
 .cart-title {
-    font-size: var(--font-size-md);
+    font-size: var(--font-size-lg);
     font-weight: var(--font-weight-semibold);
     color: var(--color-text);
 }
@@ -159,91 +77,8 @@
     flex: 1;
     padding: var(--space-3);
     overflow-y: auto;
+    min-height: 0;
     max-height: 300px;
-}
-
-.cart-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-2) 0;
-    border-bottom: var(--border-width) solid var(--color-border);
-}
-
-.cart-item:last-child {
-    border-bottom: none;
-}
-
-.cart-item-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.cart-item-name {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.cart-item-price {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
-}
-
-.cart-item-controls {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.cart-qty-btn {
-    width: 28px;
-    height: 28px;
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-bg);
-    color: var(--color-text);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: var(--font-size-sm);
-}
-
-.cart-qty-btn:hover {
-    background: var(--color-bg-hover);
-}
-
-.cart-item-qty {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    min-width: 24px;
-    text-align: center;
-}
-
-.cart-item-total {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-primary);
-    min-width: 60px;
-    text-align: right;
-}
-
-.cart-item-remove {
-    padding: var(--space-1);
-    background: transparent;
-    border: none;
-    color: var(--color-text-muted);
-    cursor: pointer;
-    border-radius: var(--radius-sm);
-}
-
-.cart-item-remove:hover {
-    background: var(--color-danger-bg);
-    color: var(--color-danger);
 }
 
 .cart-footer {
@@ -254,11 +89,17 @@
 .cart-summary {
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
     margin-bottom: var(--space-3);
 }
 
+.cart-total-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
 .cart-total {
-    font-size: var(--font-size-lg);
+    font-size: var(--font-size-2xl);
     font-weight: var(--font-weight-bold);
     color: var(--color-primary);
 }
@@ -267,42 +108,12 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-}
-
-.payment-option {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-2) var(--space-3);
-    border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.payment-option:hover {
-    border-color: var(--color-primary);
-}
-
-.payment-option.selected {
-    border-color: var(--color-primary);
-    background: var(--color-primary-light);
-}
-
-.payment-option input {
-    accent-color: var(--color-primary);
-}
-
-.payment-option-label {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text);
+    margin-bottom: var(--space-3);
 }
 
 .cart-actions {
     display: flex;
     gap: var(--space-2);
-    margin-top: var(--space-3);
 }
 
 .cart-actions .btn {
@@ -372,15 +183,33 @@
 /* ===== Financeiro ===== */
 .financeiro-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+}
+
+@media (max-width: 1024px) {
+    .financeiro-summary {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .financeiro-summary {
+        grid-template-columns: 1fr;
+    }
 }
 
 .financeiro-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: var(--space-4);
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+}
+
+@media (max-width: 1024px) {
+    .financeiro-cards {
+        grid-template-columns: 1fr;
+    }
 }
 
 .financeiro-table-container {
@@ -406,6 +235,12 @@
     margin-bottom: var(--space-4);
 }
 
+@media (max-width: 1024px) {
+    .relatorios-charts {
+        grid-template-columns: 1fr;
+    }
+}
+
 .chart-container {
     background: var(--color-bg-elevated);
     border: var(--border-width) solid var(--color-border);
@@ -426,9 +261,9 @@
     background: var(--color-bg-elevated);
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-md);
-    padding: var(--space-8);
+    padding: var(--space-6);
     width: 100%;
-    max-width: 400px;
+    max-width: 380px;
 }
 
 .login-logo {
@@ -437,8 +272,8 @@
 }
 
 .login-logo-icon {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     background: var(--color-primary);
     border-radius: var(--radius-lg);
     display: flex;
@@ -476,6 +311,14 @@
     margin-top: var(--space-2);
 }
 
+/* ===== Vendas List ===== */
+.vendas-table-container {
+    background: var(--color-bg-elevated);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
     .pdv-layout {
@@ -484,6 +327,7 @@
     
     .pdv-cart {
         position: static;
+        max-height: none;
     }
     
     .dashboard-sections {
@@ -501,7 +345,7 @@
 
 @media (max-width: 768px) {
     .dashboard-stats {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
     }
     
     .produtos-header,
@@ -527,5 +371,9 @@
     
     .cart-actions {
         flex-direction: column;
+    }
+    
+    .financeiro-summary {
+        grid-template-columns: 1fr;
     }
 }

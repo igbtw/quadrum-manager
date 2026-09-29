@@ -4,16 +4,16 @@
 
 :root {
     /* ===== Cores - Light Theme (Default) ===== */
-    /* Primária */
-    --color-primary: #2563eb;
-    --color-primary-hover: #1d4ed8;
+    /* Primária - restrained blue */
+    --color-primary: #1d4ed8;
+    --color-primary-hover: #1e40af;
     --color-primary-light: #eff6ff;
     --color-primary-text: #ffffff;
 
     /* Neutros - Light Theme */
     --color-bg: #ffffff;
-    --color-bg-elevated: #ffffff;
-    --color-bg-hover: #f8fafc;
+    --color-bg-elevated: #f8fafc;
+    --color-bg-hover: #f1f5f9;
     --color-border: #e2e8f0;
     --color-border-light: #f1f5f9;
     --color-text: #0f172a;
@@ -38,10 +38,10 @@
     --color-info-border: #7dd3fc;
 
     /* Focus */
-    --color-focus: #3b82f6;
+    --color-focus: #2563eb;
     --color-focus-ring: #bfdbfe;
 
-    /* Sombra */
+    /* Sombra - minimal */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
     --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
     --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -61,14 +61,14 @@
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --font-family-mono: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
 
-    --font-size-xs: 0.75rem;    /* 12px */
-    --font-size-sm: 0.8125rem;  /* 13px */
-    --font-size-base: 0.875rem; /* 14px */
-    --font-size-lg: 0.9375rem;  /* 15px */
-    --font-size-xl: 1rem;       /* 16px */
-    --font-size-2xl: 1.125rem;  /* 18px */
-    --font-size-3xl: 1.25rem;   /* 20px */
-    --font-size-4xl: 1.5rem;    /* 24px */
+    --font-size-xs: 0.7rem;     /* 11.2px */
+    --font-size-sm: 0.75rem;    /* 12px */
+    --font-size-base: 0.8125rem; /* 13px */
+    --font-size-lg: 0.875rem;   /* 14px */
+    --font-size-xl: 0.9375rem;  /* 15px */
+    --font-size-2xl: 1rem;      /* 16px */
+    --font-size-3xl: 1.125rem;  /* 18px */
+    --font-size-4xl: 1.375rem;  /* 22px */
 
     --font-weight-normal: 400;
     --font-weight-medium: 500;
@@ -93,8 +93,8 @@
     --btn-height-md: 36px;
     --btn-height-lg: 44px;
     --btn-padding-x-sm: 10px;
-    --btn-padding-x-md: 16px;
-    --btn-padding-x-lg: 24px;
+    --btn-padding-x-md: 14px;
+    --btn-padding-x-lg: 20px;
 
     --input-height-sm: 28px;
     --input-height-md: 36px;
@@ -103,7 +103,7 @@
 
     --sidebar-width: 240px;
     --sidebar-collapsed-width: 56px;
-    --header-height: 56px;
+    --header-height: 52px;
 
     /* ===== Transições ===== */
     --transition-fast: 100ms ease;
@@ -120,44 +120,44 @@
     --z-tooltip: 700;
 }
 
-/* Dark Theme */
+/* Dark Theme - near-black, charcoal surfaces */
 [data-theme="dark"] {
     --color-primary: #3b82f6;
     --color-primary-hover: #60a5fa;
-    --color-primary-light: #1e3a5f;
+    --color-primary-light: #1e2a3a;
     --color-primary-text: #ffffff;
 
-    --color-bg: #0f172a;
-    --color-bg-elevated: #1e293b;
-    --color-bg-hover: #334155;
-    --color-border: #334155;
-    --color-border-light: #475569;
-    --color-text: #f1f5f9;
-    --color-text-muted: #94a3b8;
-    --color-text-light: #64748b;
+    --color-bg: #0a0f1a;
+    --color-bg-elevated: #111827;
+    --color-bg-hover: #1f2937;
+    --color-border: #1f2937;
+    --color-border-light: #374151;
+    --color-text: #e5e7eb;
+    --color-text-muted: #9ca3af;
+    --color-text-light: #6b7280;
 
     --color-success: #4ade80;
-    --color-success-bg: #14532d;
-    --color-success-border: #16a34a;
+    --color-success-bg: #064e3b;
+    --color-success-border: #065f46;
 
     --color-warning: #facc15;
     --color-warning-bg: #422006;
-    --color-warning-border: #eab308;
+    --color-warning-border: #78350f;
 
     --color-danger: #f87171;
     --color-danger-bg: #7f1d1d;
-    --color-danger-border: #ef4444;
+    --color-danger-border: #991b1b;
 
     --color-info: #38bdf8;
     --color-info-bg: #0c2f4d;
-    --color-info-border: #0ea5e9;
+    --color-info-border: #0369a1;
 
     --color-focus: #60a5fa;
-    --color-focus-ring: #3b82f6;
+    --color-focus-ring: #1e3a5f;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
 }
 
 /* Reduced motion preference */

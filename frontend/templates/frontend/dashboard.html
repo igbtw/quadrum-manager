@@ -11,9 +11,9 @@
     </div>
     <div class="page-actions">
         <a href="{% url 'frontend:pdv' %}" class="btn btn-primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M14 2H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <path d="M14 2h4v2h-4V2zm0 6h4v4h-4V6zm0 6h4v4h-4V12z"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
             Nova Venda
         </a>
@@ -48,19 +48,28 @@
             <h3 class="section-title">Contas a Receber</h3>
         </div>
         <div class="card-body">
-            {% if stats.valor_receber > 0 or stats.valor_vencido > 0 %}
-                <div class="stat">
-                    <div class="stat-value" style="color: var(--color-warning);">R$ {{ stats.valor_receber }}</div>
-                    <div class="stat-label">Pendente</div>
+            {% if stats.valor_receber %}
+                <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0; border-bottom: var(--border-width) solid var(--color-border-light);">
+                        <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Pendente</span>
+                        <span style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-warning);">R$ {{ stats.valor_receber }}</span>
+                    </div>
+                    {% if stats.valor_vencido %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0;">
+                        <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Vencido</span>
+                        <span style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-danger);">R$ {{ stats.valor_vencido }}</span>
+                    </div>
+                    {% endif %}
                 </div>
-                {% if stats.valor_vencido > 0 %}
-                <div class="stat" style="margin-top: var(--space-3);">
-                    <div class="stat-value" style="color: var(--color-danger);">R$ {{ stats.valor_vencido }}</div>
-                    <div class="stat-label">Vencido</div>
+            {% elif stats.valor_vencido %}
+                <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0;">
+                        <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Vencido</span>
+                        <span style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-danger);">R$ {{ stats.valor_vencido }}</span>
+                    </div>
                 </div>
-                {% endif %}
             {% else %}
-                <div class="empty-state">
+                <div class="empty-state" style="padding: var(--space-6);">
                     <div class="empty-state-title">Tudo em dia!</div>
                     <div class="empty-state-description">Nenhuma conta pendente ou vencida</div>
                 </div>
@@ -104,7 +113,7 @@
                     </table>
                 </div>
             {% else %}
-                <div class="empty-state">
+                <div class="empty-state" style="padding: var(--space-6);">
                     <div class="empty-state-title">Estoque OK</div>
                     <div class="empty-state-description">Todos os produtos estão com estoque adequado</div>
                 </div>
@@ -114,7 +123,7 @@
 </div>
 
 <!-- Vendas recentes -->
-<div class="section-card" style="margin-top: var(--space-4);">
+<div class="section-card">
     <div class="section-header">
         <h3 class="section-title">Vendas Recentes</h3>
     </div>
@@ -136,7 +145,7 @@
                         <td>{{ venda.codigo }}</td>
                         <td>{{ venda.pessoa.nome }}</td>
                         <td>{{ venda.data_hora|date:"H:i" }}</td>
-                        <td>R$ {{ venda.total }}</td>
+                        <td style="font-weight: var(--font-weight-semibold); color: var(--color-primary);">R$ {{ venda.total }}</td>
                         <td>
                             <span class="badge 
                                 {% if venda.status == 'CONCLUIDA' %}badge-success

@@ -19,14 +19,27 @@ function toggleTheme() {
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    const icon = document.getElementById('themeIcon');
+    if (icon) {
+        if (theme === 'dark') {
+            icon.innerHTML = '<path d="M12 3v1m0 16v1m8.66-10.66l-.7.7M5.04 5.04l-.7.7m15.37 7.27a7 7 0 1 1-9.07-9.07 7 7 0 0 0 9.07 9.07z"/>';
+        } else {
+            icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+        }
+    }
 }
 
 /* ===== Inicialização ===== */
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar tema
     initTheme();
+    updateThemeIcon(document.documentElement.getAttribute('data-theme'));
     
-    // Inicializar tooltips e modais
+    // Inicializar modais
     initModals();
     
     // Inicializar carrinhos
@@ -37,6 +50,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Inicializar notificações
     initNotificacoes();
+    
+    // Inicializar sidebar mobile
+    initSidebarMobile();
 });
 
 /* ===== Modais ===== */
@@ -46,7 +62,7 @@ function initModals() {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.add('open');
-            document.getElementById('sidebarOverlay').classList.add('visible');
+            document.body.style.overflow = 'hidden';
         }
     };
 
@@ -55,36 +71,50 @@ function initModals() {
         const modal = document.getElementById(modalId);
         if (modal) {
             modal.classList.remove('open');
-            document.getElementById('sidebarOverlay').classList.remove('visible');
+            document.body.style.overflow = '';
         }
     };
 
-    // Alternar sidebar mobile
-    window.toggleSidebar = function() {
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        if (sidebar) sidebar.classList.toggle('open');
-        if (overlay) overlay.classList.toggle('visible');
-    };
-
     // Fechar ao clicar no overlay
-    const overlay = document.getElementById('sidebarOverlay');
-    if (overlay) {
-        overlay.addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) sidebar.classList.remove('open');
-            this.classList.remove('visible');
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('open');
+                document.body.style.overflow = '';
+            }
         });
-    }
+    });
 
     // Fechar com ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            const openModals = document.querySelectorAll('.modal-overlay.open');
-            openModals.forEach(modal => closeModal(modal.id));
+            document.querySelectorAll('.modal-overlay.open').forEach(modal => {
+                modal.classList.remove('open');
+            });
+            document.body.style.overflow = '';
             document.getElementById('sidebarOverlay')?.classList.remove('visible');
+            document.getElementById('sidebar')?.classList.remove('open');
         }
     });
+}
+
+/* ===== Sidebar Mobile ===== */
+function initSidebarMobile() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggleBtn = document.querySelector('.mobile-menu-btn');
+
+    window.toggleSidebar = function() {
+        if (sidebar) sidebar.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('visible');
+    };
+
+    if (overlay) {
+        overlay.addEventListener('click', function() {
+            if (sidebar) sidebar.classList.remove('open');
+            this.classList.remove('visible');
+        });
+    }
 }
 
 /* ===== Carrinho PDV ===== */
@@ -155,6 +185,30 @@ function initPdvCarrinho() {
             tabela.style.display = 'table';
             carrinhoVazio.style.display = 'none';
             resumo.style.display = 'block';
+            
+            let subtotal = 0;
+            tabelaBody.innerHTML = '';
+
+            carrinho.forEach((item, idx) => {
+                const subtotalItem = item.preco * item.qtd;
+                subtotal += subtotalItem;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.nome}</td>
+                    <td style="display: flex; align-items: center; gap: var(--space-2);">
+                        <button onclick="decrementarQtdPV(${idx})" class="btn btn-icon-sm" aria-label="Diminuir quantidade">−</button>
+                        <span style="min-width: 24px; text-align: center;">${item.qtd}</span>
+                        <button onclick="incrementarQtdPV(${idx})" class="btn btn-icon-sm" aria-label="Aumentar quantidade">+</button>
+                    </td>
+                    <td style="text-align: right;">R$ ${subtotalItem.toFixed(2)}</td>
+                    <td><button class="btn btn-icon-sm btn-danger" onclick="removerItemPV(${idx})" aria-label="Remover item">×</button></td>
+                `;
+                tabelaBody.appendChild(tr);
+            });
+
+            const totalEl = document.getElementById('carrinho-total-pv');
+            if (totalEl) totalEl.textContent = 'R$ ' + subtotal.toFixed(2);
         }
     }
 }
@@ -178,12 +232,18 @@ function initFiltros() {
 
     // Filtro por categoria
     window.filtrarPorCategoria = function(categoriaId) {
-        document.querySelectorAll('.product-card').forEach((card, i) => {
-            // Simples filtro visual
-            if (categoriaId === 0) {
-                card.style.boxShadow = '';
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        const activeBtn = document.querySelector(`.category-btn[onclick*="${categoriaId}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+        
+        document.querySelectorAll('.product-card').forEach(card => {
+            const cat = card.dataset.categoria;
+            if (!categoriaId || cat == categoriaId) {
+                card.style.display = '';
             } else {
-                card.style.boxShadow = i % 2 === 0 ? '0 0 0 2px var(--color-primary)' : '';
+                card.style.display = 'none';
             }
         });
     };
@@ -193,36 +253,42 @@ function initFiltros() {
 function initNotificacoes() {
     window.showNotification = function(titulo, mensagem, tipo = 'info') {
         const tipos = {
-            success: { bg: 'var(--color-success-bg)', color: 'var(--color-success)' },
-            warning: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)' },
-            danger: { bg: 'var(--color-danger-bg)', color: 'var(--color-danger)' },
-            info: { bg: 'var(--color-info-bg)', color: 'var(--color-info)' }
+            success: { bg: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'var(--color-success-border)' },
+            warning: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: 'var(--color-warning-border)' },
+            danger: { bg: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'var(--color-danger-border)' },
+            info: { bg: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'var(--color-info-border)' }
         };
 
         const config = tipos[tipo] || tipos.info;
         const notification = document.createElement('div');
-        notification.style.position = 'fixed';
-        notification.style.bottom = 'var(--space-6)';
-        notification.style.left = 'var(--space-6)';
-        notification.style.right = 'auto';
-        notification.style.background = config.bg;
-        notification.style.color = config.color;
-        notification.style.padding = 'var(--space-4) var(--space-5)';
-        notification.style.borderRadius = 'var(--radius-md)';
-        notification.style.boxShadow = 'var(--shadow-md)';
-        notification.style.zIndex = 'var(--z-toast)';
-        notification.style.maxWidth = '300px';
+        notification.className = 'toast toast-' + tipo;
+        notification.style.cssText = `
+            position: fixed;
+            bottom: var(--space-4);
+            right: var(--space-4);
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            z-index: var(--z-toast);
+            box-shadow: var(--shadow-lg);
+            background: ${config.bg};
+            color: ${config.color};
+            border: var(--border-width) solid ${config.border};
+            max-width: 320px;
+        `;
         notification.innerHTML = `
             <strong>${titulo || 'Aviso'}</strong>
-            <span style="margin-left: var(--space-4);">${mensagem || ''}</span>
+            <span style="margin-left: var(--space-2);">${mensagem || ''}</span>
         `;
 
         document.body.appendChild(notification);
 
         // Auto remover após 5 segundos
         setTimeout(() => {
-            notification.style.transition = 'opacity 0.3s';
+            notification.style.transition = 'opacity 0.3s, transform 0.3s';
             notification.style.opacity = '0';
+            notification.style.transform = 'translateY(10px)';
             setTimeout(() => notification.remove(), 300);
         }, 5000);
     };

@@ -26,20 +26,21 @@
         {% include "frontend/sidebar.html" %}
 
         <!-- Header -->
-        <header class="header">
+        <header class="header" role="banner">
             <div class="header-left">
                 <button class="mobile-menu-btn" aria-label="Abrir menu" onclick="toggleSidebar()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3 18h18v2H3v-2zm0-8h18v2H3v-2zm0-8h18v2H3V5zm0-4h18v2H3v-2z"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
                     </svg>
                 </button>
 
                 <form class="search-form" role="search">
                     <div class="search-input-wrapper">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M15.5 14h-.3a1 1 0 0 1-.9-.9V9.5a.5.5 0 0 1 1 0V13h-.5a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 1 0V13h-.2a1 1 0 0 1-.9-.9V9.5a.5.5 0 0 1 1 0v.5a1 1 0 0 1-.7.3H14v2.1h1.7a1 1 0 0 1 .7.3v.5a1 1 0 0 1-.7.3H15z"/>
-                            <path d="m18.5 12-6.5-6.5c-.2-.2-.3-.4-.3-.6V2c0-.3-.1-.5-.3-.6l1.5-1.5c.1-.1.2-.2.3-.2s.2.2.3.2l1.5 1.5c.2.2.2.4 0 .6L18.5 12z"/>
-                            <path d="M2 4.6c0-1.1.9-2 2-2h12v2H2v-2zm0 10c0-1.1.9-2 2-2h6v2h-6v-2zm5.5-8c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5h-5z"/>
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                         <input class="search-input" type="search" placeholder="Buscar produtos, pessoas..." aria-label="Buscar">
                     </div>
@@ -49,21 +50,20 @@
             <div class="header-right">
                 <div class="theme-toggle">
                     <button id="themeToggle" aria-label="Alternar tema" onclick="toggleTheme()">
-                        <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 3v1m0 16v1m8.66-10.66l-.7.7M5.04 5.04l-.7.7m15.37 7.27a7 7 0 1 1-9.07-9.07 7 7 0 0 0 9.07 9.07z"/>
+                        <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
                         </svg>
                     </button>
                 </div>
-                <button class="header-action" aria-label="Notificações" onclick="showNotification()">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="18" cy="5" r="3"/>
-                        <circle cx="5" cy="18" r="3"/>
-                        <circle cx="12" cy="12" r="3"/>
+                <button class="header-action" aria-label="Notificações" onclick="showNotification('Notificações', 'Nenhuma notificação no momento', 'info')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                     </svg>
                 </button>
                 <button class="header-action" aria-label="Mensagens">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M22 7l-5-5-5 5H7c-.55 0-1 .45-1 1v8c0 .55.45 1 1 1h2v3h2v-3h2c.55 0 1-.45 1-1l-5-5-5 5V7c0-.55.45-1 1-1h9c.55 0 1 .45 1 1v2z"/>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
                 </button>
                 <div class="user-info">
@@ -76,11 +76,14 @@
             </div>
         </header>
 
-        <main class="main">
+        <main class="main" role="main">
             {% block content %}{% endblock %}
         </main>
     </div>
 
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>
