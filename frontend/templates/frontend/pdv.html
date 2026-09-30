@@ -21,10 +21,9 @@
             <div class="card-body" style="padding: var(--space-3);">
                 <div class="search-input-wrapper">
                     <input type="search" id="buscarProduto" class="search-input" placeholder="Digite o nome do produto..." aria-label="Buscar produto">
-                    <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15.5 14h-.3a1 1 0 0 1-.9-.9V9.5a.5.5 0 0 1 1 0V13h-.5a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 1 0V13h-.2a1 1 0 0 1-.9-.9V9.5a.5.5 0 0 1 1 0v.5a1 1 0 0 1-.7.3H14v2.1h1.7a1 1 0 0 1 .7.3v.5a1 1 0 0 1-.7.3H15z"/>
-                        <path d="m18.5 12-6.5-6.5c-.2-.2-.3-.4-.3-.6V2c0-.3-.1-.5-.3-.6l1.5-1.5c.1-.1.2-.2.3-.2s.2.2.3.2l1.5 1.5c.2.2.2.4 0 .6L18.5 12z"/>
-                        <path d="M2 4.6c0-1.1.9-2 2-2h12v2H2v-2zm0 10c0-1.1.9-2 2-2h6v2h-6v-2zm5.5-8c-.83 0-1.5.67-1.5 1.5v7c0 .83.67 1.5 1.5 1.5h5c.83 0 1.5-.67 1.5-1.5v-7c0-.83-.67-1.5-1.5-1.5h-5z"/>
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </div>
             </div>
@@ -61,8 +60,14 @@
             <h3 class="cart-title">Carrinho</h3>
         </div>
         <div class="cart-items" id="carrinho-itens">
-            <div id="carrinho-itens-vazio" class="empty-state" style="padding: var(--space-6);">
-                Carrinho vazio
+            <div id="carrinho-itens-vazio" class="empty-state" style="padding: var(--space-8);">
+                <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <div class="empty-state-title">Carrinho vazio</div>
+                <div class="empty-state-description">Adicione produtos clicando neles</div>
             </div>
             <table id="carrinho-tabela" class="table" style="display: none;">
                 <thead>
@@ -85,7 +90,7 @@
         </div>
         <div class="cart-footer">
             <div class="cart-summary">
-                <span>Total</span>
+                <span class="cart-total-label">Total</span>
                 <span class="cart-total" id="carrinho-total">R$ 0,00</span>
             </div>
             <div class="cart-payment">
@@ -148,6 +153,63 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
+    // Keyboard navigation for product list
+    const productList = document.getElementById('resultados-produtos');
+    let highlightedIndex = -1;
+    const productCards = () => Array.from(productList.querySelectorAll('.product-card:not(.inactive):not([style*="display: none"])'));
+
+    searchInput.addEventListener('keydown', function(e) {
+        const cards = productCards();
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            highlightedIndex = Math.min(highlightedIndex + 1, cards.length - 1);
+            updateHighlight(cards);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            highlightedIndex = Math.max(highlightedIndex - 1, -1);
+            updateHighlight(cards);
+        } else if (e.key === 'Enter' && highlightedIndex >= 0) {
+            e.preventDefault();
+            const card = cards[highlightedIndex];
+            if (card) {
+                const id = parseInt(card.dataset.id);
+                const nome = card.querySelector('.product-card-name').textContent;
+                const preco = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
+                adicionarAoCarrinho(id, nome, preco);
+                searchInput.value = '';
+                searchTerm = '';
+                filtrarProdutos();
+                highlightedIndex = -1;
+                updateHighlight(cards);
+            }
+        } else if (e.key === 'Escape') {
+            searchInput.blur();
+            highlightedIndex = -1;
+            updateHighlight(cards);
+        }
+    });
+
+    function updateHighlight(cards) {
+        cards.forEach((card, i) => {
+            card.style.background = i === highlightedIndex ? 'var(--color-primary-light)' : '';
+            card.style.borderColor = i === highlightedIndex ? 'var(--color-primary)' : '';
+        });
+        if (highlightedIndex >= 0 && cards[highlightedIndex]) {
+            cards[highlightedIndex].scrollIntoView({ block: 'nearest' });
+        }
+    }
+
+    // Delegação de eventos para adicionar ao carrinho
+    document.getElementById('resultados-produtos').addEventListener('click', function(e) {
+        const card = e.target.closest('.product-card');
+        if (card && !card.classList.contains('inactive')) {
+            const id = parseInt(card.dataset.id);
+            const nome = card.querySelector('.product-card-name').textContent;
+            const preco = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
+            adicionarAoCarrinho(id, nome, preco);
+        }
+    });
+
     // Adicionar ao carrinho
     window.adicionarAoCarrinho = function(produtoId, nome, preco) {
         const existente = carrinho.find(i => i.id == produtoId);
@@ -162,6 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         renderizarCarrinho();
+        Cantina.showToast('Adicionado', `${nome} adicionado ao carrinho`, 'success', 2000);
     };
 
     window.removerItemCarrinho = function(idx) {
@@ -205,12 +268,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 tr.innerHTML = `
                     <td>${item.nome}</td>
                     <td style="display: flex; align-items: center; gap: var(--space-2);">
-                        <button onclick="decrementarQtd(${idx})" class="btn btn-icon" style="width: 28px; height: 28px; padding: 0;">−</button>
+                        <button onclick="decrementarQtd(${idx})" class="btn btn-icon-sm" aria-label="Diminuir quantidade">−</button>
                         <span style="min-width: 24px; text-align: center;">${item.qtd}</span>
-                        <button onclick="incrementarQtd(${idx})" class="btn btn-icon" style="width: 28px; height: 28px; padding: 0;">+</button>
+                        <button onclick="incrementarQtd(${idx})" class="btn btn-icon-sm" aria-label="Aumentar quantidade">+</button>
                     </td>
-                    <td>R$ ${subtotalItem.toFixed(2)}</td>
-                    <td><button class="btn btn-icon btn-danger" onclick="removerItemCarrinho(${idx})" style="width: 28px; height: 28px; padding: 0;">×</button></td>
+                    <td class="numeric">R$ ${subtotalItem.toFixed(2)}</td>
+                    <td><button class="btn btn-icon-sm btn-danger" onclick="removerItemCarrinho(${idx})" aria-label="Remover item">×</button></td>
                 `;
                 tabelaBody.appendChild(tr);
             });
@@ -220,40 +283,30 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Delegação de eventos para adicionar ao carrinho
-    document.getElementById('resultados-produtos').addEventListener('click', function(e) {
-        const card = e.target.closest('.product-card');
-        if (card && !card.classList.contains('inactive')) {
-            const id = parseInt(card.dataset.id);
-            const nome = card.querySelector('.product-card-name').textContent;
-            const preco = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
-            adicionarAoCarrinho(id, nome, preco);
-        }
-    });
-
     window.limparCarrinho = function() {
+        if (carrinho.length === 0) return;
         carrinho = [];
         renderizarCarrinho();
+        Cantina.showToast('Carrinho limpo', 'Todos os itens foram removidos', 'info');
     };
 
     window.finalizarVenda = function() {
         if (carrinho.length === 0) {
-            alert('Carrinho vazio!');
+            Cantina.showToast('Carrinho vazio', 'Adicione produtos antes de finalizar', 'warning');
             return;
         }
         
         const formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked');
         if (!formaPagamento) {
-            alert('Selecione uma forma de pagamento!');
+            Cantina.showToast('Forma de pagamento', 'Selecione uma forma de pagamento', 'warning');
             return;
         }
 
         // Simular finalização
-        alert('Venda finalizada com sucesso! (Simulação)');
+        const total = carrinho.reduce((sum, item) => sum + item.preco * item.qtd, 0);
+        Cantina.showToast('Venda finalizada', `Total: R$ ${total.toFixed(2)} (Simulação)`, 'success');
         limparCarrinho();
     };
 });
 </script>
-{% endblock %}````
-
-frontend/templates/frontend/vendas_list.html
+{% endblock %}

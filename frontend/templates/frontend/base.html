@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Cantina Escolar{% endblock %}</title>
+    <title>{% block title %}CantinaOS{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     <link rel="stylesheet" href="{% static 'css/variables.css' %}">
@@ -26,7 +26,7 @@
         {% include "frontend/sidebar.html" %}
 
         <!-- Header -->
-        <header class="header" role="banner">
+        <header class="header" role="banner" id="header">
             <div class="header-left">
                 <button class="mobile-menu-btn" aria-label="Abrir menu" onclick="toggleSidebar()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -36,14 +36,15 @@
                     </svg>
                 </button>
 
-                <form class="search-form" role="search">
+                <form class="search-form" role="search" id="globalSearchForm">
                     <div class="search-input-wrapper">
                         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
-                        <input class="search-input" type="search" placeholder="Buscar produtos, pessoas..." aria-label="Buscar">
+                        <input class="search-input" type="search" placeholder="Buscar produtos, pessoas, vendas..." aria-label="Buscar global" id="globalSearchInput">
                     </div>
+                    <div class="search-results" id="globalSearchResults" role="listbox" aria-label="Resultados da busca"></div>
                 </form>
             </div>
 
@@ -76,12 +77,102 @@
             </div>
         </header>
 
-        <main class="main" role="main">
+        <main class="main" role="main" id="main">
             {% block content %}{% endblock %}
         </main>
     </div>
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Command Palette -->
+    <div class="command-palette-overlay" id="commandPaletteOverlay" role="dialog" aria-modal="true" aria-label="Paleta de comandos">
+        <div class="command-palette" role="listbox" id="commandPalette">
+            <input type="text" class="command-palette-input" id="commandPaletteInput" placeholder="Digite um comando ou pesquise..." autocomplete="off" aria-label="Buscar comandos">
+            <div class="command-palette-list" id="commandPaletteList" role="listbox"></div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Help -->
+    <div class="shortcuts-help-overlay" id="shortcutsHelpOverlay" role="dialog" aria-modal="true" aria-label="Atalhos de teclado">
+        <div class="shortcuts-help">
+            <div class="shortcuts-help-header">
+                <h2 class="shortcuts-help-title">Atalhos de Teclado</h2>
+                <button class="shortcuts-help-close" onclick="closeShortcutsHelp()" aria-label="Fechar">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="shortcuts-help-body">
+                <div class="shortcuts-help-section">
+                    <div class="shortcuts-help-section-title">Navegação</div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Abrir Paleta de Comandos</span>
+                        <span class="shortcuts-help-item-keys"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Focar Busca Global</span>
+                        <span class="shortcuts-help-item-keys"><kbd>/</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Dashboard</span>
+                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>D</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Vendas</span>
+                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>V</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Nova Venda (PDV)</span>
+                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>N</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Produtos</span>
+                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>P</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Estoque</span>
+                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>E</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Pessoas</span>
+                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>S</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Financeiro</span>
+                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>F</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Relatórios</span>
+                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>R</kbd></span>
+                    </div>
+                </div>
+                <div class="shortcuts-help-section">
+                    <div class="shortcuts-help-section-title">Geral</div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Alternar Tema</span>
+                        <span class="shortcuts-help-item-keys"><kbd>T</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Fechar Overlays / Modais</span>
+                        <span class="shortcuts-help-item-keys"><kbd>Esc</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Mostrar esta ajuda</span>
+                        <span class="shortcuts-help-item-keys"><kbd>?</kbd></span>
+                    </div>
+                    <div class="shortcuts-help-item">
+                        <span class="shortcuts-help-item-label">Colapsar/Expandir Sidebar</span>
+                        <span class="shortcuts-help-item-keys"><kbd>Ctrl</kbd><kbd>B</kbd></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}

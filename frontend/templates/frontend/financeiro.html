@@ -52,7 +52,7 @@
                     </thead>
                     <tbody id="contas-tabela">
                     {% for c in contas %}
-                    <tr style="border-bottom: 1px solid var(--color-border-light);">
+                    <tr style="border-bottom: 1px solid var(--color-border);">
                         <td>{{ c.pessoa.nome }}</td>
                         <td class="numeric">R$ {{ c.valor }}</td>
                         <td>{{ c.vencimento|date:"d/m/Y" }}</td>
@@ -66,7 +66,7 @@
                         </td>
                         <td>{{ c.descricao }}</td>
                         <td>
-                            <button class="btn btn-icon" style="width: 32px; height: 32px; padding: 0;" title="Receber">
+                            <button class="btn btn-icon" style="width: 32px; height: 32px; padding: 0;" title="Receber" aria-label="Marcar como recebido" onclick="receberConta({{ c.id }})">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 5.01l-3.09 6.91L8 10l-3 4 9-11 9 11-3-4L12 5.01zM2 4l6 20 6-20H2zm10 16l-5 5h2l-5-5h-2z"/>
                                 </svg>
@@ -75,7 +75,13 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="empty-state">Nenhuma conta cadastrada</td>
+                        <td colspan="6" class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 5.01l-3.09 6.91L8 10l-3 4 9-11 9 11-3-4L12 5.01zM2 4l6 20 6-20H2zm10 16l-5 5h2l-5-5h-2z"/>
+                            </svg>
+                            <div class="empty-state-title">Nenhuma conta cadastrada</div>
+                            <div class="empty-state-description">Todas as contas estão em dia</div>
+                        </td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -103,7 +109,7 @@
                     </thead>
                     <tbody id="pagamentos-recentes">
                     {% for p in pagamentos %}
-                    <tr style="border-bottom: 1px solid var(--color-border-light);">
+                    <tr style="border-bottom: 1px solid var(--color-border);">
                         <td>{{ p.pessoa.nome }}</td>
                         <td class="numeric">R$ {{ p.valor }}</td>
                         <td>{{ p.data|date:"d/m/Y H:i" }}</td>
@@ -116,7 +122,13 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="empty-state">Nenhum pagamento registrado</td>
+                        <td colspan="5" class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 5.01l-3.09 6.91L8 10l-3 4 9-11 9 11-3-4L12 5.01zM2 4l6 20 6-20H2zm10 16l-5 5h2l-5-5h-2z"/>
+                            </svg>
+                            <div class="empty-state-title">Nenhum pagamento registrado</div>
+                            <div class="empty-state-description">Pagamentos aparecerão aqui</div>
+                        </td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -125,6 +137,14 @@
         </div>
     </div>
 </div>
-{% endblock %}````
+{% endblock %}
 
-frontend/templates/frontend/produtos.html
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    window.receberConta = function(id) {
+        Cantina.showToast('Receber', `Funcionalidade de recebimento da conta ${id} (mock)`, 'info');
+    };
+});
+</script>
+{% endblock %}

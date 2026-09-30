@@ -70,6 +70,7 @@
                         <th class="numeric">Mínimo</th>
                         <th>Situação</th>
                         <th>Status</th>
+                        <th>Ação</th>
                     </tr>
                 </thead>
                 <tbody id="produtos-estoque-tabela">
@@ -96,10 +97,25 @@
                                 {% if p.ativo %}Ativo{% else %}Inativo{% endif %}
                             </span>
                         </td>
+                        <td>
+                            <button class="btn btn-icon btn-ghost" title="Ajustar estoque" aria-label="Ajustar estoque de {{ p.nome }}" onclick="ajustarEstoque({{ p.id }})">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                            </button>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="empty-state">Nenhum produto encontrado</td>
+                        <td colspan="7" class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></path>
+                            </svg>
+                            <div class="empty-state-title">Nenhum produto encontrado</div>
+                            <div class="empty-state-description">Cadastre produtos na seção Produtos</div>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -112,7 +128,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Função para filtrar estoque
     window.filtrarEstoque = function() {
         const situacao = document.getElementById('filtro-situacao').value;
         const categoria = document.getElementById('filtro-categoria-estoque').value;
@@ -127,8 +142,10 @@ document.addEventListener('DOMContentLoaded', function() {
             row.style.display = show ? '' : 'none';
         });
     };
+
+    window.ajustarEstoque = function(id) {
+        Cantina.showToast('Ajustar Estoque', `Funcionalidade de ajuste do produto ${id} (mock)`, 'info');
+    };
 });
 </script>
-{% endblock %}````
-
-frontend/templates/frontend/pessoas.html
+{% endblock %}

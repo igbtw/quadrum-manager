@@ -16,13 +16,13 @@
         <h3 class="card-title">Novo Cadastro</h3>
     </div>
     <div class="card-body">
-        <form id="form-pessoa" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-4);">
+        <form id="form-pessoa" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3);">
             <div class="form-group">
-                <label>Nome</label>
+                <label class="form-label">Nome</label>
                 <input type="text" class="input" placeholder="Nome completo" required>
             </div>
             <div class="form-group">
-                <label>Tipo</label>
+                <label class="form-label">Tipo</label>
                 <select class="select" required>
                     <option value="ALUNO">ALUNO</option>
                     <option value="PROFESSOR">PROFESSOR</option>
@@ -31,19 +31,19 @@
                 </select>
             </div>
             <div class="form-group">
-                <label>Matrícula</label>
+                <label class="form-label">Matrícula</label>
                 <input type="text" class="input" placeholder="Matrícula" required>
             </div>
             <div class="form-group">
-                <label>Status</label>
+                <label class="form-label">Status</label>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2);">
                     <label style="display: flex; align-items: center; gap: var(--space-2);">
                         <input type="radio" name="status" value="ATIVO" checked>
-                        <span>Ativo</span>
+                        <span style="font-size: var(--font-size-sm);">Ativo</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: var(--space-2);">
                         <input type="radio" name="status" value="INATIVO">
-                        <span>Inativo</span>
+                        <span style="font-size: var(--font-size-sm);">Inativo</span>
                     </label>
                 </div>
             </div>
@@ -75,7 +75,7 @@
             </div>
         </div>
     </div>
-    <div class="card-body">
+    <div class="card-body" style="padding: 0;">
         <div class="table-responsive">
             <table class="table">
                 <thead>
@@ -83,8 +83,9 @@
                         <th>Nome</th>
                         <th>Tipo</th>
                         <th>Matrícula</th>
-                        <th>Saldo</th>
+                        <th class="numeric">Saldo</th>
                         <th>Status</th>
+                        <th>Ação</th>
                     </tr>
                 </thead>
                 <tbody id="pessoas-tabela">
@@ -96,8 +97,8 @@
                             {{ p.tipo }}
                         </span>
                     </td>
-                    <td>{{ p.matricula }}</td>
-                    <td>
+                    <td><code>{{ p.matricula }}</code></td>
+                    <td class="numeric">
                         <span style="font-weight: var(--font-weight-medium); 
                             {% if p.saldo < 0 %}color: var(--color-danger);
                             {% elif p.saldo > 0 %}color: var(--color-success);
@@ -107,15 +108,31 @@
                     </td>
                     <td>
                         <span class="badge 
-                            {% if p.status == 'ATIVO' %}badge-success{% else %}badge-danger{% endif %}"
+                            {% if p.status == 'ATIVO' %}badge-success{% else %}badge-neutral{% endif %}"
                             style="font-size: var(--font-size-xs);">
                             {{ p.status }}
                         </span>
                     </td>
+                    <td>
+                        <button class="btn btn-icon btn-ghost" title="Copiar matrícula" aria-label="Copiar matrícula de {{ p.nome }}" onclick="copiarMatricula('{{ p.matricula }}')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" class="empty-state">Nenhuma pessoa cadastrada</td>
+                    <td colspan="6" class="empty-state">
+                        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <line x1="12" y1="12" x2="12.01" y2="12"></path>
+                        </svg>
+                        <div class="empty-state-title">Nenhuma pessoa cadastrada</div>
+                        <div class="empty-state-description">Use o formulário acima para cadastrar a primeira pessoa</div>
+                    </td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -141,6 +158,10 @@ document.addEventListener('DOMContentLoaded', function() {
             
             row.style.display = show ? '' : 'none';
         });
+    };
+
+    window.copiarMatricula = function(matricula) {
+        Cantina.copyToClipboard(matricula, `Matrícula ${matricula} copiada`);
     };
 });
 </script>

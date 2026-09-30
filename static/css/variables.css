@@ -4,25 +4,26 @@
 
 :root {
     /* ===== Color System - Light Theme (Default) ===== */
-    /* Primary - Restrained blue accent */
-    --color-primary: #1d4ed8;
-    --color-primary-hover: #1e40af;
-    --color-primary-light: #eff6ff;
+    /* Primary - Restrained green accent (Neon-inspired) */
+    --color-primary: #16a34a;
+    --color-primary-hover: #15803d;
+    --color-primary-light: #ecfdf5;
     --color-primary-text: #ffffff;
 
     /* Neutral - Light */
     --color-bg: #ffffff;
-    --color-bg-elevated: #f8fafc;
-    --color-bg-hover: #f1f5f9;
-    --color-border: #e2e8f0;
-    --color-border-light: #f1f5f9;
-    --color-text: #0f172a;
-    --color-text-muted: #64748b;
-    --color-text-light: #94a3b8;
+    --color-surface: #fafafa;
+    --color-surface-secondary: #f5f5f5;
+    --color-surface-hover: #eeeeee;
+    --color-border: #e5e5e5;
+    --color-border-strong: #d4d4d4;
+    --color-text: #171717;
+    --color-text-muted: #737373;
+    --color-text-light: #a3a3a3;
 
     /* Semantic - Light */
     --color-success: #16a34a;
-    --color-success-bg: #dcfce7;
+    --color-success-bg: #ecfdf5;
     --color-success-border: #86efac;
 
     --color-warning: #ca8a04;
@@ -30,16 +31,16 @@
     --color-warning-border: #fde047;
 
     --color-danger: #dc2626;
-    --color-danger-bg: #fee2e2;
-    --color-danger-border: #fca5a5;
+    --color-danger-bg: #fef2f2;
+    --color-danger-border: #fecaca;
 
     --color-info: #0ea5e9;
-    --color-info-bg: #e0f2fe;
-    --color-info-border: #7dd3fc;
+    --color-info-bg: #eff6ff;
+    --color-info-border: #bae6fd;
 
     /* Focus */
-    --color-focus: #2563eb;
-    --color-focus-ring: #bfdbfe;
+    --color-focus: #16a34a;
+    --color-focus-ring: #86efac;
 
     /* Shadows - Minimal */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
@@ -53,6 +54,7 @@
     --space-4: 16px;
     --space-5: 20px;
     --space-6: 24px;
+    --space-7: 28px;
     --space-8: 32px;
     --space-10: 40px;
     --space-12: 48px;
@@ -61,21 +63,22 @@
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     --font-family-mono: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
 
-    --font-size-xs: 0.6875rem;    /* 11px */
-    --font-size-sm: 0.75rem;      /* 12px */
-    --font-size-base: 0.8125rem;  /* 13px */
-    --font-size-lg: 0.875rem;     /* 14px */
-    --font-size-xl: 0.9375rem;    /* 15px */
-    --font-size-2xl: 1rem;        /* 16px */
-    --font-size-3xl: 1.125rem;    /* 18px */
-    --font-size-4xl: 1.375rem;    /* 22px */
+    --font-size-xs: 0.75rem;     /* 12px */
+    --font-size-sm: 0.875rem;    /* 14px */
+    --font-size-base: 1rem;      /* 16px */
+    --font-size-lg: 1.0625rem;   /* 17px */
+    --font-size-xl: 1.125rem;    /* 18px */
+    --font-size-2xl: 1.25rem;    /* 20px */
+    --font-size-3xl: 1.5rem;     /* 24px */
+    --font-size-4xl: 1.875rem;   /* 30px */
+    --font-size-5xl: 2.25rem;    /* 36px */
 
     --font-weight-normal: 400;
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
 
-    --line-height-tight: 1.25;
+    --line-height-tight: 1.2;
     --line-height-base: 1.5;
     --line-height-relaxed: 1.625;
 
@@ -88,20 +91,21 @@
     --border-width: 1px;
 
     /* ===== Component Dimensions ===== */
-    --btn-height-sm: 28px;
-    --btn-height-md: 36px;
-    --btn-height-lg: 44px;
-    --btn-padding-x-sm: 10px;
-    --btn-padding-x-md: 14px;
+    --btn-height-sm: 32px;
+    --btn-height-md: 40px;
+    --btn-height-lg: 48px;
+    --btn-padding-x-sm: 12px;
+    --btn-padding-x-md: 16px;
     --btn-padding-x-lg: 20px;
 
-    --input-height-sm: 28px;
-    --input-height-md: 36px;
-    --input-height-lg: 44px;
-    --input-padding-x: 12px;
+    --input-height-sm: 32px;
+    --input-height-md: 40px;
+    --input-height-lg: 48px;
+    --input-padding-x: 14px;
 
-    --sidebar-width: 220px;
-    --header-height: 52px;
+    --sidebar-width: 256px;
+    --sidebar-collapsed-width: 64px;
+    --header-height: 56px;
 
     /* ===== Transitions ===== */
     --transition-fast: 100ms ease;
@@ -116,46 +120,48 @@
     --z-modal: 500;
     --z-toast: 600;
     --z-tooltip: 700;
+    --z-command-palette: 800;
 }
 
-/* Dark Theme - Near-black, charcoal surfaces, blue accent only */
+/* Dark Theme - Near-black, charcoal surfaces, neon green accent */
 [data-theme="dark"] {
-    --color-primary: #3b82f6;
-    --color-primary-hover: #60a5fa;
-    --color-primary-light: #1e2a3a;
-    --color-primary-text: #ffffff;
+    --color-primary: #22c55e;
+    --color-primary-hover: #4ade80;
+    --color-primary-light: #14532d;
+    --color-primary-text: #052e16;
 
-    --color-bg: #0a0f1a;
-    --color-bg-elevated: #111827;
-    --color-bg-hover: #1f2937;
-    --color-border: #1f2937;
-    --color-border-light: #374151;
-    --color-text: #e5e7eb;
-    --color-text-muted: #9ca3af;
-    --color-text-light: #6b7280;
+    --color-bg: #09090b;
+    --color-surface: #111113;
+    --color-surface-secondary: #18181b;
+    --color-surface-hover: #1f1f23;
+    --color-border: #27272a;
+    --color-border-strong: #3f3f46;
+    --color-text: #fafafa;
+    --color-text-muted: #a1a1aa;
+    --color-text-light: #71717a;
 
-    --color-success: #4ade80;
-    --color-success-bg: #064e3b;
-    --color-success-border: #065f46;
+    --color-success: #22c55e;
+    --color-success-bg: #052e16;
+    --color-success-border: #14532d;
 
     --color-warning: #facc15;
     --color-warning-bg: #422006;
     --color-warning-border: #78350f;
 
-    --color-danger: #f87171;
-    --color-danger-bg: #7f1d1d;
-    --color-danger-border: #991b1b;
+    --color-danger: #ef4444;
+    --color-danger-bg: #450a0a;
+    --color-danger-border: #7f1d1d;
 
     --color-info: #38bdf8;
     --color-info-bg: #0c2f4d;
     --color-info-border: #0369a1;
 
-    --color-focus: #60a5fa;
-    --color-focus-ring: #1e3a5f;
+    --color-focus: #22c55e;
+    --color-focus-ring: #14532d;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-    --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
 }
 
 /* Reduced motion */
