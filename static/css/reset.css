@@ -1,5 +1,5 @@
 /* ========================================
-   RESET.CSS - Normalização básica
+   RESET.CSS - Graphite Baseline
    ======================================== */
 
 *, *::before, *::after {
@@ -40,8 +40,12 @@ input, button, textarea, select {
 }
 
 a {
-    color: inherit;
+    color: var(--color-primary);
     text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 ul, ol {
@@ -61,7 +65,7 @@ button {
     font: inherit;
 }
 
-/* Scrollbar */
+/* Scrollbar - Graphite */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -72,7 +76,7 @@ button {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--color-border);
+    background: var(--color-border-strong);
     border-radius: 2px;
 }
 
@@ -80,7 +84,7 @@ button {
     background: var(--color-text-muted);
 }
 
-/* Focus visible */
+/* Focus visible - Graphite */
 :focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
@@ -93,6 +97,55 @@ button {
 
 /* Selection */
 ::selection {
-    background: var(--color-primary-light);
-    color: var(--color-primary);
+    background: var(--color-primary);
+    color: var(--color-primary-text);
+}
+
+/* Mono utility */
+.mono {
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Text utilities */
+.text-muted { color: var(--color-text-muted); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-primary { color: var(--color-primary); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-danger { color: var(--color-danger); }
+.text-info { color: var(--color-info); }
+
+/* Layout utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+
+.w-full { width: 100%; }
+.flex-1 { flex: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-x-auto { overflow-x: auto; }
+
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* SR-only */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }

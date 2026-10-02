@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}CantinaOS{% endblock %}</title>
+    <title>{% block title %}Cantina Escolar{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     <link rel="stylesheet" href="{% static 'css/variables.css' %}">
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
     <link rel="stylesheet" href="{% static 'css/components.css' %}">
     <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script>
         // Prevent theme flash by setting theme before CSS loads
         (function() {
@@ -26,25 +31,17 @@
         {% include "frontend/sidebar.html" %}
 
         <!-- Header -->
-        <header class="header" role="banner" id="header">
+        <header class="header" role="banner">
             <div class="header-left">
                 <button class="mobile-menu-btn" aria-label="Abrir menu" onclick="toggleSidebar()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                    </svg>
+                    <i data-lucide="menu" style="width:24px;height:24px;stroke-width:2;"></i>
                 </button>
 
-                <form class="search-form" role="search" id="globalSearchForm">
+                <form class="search-form" role="search">
                     <div class="search-input-wrapper">
-                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
+                        <i data-lucide="search" class="search-icon" style="width:16px;height:16px;stroke-width:2;"></i>
                         <input class="search-input" type="search" placeholder="Buscar produtos, pessoas, vendas..." aria-label="Buscar global" id="globalSearchInput">
                     </div>
-                    <div class="search-results" id="globalSearchResults" role="listbox" aria-label="Resultados da busca"></div>
                 </form>
             </div>
 
@@ -57,15 +54,10 @@
                     </button>
                 </div>
                 <button class="header-action" aria-label="Notificações" onclick="showNotification('Notificações', 'Nenhuma notificação no momento', 'info')">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                    </svg>
+                    <i data-lucide="bell" style="width:20px;height:20px;stroke-width:2;"></i>
                 </button>
                 <button class="header-action" aria-label="Mensagens">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                    </svg>
+                    <i data-lucide="message-square" style="width:20px;height:20px;stroke-width:2;"></i>
                 </button>
                 <div class="user-info">
                     <div class="user-avatar">U</div>
@@ -77,104 +69,15 @@
             </div>
         </header>
 
-        <main class="main" role="main" id="main">
+        <main class="main" role="main">
             {% block content %}{% endblock %}
         </main>
     </div>
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
-
-    <!-- Command Palette -->
-    <div class="command-palette-overlay" id="commandPaletteOverlay" role="dialog" aria-modal="true" aria-label="Paleta de comandos">
-        <div class="command-palette" role="listbox" id="commandPalette">
-            <input type="text" class="command-palette-input" id="commandPaletteInput" placeholder="Digite um comando ou pesquise..." autocomplete="off" aria-label="Buscar comandos">
-            <div class="command-palette-list" id="commandPaletteList" role="listbox"></div>
-        </div>
-    </div>
-
-    <!-- Keyboard Shortcuts Help -->
-    <div class="shortcuts-help-overlay" id="shortcutsHelpOverlay" role="dialog" aria-modal="true" aria-label="Atalhos de teclado">
-        <div class="shortcuts-help">
-            <div class="shortcuts-help-header">
-                <h2 class="shortcuts-help-title">Atalhos de Teclado</h2>
-                <button class="shortcuts-help-close" onclick="closeShortcutsHelp()" aria-label="Fechar">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="shortcuts-help-body">
-                <div class="shortcuts-help-section">
-                    <div class="shortcuts-help-section-title">Navegação</div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Abrir Paleta de Comandos</span>
-                        <span class="shortcuts-help-item-keys"><kbd>Ctrl</kbd><kbd>K</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Focar Busca Global</span>
-                        <span class="shortcuts-help-item-keys"><kbd>/</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Dashboard</span>
-                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>D</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Vendas</span>
-                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>V</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Nova Venda (PDV)</span>
-                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>N</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Produtos</span>
-                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>P</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Estoque</span>
-                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>E</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Pessoas</span>
-                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>S</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Financeiro</span>
-                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>F</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Relatórios</span>
-                        <span class="shortcuts-help-item-keys"><kbd>G</kbd> <kbd>R</kbd></span>
-                    </div>
-                </div>
-                <div class="shortcuts-help-section">
-                    <div class="shortcuts-help-section-title">Geral</div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Alternar Tema</span>
-                        <span class="shortcuts-help-item-keys"><kbd>T</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Fechar Overlays / Modais</span>
-                        <span class="shortcuts-help-item-keys"><kbd>Esc</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Mostrar esta ajuda</span>
-                        <span class="shortcuts-help-item-keys"><kbd>?</kbd></span>
-                    </div>
-                    <div class="shortcuts-help-item">
-                        <span class="shortcuts-help-item-label">Colapsar/Expandir Sidebar</span>
-                        <span class="shortcuts-help-item-keys"><kbd>Ctrl</kbd><kbd>B</kbd></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="{% static 'js/main.js' %}"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });</script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,169 +1,222 @@
 {% extends "frontend/base.html" %}
 {% load static %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard — CantinaOS{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
         <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Visão geral da cantina</p>
+        <p class="page-subtitle">Visão geral da operação</p>
     </div>
     <div class="page-actions">
         <a href="{% url 'frontend:pdv' %}" class="btn btn-primary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            <i data-lucide="plus" style="width:16px;height:16px;stroke-width:2;"></i>
             Nova Venda
         </a>
     </div>
 </div>
 
-<!-- Estatísticas -->
-<div class="dashboard-stats">
-    <div class="stat-card">
-        <div class="stat-value">{{ stats.vendas_dia }}</div>
-        <div class="stat-label">Vendas Hoje</div>
+<!-- KPI Strip -->
+<div class="kpi-strip" aria-label="Indicadores principais">
+    <div class="kpi">
+        <div class="kpi-label">Vendas Hoje</div>
+        <div class="kpi-value">{{ stats.vendas_dia }}</div>
+        <div class="kpi-meta"><span class="kpi-delta kpi-delta-up">+12%</span> <span class="kpi-compare">vs. ontem</span></div>
     </div>
-    <div class="stat-card">
-        <div class="stat-value">R$ {{ stats.faturamento_dia }}</div>
-        <div class="stat-label">Faturamento</div>
+    <div class="kpi">
+        <div class="kpi-label">Faturamento</div>
+        <div class="kpi-value">R$ {{ stats.faturamento_dia }}</div>
+        <div class="kpi-meta"><span class="kpi-delta kpi-delta-up">+8,4%</span> <span class="kpi-compare">vs. ontem</span></div>
     </div>
-    <div class="stat-card">
-        <div class="stat-value">R$ {{ stats.valor_receber }}</div>
-        <div class="stat-label">A Receber</div>
+    <div class="kpi">
+        <div class="kpi-label">A Receber</div>
+        <div class="kpi-value">R$ {{ stats.valor_receber }}</div>
+        <div class="kpi-meta"><span class="kpi-sub">4 contas em aberto</span></div>
     </div>
-    <div class="stat-card">
-        <div class="stat-value">{{ stats.produtos_baixo_estoque|length }}</div>
-        <div class="stat-label">Estoque Baixo</div>
+    <div class="kpi">
+        <div class="kpi-label">Estoque Baixo</div>
+        <div class="kpi-value">{{ stats.produtos_baixo_estoque|length }}</div>
+        <div class="kpi-meta"><span class="kpi-sub kpi-sub-warn">requer atenção</span></div>
     </div>
 </div>
 
-<!-- Seções -->
-<div class="dashboard-sections">
-    <!-- Valor a receber -->
-    <div class="section-card">
-        <div class="section-header">
-            <h3 class="section-title">Contas a Receber</h3>
+<!-- Primary Analytics -->
+<div class="dashboard-grid-2col">
+    <section class="panel" aria-labelledby="chart-heading">
+        <div class="panel-header">
+            <h2 id="chart-heading" class="panel-title">Vendas <span class="panel-subtitle">últimos 7 dias</span></h2>
+            <a href="#" class="btn btn-ghost btn-sm">Ver relatório <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
-        <div class="card-body">
-            {% if stats.valor_receber %}
-                <div style="display: flex; flex-direction: column; gap: var(--space-3);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0; border-bottom: var(--border-width) solid var(--color-border);">
-                        <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Pendente</span>
-                        <span style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-warning);">R$ {{ stats.valor_receber }}</span>
+        <div class="panel-body chart-area">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </section>
+
+    <section class="panel" aria-labelledby="estoque-heading">
+        <div class="panel-header">
+            <h2 id="estoque-heading" class="panel-title">Estoque</h2>
+            <a href="{% url 'frontend:estoque' %}" class="btn btn-ghost btn-sm">Ver estoque <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+        </div>
+        <div class="panel-body">
+            {% if stats.produtos_baixo_estoque %}
+            <div class="compact-table-wrap">
+                <table class="table-compact">
+                    <thead>
+                        <tr><th>Produto</th><th class="num">Qtd</th><th class="num">Mín</th><th>Situação</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for p in stats.produtos_baixo_estoque %}
+                        <tr>
+                            <td><div class="table-row-primary">{{ p.nome }}</div></td>
+                            <td class="num mono">{{ p.estoque }}</td>
+                            <td class="num mono text-muted">{{ p.estoque_minimo }}</td>
+                            <td>
+                                <span class="badge {% if p.estoque == 0 %}badge-danger{% else %}badge-warning{% endif %}">
+                                    {% if p.estoque == 0 %}SEM ESTOQUE{% else %}BAIXO{% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state compact">
+                <div class="empty-state-title">Estoque OK</div>
+                <div class="empty-state-description">Todos os produtos com estoque adequado</div>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<!-- Secondary Info -->
+<div class="dashboard-grid-2col">
+    <section class="panel" aria-labelledby="vendas-heading">
+        <div class="panel-header">
+            <h2 id="vendas-heading" class="panel-title">Vendas Recentes</h2>
+            <a href="#" class="btn btn-ghost btn-sm">Ver todas <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+        </div>
+        <div class="panel-body">
+            <div class="compact-table-wrap">
+                <table class="table-compact">
+                    <thead>
+                        <tr><th>Código</th><th>Cliente</th><th>Horário</th><th class="num">Total</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for venda in stats.vendas_recentes %}
+                        <tr>
+                            <td class="mono text-muted">{{ venda.codigo }}</td>
+                            <td>{{ venda.pessoa.nome }}</td>
+                            <td class="mono">{{ venda.data_hora|date:"H:i" }}</td>
+                            <td class="num font-semibold text-primary">R$ {{ venda.total }}</td>
+                            <td>
+                                <span class="badge {% if venda.status == 'CONCLUIDA' %}badge-success{% elif venda.status == 'CANCELADA' %}badge-danger{% elif venda.status == 'PENDENTE' %}badge-warning{% else %}badge-info{% endif %}">
+                                    {{ venda.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5" class="empty-state compact">Nenhuma venda recente</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel" aria-labelledby="receb-heading">
+        <div class="panel-header">
+            <h2 id="receb-heading" class="panel-title">Contas a Receber</h2>
+            <a href="#" class="btn btn-ghost btn-sm">Ver financeiro <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+        </div>
+        <div class="panel-body">
+            <div class="receivable-summary">
+                <div class="receivable-total">R$ {{ stats.valor_receber|default:"0.00" }}</div>
+                <div class="receivable-label">em aberto</div>
+                <div class="receivable-breakdown">
+                    {% if stats.valor_receber %}
+                    <div class="receivable-row">
+                        <span>Pendente</span>
+                        <span class="receivable-amount text-warning">R$ {{ stats.valor_receber }}</span>
                     </div>
+                    {% endif %}
                     {% if stats.valor_vencido %}
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0;">
-                        <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Vencido</span>
-                        <span style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-danger);">R$ {{ stats.valor_vencido }}</span>
+                    <div class="receivable-row">
+                        <span>Vencido</span>
+                        <span class="receivable-amount text-danger">R$ {{ stats.valor_vencido }}</span>
                     </div>
                     {% endif %}
                 </div>
-            {% elif stats.valor_vencido %}
-                <div style="display: flex; flex-direction: column; gap: var(--space-3);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0;">
-                        <span style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Vencido</span>
-                        <span style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-danger);">R$ {{ stats.valor_vencido }}</span>
-                    </div>
-                </div>
-            {% else %}
-                <div class="empty-state" style="padding: var(--space-8);">
-                    <div class="empty-state-title">Tudo em dia!</div>
-                    <div class="empty-state-description">Nenhuma conta pendente ou vencida</div>
-                </div>
-            {% endif %}
+            </div>
         </div>
-    </div>
-
-    <!-- Produtos com estoque baixo -->
-    <div class="section-card">
-        <div class="section-header">
-            <h3 class="section-title">Produtos com Estoque Baixo</h3>
-        </div>
-        <div class="card-body">
-            {% if stats.produtos_baixo_estoque %}
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th class="numeric">Estoque</th>
-                                <th class="numeric">Mínimo</th>
-                                <th>Situação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for p in stats.produtos_baixo_estoque %}
-                            <tr>
-                                <td>{{ p.nome }}</td>
-                                <td class="numeric">{{ p.estoque }}</td>
-                                <td class="numeric">{{ p.estoque_minimo }}</td>
-                                <td>
-                                    <span class="badge 
-                                        {% if p.estoque == 0 %}badge-danger
-                                        {% else %}badge-warning{% endif %}">
-                                        {% if p.estoque == 0 %}Sem Estoque{% else %}Baixo{% endif %}
-                                    </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            {% else %}
-                <div class="empty-state" style="padding: var(--space-8);">
-                    <div class="empty-state-title">Estoque OK</div>
-                    <div class="empty-state-description">Todos os produtos estão com estoque adequado</div>
-                </div>
-            {% endif %}
-        </div>
-    </div>
+    </section>
 </div>
 
-<!-- Vendas recentes -->
-<div class="section-card">
-    <div class="section-header">
-        <h3 class="section-title">Vendas Recentes</h3>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Cliente</th>
-                        <th>Horário</th>
-                        <th class="numeric">Total</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for venda in stats.vendas_recentes %}
-                    <tr>
-                        <td><code>{{ venda.codigo }}</code></td>
-                        <td>{{ venda.pessoa.nome }}</td>
-                        <td>{{ venda.data_hora|date:"H:i" }}</td>
-                        <td class="numeric" style="font-weight: var(--font-weight-semibold); color: var(--color-primary);">R$ {{ venda.total }}</td>
-                        <td>
-                            <span class="badge 
-                                {% if venda.status == 'CONCLUIDA' %}badge-success
-                                {% elif venda.status == 'CANCELADA' %}badge-danger
-                                {% elif venda.status == 'PENDENTE' %}badge-warning
-                                {% else %}badge-info{% endif %}">
-                                {{ venda.status }}
-                            </span>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="empty-state">Nenhuma venda recente</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) lucide.createIcons();
+    });
+
+    (function initSalesChart() {
+        const canvas = document.getElementById('salesChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        try {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Vendas',
+                        data: [12, 19, 15, 27, 22, 30, 24],
+                        borderColor: '#A3E6C0',
+                        backgroundColor: 'rgba(163,230,192,0.08)',
+                        tension: 0.35,
+                        fill: true,
+                        pointBackgroundColor: '#171717',
+                        pointBorderColor: '#A3E6C0',
+                        pointRadius: 3,
+                        pointHoverRadius: 5,
+                        borderWidth: 1.5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#171717',
+                            titleColor: '#F5F5F5',
+                            bodyColor: '#A3A3A3',
+                            borderColor: '#2E2E2E',
+                            borderWidth: 1,
+                            cornerRadius: 4,
+                            padding: 8,
+                            titleFont: { size: 12, weight: 600 },
+                            bodyFont: { size: 12 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(163,163,163,0.12)' },
+                            ticks: { color: '#737373', font: { size: 11 }, maxTicksLimit: 5 }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#737373', font: { size: 11 } }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' }
+                }
+            });
+        } catch (e) { console.warn('Chart init skipped:', e); }
+    })();
+</script>
+{% endblock %}
 {% endblock %}

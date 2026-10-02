@@ -25,13 +25,13 @@
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);">
             <h3 class="card-title" style="margin: 0;">Produtos Cadastrados</h3>
             <div class="produtos-filters" style="display: flex; gap: var(--space-2);">
-                <select id="filtro-categoria" class="select" onchange="filtrarProdutos()" style="min-width: 200px;">
+                <select id="filtro-categoria" class="select" onchange="filtrarProdutos()">
                     <option value="">Todas categorias</option>
                     {% for c in categorias %}
                     <option value="{{ c.id }}">{{ c.nome }}</option>
                     {% endfor %}
                 </select>
-                <select id="filtro-status" class="select" onchange="filtrarProdutos()" style="min-width: 150px;">
+                <select id="filtro-status" class="select" onchange="filtrarProdutos()">
                     <option value="">Todos status</option>
                     <option value="true">Ativos</option>
                     <option value="false">Inativos</option>

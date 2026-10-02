@@ -37,14 +37,14 @@
 <div class="section-card" style="margin-bottom: var(--space-4);">
     <div class="card-body" style="padding: var(--space-3) var(--space-4);">
         <div class="estoque-filters">
-            <select id="filtro-situacao" class="select" onchange="filtrarEstoque()" style="min-width: 200px;">
+            <select id="filtro-situacao" class="select" onchange="filtrarEstoque()">
                 <option value="">Todas situações</option>
                 <option value="NORMAL">Normal</option>
                 <option value="BAIXO">Baixo</option>
                 <option value="SEM ESTOQUE">Sem Estoque</option>
                 <option value="INATIVO">Inativo</option>
             </select>
-            <select id="filtro-categoria-estoque" class="select" onchange="filtrarEstoque()" style="min-width: 200px;">
+            <select id="filtro-categoria-estoque" class="select" onchange="filtrarEstoque()">
                 <option value="">Todas categorias</option>
                 {% for c in categorias %}
                 <option value="{{ c.id }}">{{ c.nome }}</option>
