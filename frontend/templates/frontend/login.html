@@ -12,8 +12,11 @@
             <p class="login-subtitle">CantinaOS — Sistema de Cantina Escolar</p>
         </div>
 
-        <form method="post" action="{% url 'frontend:login' %}" class="login-form">
+        <form method="post" action="{% url 'frontend:login' %}" class="login-form" novalidate>
             {% csrf_token %}
+            {% if error %}
+            <div class="alert alert-small alert-danger" role="alert" aria-live="polite">{{ error }}</div>
+            {% endif %}
             
             <div class="form-group">
                 <label for="username" class="form-label">Usuário</label>

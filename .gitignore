@@ -60,3 +60,34 @@ env/
 *.pid
 *.pot
 .aider*
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Project meta
+.impeccable/
+.pi/
+
+# Docs generated
+DESIGN.md.bak
+
+# Build artifacts
+build/
+dist/
+*.spec
+
+# Cache and logs
+.cache/
+*.log
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Environment
+.env
+.env.*
+!.env.example

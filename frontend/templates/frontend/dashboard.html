@@ -50,6 +50,7 @@
         </div>
         <div class="panel-body chart-area">
             <canvas id="salesChart"></canvas>
+            <div class="chart-caption" aria-label="Legenda do gráfico">Últimos 7 dias — unidades vendidas por dia (eixo Y: unidades). A tendência indica volume operacional, não receita.</div>
         </div>
     </section>
 
@@ -83,8 +84,8 @@
             </div>
             {% else %}
             <div class="empty-state compact">
-                <div class="empty-state-title">Estoque OK</div>
-                <div class="empty-state-description">Todos os produtos com estoque adequado</div>
+                <div class="empty-state-title">Estoço OK</div>
+                <div class="empty-state-description">Todos os produtos com estoque adequado — nenhuma reposição urgente.</div>
             </div>
             {% endif %}
         </div>
@@ -148,7 +149,14 @@
                         <span class="receivable-amount text-danger">R$ {{ stats.valor_vencido }}</span>
                     </div>
                     {% endif %}
+                    {% if not stats.valor_receber and not stats.valor_vencido %}
+                    <div class="receivable-row">
+                        <span>Tudo em dia</span>
+                        <span class="receivable-amount">—</span>
+                    </div>
+                    {% endif %}
                 </div>
+                <div style="margin-top:12px;font-size:0.6875rem;color:var(--color-text-muted);line-height:1.4;">Contas com atraso precisam de acompanhamento imediato para evitar impacto no fluxo.</div>
             </div>
         </div>
     </section>

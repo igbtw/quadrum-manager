@@ -53,7 +53,7 @@
                         </svg>
                     </button>
                 </div>
-                <button class="header-action" aria-label="Notificações" onclick="showNotification('Notificações', 'Nenhuma notificação no momento', 'info')">
+                <button class="header-action" aria-label="Notificações" onclick="togglePanel('notificationPanel')">
                     <i data-lucide="bell" style="width:20px;height:20px;stroke-width:2;"></i>
                 </button>
                 <button class="header-action" aria-label="Mensagens">
@@ -72,6 +72,23 @@
         <main class="main" role="main">
             {% block content %}{% endblock %}
         </main>
+    </div>
+
+    <div class="notification-panel" id="notificationPanel" role="dialog" aria-label="Notificações" style="display:none;position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
+        <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Notificações</div>
+        <div style="font-size:0.875rem;color:var(--color-text-secondary);">Nenhuma notificação no momento</div>
+    </div>
+
+    <div class="message-panel" id="messagePanel" role="dialog" aria-label="Mensagens" style="display:none;position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
+        <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Mensagens</div>
+        <div style="font-size:0.875rem;color:var(--color-text-secondary);">Nenhuma mensagem</div>
+    </div>
+
+    <div class="profile-menu" id="profileMenu" role="menu" aria-label="Perfil" style="display:none;position:fixed;top:58px;right:16px;width:200px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:8px;z-index:700;box-shadow:var(--shadow-lg);">
+        <a href="#" onclick="document.getElementById('profileMenu').style.display='none';return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Perfil</a>
+        <a href="#" onclick="document.getElementById('profileMenu').style.display='none';return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Configurações</a>
+        <div style="border-top:1px solid var(--color-border);margin:4px 0;"></div>
+        <a href="{% url 'frontend:login' %}" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-danger);font-size:0.875rem;text-decoration:none;">Sair</a>
     </div>
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>

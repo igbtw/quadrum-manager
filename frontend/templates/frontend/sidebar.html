@@ -2,46 +2,46 @@
 <aside class="sidebar" id="sidebar" role="navigation" aria-label="Menu principal">
     <div class="sidebar-header">
         <a href="{% url 'frontend:dashboard' %}" class="sidebar-logo" aria-label="CantinaOS">
-            <div class="sidebar-logo-icon">C</div>
+            <div class="sidebar-logo-mark">C</div>
             <span>CantinaOS</span>
         </a>
-        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Colapsar sidebar" onclick="toggleSidebarCollapse()">
-            <i data-lucide="chevron-left" style="width:16px;height:16px;stroke-width:2;"></i>
+        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Colapsar sidebar" onclick="toggleSidebarCollapse()" title="Colapsar sidebar (Ctrl+B)">
+            <i data-lucide="chevron-left" style="width:14px;height:14px;stroke-width:2.5;"></i>
         </button>
     </div>
 
-    <nav class="sidebar-nav">
-        <div class="nav-section">
-            <div class="nav-section-title">Navegação</div>
-            <a href="{% url 'frontend:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+        <div class="nav-section" aria-label="Navegação">
+            <div class="nav-section-label">Navegação</div>
+            <a href="{% url 'frontend:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" aria-label="Dashboard" title="Dashboard">
                 <i data-lucide="layout-dashboard" style="width:18px;height:18px;stroke-width:2;"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="{% url 'frontend:vendas_list' %}" class="nav-item {% if request.resolver_match.url_name == 'vendas_list' %}active{% endif %}">
+            <a href="{% url 'frontend:vendas_list' %}" class="nav-item {% if request.resolver_match.url_name == 'vendas_list' %}active{% endif %}" aria-label="Vendas" title="Vendas">
                 <i data-lucide="receipt" style="width:18px;height:18px;stroke-width:2;"></i>
                 <span>Vendas</span>
             </a>
-            <a href="{% url 'frontend:pdv' %}" class="nav-item {% if request.resolver_match.url_name == 'pdv' %}active{% endif %}">
+            <a href="{% url 'frontend:pdv' %}" class="nav-item {% if request.resolver_match.url_name == 'pdv' %}active{% endif %}" aria-label="Nova Venda" title="Nova Venda">
                 <i data-lucide="credit-card" style="width:18px;height:18px;stroke-width:2;"></i>
                 <span>Nova Venda</span>
             </a>
-            <a href="{% url 'frontend:produtos' %}" class="nav-item {% if request.resolver_match.url_name == 'produtos' %}active{% endif %}">
+            <a href="{% url 'frontend:produtos' %}" class="nav-item {% if request.resolver_match.url_name == 'produtos' %}active{% endif %}" aria-label="Produtos" title="Produtos">
                 <i data-lucide="package" style="width:18px;height:18px;stroke-width:2;"></i>
                 <span>Produtos</span>
             </a>
-            <a href="{% url 'frontend:estoque' %}" class="nav-item {% if request.resolver_match.url_name == 'estoque' %}active{% endif %}">
+            <a href="{% url 'frontend:estoque' %}" class="nav-item {% if request.resolver_match.url_name == 'estoque' %}active{% endif %}" aria-label="Estoque" title="Estoque">
                 <i data-lucide="boxes" style="width:18px;height:18px;stroke-width:2;"></i>
                 <span>Estoque</span>
             </a>
-            <a href="{% url 'frontend:pessoas' %}" class="nav-item {% if request.resolver_match.url_name == 'pessoas' %}active{% endif %}">
+            <a href="{% url 'frontend:pessoas' %}" class="nav-item {% if request.resolver_match.url_name == 'pessoas' %}active{% endif %}" aria-label="Pessoas" title="Pessoas">
                 <i data-lucide="users" style="width:18px;height:18px;stroke-width:2;"></i>
                 <span>Pessoas</span>
             </a>
-            <a href="{% url 'frontend:financeiro' %}" class="nav-item {% if request.resolver_match.url_name == 'financeiro' %}active{% endif %}">
+            <a href="{% url 'frontend:financeiro' %}" class="nav-item {% if request.resolver_match.url_name == 'financeiro' %}active{% endif %}" aria-label="Financeiro" title="Financeiro">
                 <i data-lucide="banknote" style="width:18px;height:18px;stroke-width:2;"></i>
                 <span>Financeiro</span>
             </a>
-            <a href="{% url 'frontend:relatorios' %}" class="nav-item {% if request.resolver_match.url_name == 'relatorios' %}active{% endif %}">
+            <a href="{% url 'frontend:relatorios' %}" class="nav-item {% if request.resolver_match.url_name == 'relatorios' %}active{% endif %}" aria-label="Relatórios" title="Relatórios">
                 <i data-lucide="bar-chart-3" style="width:18px;height:18px;stroke-width:2;"></i>
                 <span>Relatórios</span>
             </a>
@@ -49,9 +49,9 @@
     </nav>
 
     <div class="sidebar-footer">
-        <div class="user-info">
+        <div class="user-card" onclick="togglePanel('profileMenu')" role="button" aria-label="Perfil" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePanel('profileMenu');}">
             <div class="user-avatar">U</div>
-            <div class="user-details">
+            <div class="user-info-text">
                 <div class="user-name">Usuário</div>
                 <div class="user-role">Padrão</div>
             </div>

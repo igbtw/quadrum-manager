@@ -317,4 +317,20 @@ window.Cantina = {
 
 function toggleSidebarCollapse() {
     document.getElementById('sidebar').classList.toggle('collapsed');
+    document.querySelector('.layout')?.classList.toggle('collapsed');
 }
+
+window.togglePanel = function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var open = el.style.display === 'none' || el.style.display === '';
+    ['notificationPanel','messagePanel','profileMenu'].forEach(function(pid){
+        if (pid !== id) { var p = document.getElementById(pid); if (p) p.style.display = 'none'; }
+    });
+    el.style.display = open ? 'block' : 'none';
+};
+document.addEventListener('click', function(e){
+    if (!e.target.closest('#notificationPanel') && !e.target.closest('.header-right') && document.getElementById('notificationPanel')) document.getElementById('notificationPanel').style.display = 'none';
+    if (!e.target.closest('#messagePanel') && !e.target.closest('.header-right') && document.getElementById('messagePanel')) document.getElementById('messagePanel').style.display = 'none';
+    if (!e.target.closest('#profileMenu') && !e.target.closest('.user-info') && document.getElementById('profileMenu')) document.getElementById('profileMenu').style.display = 'none';
+});

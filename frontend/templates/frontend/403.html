@@ -1,0 +1,10 @@
+{% extends "frontend/base.html" %}
+{% block title %}403 — CantinaOS{% endblock %}
+{% block content %}
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;padding:var(--space-6);text-align:center;">
+    <div style="font-size:var(--font-size-4xl);font-weight:700;color:var(--color-text-muted);letter-spacing:-0.04em;line-height:1.05;margin-bottom:var(--space-4);">403</div>
+    <h1 style="font-size:var(--font-size-2xl);font-weight:600;color:var(--color-text);margin-bottom:var(--space-3);letter-spacing:-0.02em;">Acesso negado</h1>
+    <p style="color:var(--color-text-muted);max-width:420px;line-height:1.6;margin-bottom:var(--space-5);">Você não tem permissão para acessar esta área. Se acredita que isso é um erro, entre em contato com o administrador.</p>
+    <a href="{% url 'frontend:dashboard' %}" class="btn btn-primary" style="text-decoration:none;">Voltar ao Dashboard</a>
+</div>
+{% endblock %}

@@ -58,8 +58,8 @@
     --space-12: 48px;
 
     /* ===== Typography ===== */
-    --font-family: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    --font-family-mono: "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
+    --font-family: "IBM Plex Sans", "Segoe UI", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-family-mono: "IBM Plex Mono", "SF Mono", "Fira Code", "Fira Mono", Menlo, Consolas, monospace;
 
     --font-size-xs: 0.6875rem;    /* 11px */
     --font-size-sm: 0.75rem;      /* 12px */
@@ -76,7 +76,7 @@
     --font-weight-bold: 700;
 
     --line-height-tight: 1.25;
-    --line-height-base: 1.5;
+    --line-height-base: 1.625;
     --line-height-relaxed: 1.625;
 
     /* ===== Borders ===== */
