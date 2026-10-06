@@ -286,9 +286,7 @@ function initNotificacoes() {
 
         // Auto remover após 5 segundos
         setTimeout(() => {
-            notification.style.transition = 'opacity 0.3s, transform 0.3s';
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateY(10px)';
+            notification.classList.add('removing');
             setTimeout(() => notification.remove(), 300);
         }, 5000);
     };
@@ -323,14 +321,16 @@ function toggleSidebarCollapse() {
 window.togglePanel = function(id) {
     var el = document.getElementById(id);
     if (!el) return;
-    var open = el.style.display === 'none' || el.style.display === '';
+    var isOpen = el.classList.contains('open');
     ['notificationPanel','messagePanel','profileMenu'].forEach(function(pid){
-        if (pid !== id) { var p = document.getElementById(pid); if (p) p.style.display = 'none'; }
+        var p = document.getElementById(pid);
+        if (p) p.classList.remove('open');
     });
-    el.style.display = open ? 'block' : 'none';
+    if (!isOpen) el.classList.add('open');
 };
+
 document.addEventListener('click', function(e){
-    if (!e.target.closest('#notificationPanel') && !e.target.closest('.header-right') && document.getElementById('notificationPanel')) document.getElementById('notificationPanel').style.display = 'none';
-    if (!e.target.closest('#messagePanel') && !e.target.closest('.header-right') && document.getElementById('messagePanel')) document.getElementById('messagePanel').style.display = 'none';
-    if (!e.target.closest('#profileMenu') && !e.target.closest('.user-info') && document.getElementById('profileMenu')) document.getElementById('profileMenu').style.display = 'none';
+    if (!e.target.closest('#notificationPanel') && !e.target.closest('.header-right') && document.getElementById('notificationPanel')) document.getElementById('notificationPanel').classList.remove('open');
+    if (!e.target.closest('#messagePanel') && !e.target.closest('.header-right') && document.getElementById('messagePanel')) document.getElementById('messagePanel').classList.remove('open');
+    if (!e.target.closest('#profileMenu') && !e.target.closest('.user-info') && document.getElementById('profileMenu')) document.getElementById('profileMenu').classList.remove('open');
 });

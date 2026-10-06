@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
     <link rel="stylesheet" href="{% static 'css/components.css' %}">
     <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+    <link rel="stylesheet" href="{% static 'css/motion.css' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,7 +22,7 @@
         (function() {
             const savedTheme = localStorage.getItem('theme');
             const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+            const theme = savedTheme || 'light';
             document.documentElement.setAttribute('data-theme', theme);
         })();
     </script>
@@ -74,19 +75,19 @@
         </main>
     </div>
 
-    <div class="notification-panel" id="notificationPanel" role="dialog" aria-label="Notificações" style="display:none;position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
+    <div class="notification-panel" id="notificationPanel" role="dialog" aria-label="Notificações" style="position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
         <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Notificações</div>
         <div style="font-size:0.875rem;color:var(--color-text-secondary);">Nenhuma notificação no momento</div>
     </div>
 
-    <div class="message-panel" id="messagePanel" role="dialog" aria-label="Mensagens" style="display:none;position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
+    <div class="message-panel" id="messagePanel" role="dialog" aria-label="Mensagens" style="position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
         <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Mensagens</div>
         <div style="font-size:0.875rem;color:var(--color-text-secondary);">Nenhuma mensagem</div>
     </div>
 
-    <div class="profile-menu" id="profileMenu" role="menu" aria-label="Perfil" style="display:none;position:fixed;top:58px;right:16px;width:200px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:8px;z-index:700;box-shadow:var(--shadow-lg);">
-        <a href="#" onclick="document.getElementById('profileMenu').style.display='none';return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Perfil</a>
-        <a href="#" onclick="document.getElementById('profileMenu').style.display='none';return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Configurações</a>
+    <div class="profile-menu" id="profileMenu" role="menu" aria-label="Perfil" style="position:fixed;top:58px;right:16px;width:200px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:8px;z-index:700;box-shadow:var(--shadow-lg);">
+        <a href="#" onclick="document.getElementById('profileMenu').classList.remove('open'); return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Perfil</a>
+        <a href="#" onclick="document.getElementById('profileMenu').classList.remove('open'); return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Configurações</a>
         <div style="border-top:1px solid var(--color-border);margin:4px 0;"></div>
         <a href="{% url 'frontend:login' %}" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-danger);font-size:0.875rem;text-decoration:none;">Sair</a>
     </div>

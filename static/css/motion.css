@@ -1,0 +1,372 @@
+/* ========================================
+   MOTION.CSS — Quality-fixed motion system
+   Purposeful, smooth, no jank
+   ======================================== */
+
+:root {
+  --motion-fast: 120ms;
+  --motion-normal: 180ms;
+  --motion-slow: 240ms;
+  --motion-layout: 280ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+
+  .kpi-strip .kpi,
+  .dashboard-grid-2col > .panel,
+  .panel, .card, .stat-card {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .skeleton {
+    animation: none !important;
+    background: var(--color-bg-hover) !important;
+  }
+
+  .btn:hover:not(:disabled),
+  .nav-item:hover,
+  .table tbody tr:hover td,
+  .kpi-strip .kpi:hover {
+    transform: none !important;
+  }
+}
+
+/* ===== Page Transition ===== */
+/* Extremely subtle — just a 4px rise and fade. No fly-around. */
+.main {
+  animation: pageFadeIn 150ms var(--ease-out) both;
+}
+
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main { animation: none; opacity: 1; transform: none; }
+}
+
+/* ===== Sidebar — Coordinated, no jump ===== */
+/* Main and header must move together with sidebar so nothing jumps. */
+.main,
+.header {
+  transition: margin-left var(--motion-layout) var(--ease-out);
+}
+
+/* Sidebar uses ONLY width transition; mobile uses ONLY transform. */
+@media (min-width: 1025px) {
+  .sidebar {
+    transition: width var(--motion-layout) var(--ease-out);
+    width: var(--sidebar-width);
+  }
+  .sidebar.collapsed {
+    width: 56px;
+  }
+
+  /* Content follows sidebar smoothly */
+  .layout.collapsed .main,
+  .layout.collapsed .header {
+    margin-left: 56px;
+  }
+}
+
+/* Mobile: off-canvas, transform ONLY (no width animation) */
+@media (max-width: 1024px) {
+  .sidebar {
+    transition: transform var(--motion-normal) var(--ease-out),
+                box-shadow var(--motion-normal) var(--ease-out);
+    width: var(--sidebar-width); /* stays full width */
+  }
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.28);
+  }
+}
+
+/* Sidebar label/text fade — smooth, no jump */
+.sidebar.collapsed .nav-item span,
+.sidebar.collapsed .nav-section-label,
+.sidebar.collapsed .user-info-text,
+.sidebar.collapsed .sidebar-logo span {
+  opacity: 0;
+  visibility: hidden;
+  width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity 100ms ease-in,
+              visibility 100ms ease-in,
+              width 100ms ease-in;
+}
+
+/* Sidebar overlay */
+.sidebar-overlay {
+  transition: opacity var(--motion-normal) var(--ease-out),
+              visibility var(--motion-normal);
+}
+
+/* ===== Dashboard — Restrained, not scattered ===== */
+/* Only 2-level hierarchy: major panels reveal together; no per-element stagger. */
+.kpi-strip .kpi {
+  opacity: 0;
+  animation: dashKpiIn 300ms var(--ease-out) forwards;
+  will-change: transform, opacity;
+}
+
+/* Very small stagger (max 180ms total) — feels like natural load, not a sequence */
+.kpi-strip .kpi:nth-child(1) { animation-delay: 30ms; }
+.kpi-strip .kpi:nth-child(2) { animation-delay: 60ms; }
+.kpi-strip .kpi:nth-child(3) { animation-delay: 90ms; }
+.kpi-strip .kpi:nth-child(4) { animation-delay: 120ms; }
+
+@keyframes dashKpiIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Panel entrance: shorter, tighter group */
+.dashboard-grid-2col > .panel {
+  opacity: 0;
+  animation: dashPanelIn 280ms var(--ease-out) forwards;
+  will-change: transform, opacity;
+}
+
+.dashboard-grid-2col > .panel:nth-child(1) { animation-delay: 60ms; }
+.dashboard-grid-2col > .panel:nth-child(2) { animation-delay: 120ms; }
+
+/* Second group: minimal delay so page feels complete quickly */
+.dashboard-grid-2col:nth-of-type(2) > .panel:nth-child(1) { animation-delay: 40ms; }
+.dashboard-grid-2col:nth-of-type(2) > .panel:nth-child(2) { animation-delay: 80ms; }
+
+@keyframes dashPanelIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Hover lift: very small, immediate */
+.kpi-strip .kpi:hover {
+  transform: translateY(-2px);
+  transition: transform 120ms var(--ease-out),
+              box-shadow 120ms var(--ease-out);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+/* ===== Component States ===== */
+/* Buttons: fast, consistent ease */
+.btn {
+  transition: background 120ms var(--ease-out),
+              border-color 120ms var(--ease-out),
+              color 120ms var(--ease-out),
+              transform 80ms var(--ease-in);
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0) scale(0.99);
+  transition-duration: 60ms;
+}
+
+/* Navigation */
+.nav-item {
+  transition: background 120ms var(--ease-out),
+              color 120ms var(--ease-out),
+              border-color 120ms var(--ease-out);
+}
+
+/* Table rows */
+.table tbody tr {
+  transition: background 120ms var(--ease-out);
+}
+
+/* Cards/panels: only subtle border/shadow, no large movement */
+.panel, .card, .stat-card {
+  transition: border-color 120ms var(--ease-out),
+              box-shadow 120ms var(--ease-out);
+}
+
+/* Icon / header buttons */
+.header-action,
+.sidebar-collapse-btn,
+.theme-toggle button {
+  transition: background 120ms var(--ease-out),
+              color 120ms var(--ease-out),
+              border-color 120ms var(--ease-out);
+}
+
+/* Links */
+a {
+  transition: color 120ms var(--ease-out);
+}
+
+/* Form controls */
+.input, .select {
+  transition: border-color 120ms var(--ease-out),
+              background 120ms var(--ease-out),
+              box-shadow 120ms var(--ease-out);
+}
+
+/* ===== Dropdown / Popover ===== */
+/* Small translateY, no scale (scale creates layout perception issues) */
+.dropdown-menu,
+.profile-menu,
+.notification-panel,
+.message-panel {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 140ms var(--ease-out),
+              transform 140ms var(--ease-out),
+              visibility 140ms var(--ease-out);
+}
+
+.dropdown-menu.open,
+.profile-menu.open,
+.notification-panel.open,
+.message-panel.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* ===== Modal / Dialog ===== */
+/* Backdrop and dialog coordinated: backdrop slightly faster */
+.modal-overlay {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms var(--ease-out),
+              visibility 180ms var(--ease-out);
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  transform: scale(0.98) translateY(6px);
+  transition: transform 200ms var(--ease-out);
+}
+
+.modal-overlay.open .modal-content {
+  transform: scale(1) translateY(0);
+}
+
+/* ===== Toast / Notification ===== */
+/* Animation kept but very short */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(8px); }
+}
+
+.toast {
+  animation: toastIn 140ms var(--ease-out) both;
+}
+
+.toast.removing {
+  animation: toastOut 140ms var(--ease-in) both;
+}
+
+/* ===== Skeleton ===== */
+/* Subtle shimmer — slower, calmer */
+@keyframes shimmerMove {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-bg-elevated) 25%, var(--color-bg-hover) 50%, var(--color-bg-elevated) 75%);
+  background-size: 200% 100%;
+  animation: shimmerMove 2.2s linear infinite;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* ===== Data Updates ===== */
+/* Only used when explicitly triggered by JS; not automatic on every render */
+.kpi-value {
+  transition: opacity 120ms var(--ease-out);
+}
+
+@keyframes valueUpdate {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.value-updated {
+  animation: valueUpdate 240ms var(--ease-out) both;
+}
+
+/* ===== Empty / Error States ===== */
+/* Subtle, calm entrance */
+.empty-state,
+.alert {
+  opacity: 0;
+  animation: dashPanelIn 240ms var(--ease-out) forwards;
+}
+
+/* ===== Loading Buttons ===== */
+/* Spinner — calm, not frantic */
+.btn.loading::after {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-left: 8px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.btn-primary.loading::after {
+  border-top-color: var(--color-primary-text);
+}
+
+.btn-secondary.loading::after,
+.btn-ghost.loading::after {
+  border-top-color: var(--color-text);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== Interruption-safe dropdown/modal ===== */
+/* When opening/closing rapidly, CSS transition handles reversal smoothly. */
+/* No JS loops needed. */
+
+/* ===== Focus ===== */
+.btn:focus-visible,
+.nav-item:focus-visible,
+.input:focus,
+.select:focus,
+.header-action:focus-visible,
+.theme-toggle button:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

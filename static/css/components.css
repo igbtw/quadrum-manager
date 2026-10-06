@@ -171,15 +171,30 @@
 /* ===== Select ===== */
 .select {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3C");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23858A8A' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 40px;
+    width: 100%;
+    height: var(--input-height-md);
+    padding: 0 var(--input-padding-x);
+    padding-right: 40px;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    background: var(--color-bg);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+    color-scheme: light;
 }
-
+.select:hover { background: var(--color-bg-hover); border-color: var(--color-border); }
 .select:focus {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232563eb' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3C");
+    border-color: var(--color-primary);
+    background: var(--color-bg-elevated);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23606060' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
+[data-theme="dark"] .select { color-scheme: dark; }
 
 /* ===== Badge ===== */
 .badge {
@@ -814,7 +829,7 @@
 }
 
 /* ===== KPI Strip ===== */
-.kpi-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); margin-bottom: var(--space-6); min-width: 0; min-height: 120px; }
+.kpi-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); min-width: 0; min-height: 120px; }
 @media (max-width: 1024px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .kpi-strip { grid-template-columns: 1fr; } }
 .kpi { background: var(--color-bg-elevated); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md); padding: var(--space-4) var(--space-5); min-width: 0; }
@@ -829,11 +844,11 @@
 
 /* ===== Panel ===== */
 .panel { background: var(--color-bg-elevated); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; min-width: 0; min-height: 320px; display: flex; flex-direction: column; }
-.panel-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-4); border-bottom: var(--border-width) solid var(--color-border); gap: var(--space-3); }
+.panel-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); border-bottom: var(--border-width) solid var(--color-border); gap: var(--space-3); }
 .panel-title { font-size: var(--font-size-xl); font-weight: 700; color: var(--color-text); line-height: 1.2; letter-spacing: -0.02em; }
 .panel-subtitle { color: var(--color-text-muted); font-weight: var(--font-weight-normal); font-size: var(--font-size-sm); margin-left: var(--space-2); }
-.panel-body { padding: var(--space-4); line-height: 1.625; }
-.chart-area { height: 260px; min-height: 260px; position: relative; }
+.panel-body { padding: var(--space-3); line-height: 1.625; }
+.chart-area { height: 220px; min-height: 220px; position: relative; }
 .chart-area canvas { display: block; width: 100%; height: 100%; }
 
 /* ===== Compact Tables ===== */
@@ -862,9 +877,9 @@
 .receivable-amount { font-weight: var(--font-weight-semibold); font-size: var(--font-size-base); color: var(--color-text); }
 
 /* ===== Dashboard Grid ===== */
-.dashboard-grid-2col { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: var(--space-4); margin-bottom: var(--space-6); align-items: start; min-width: 0; }
+.dashboard-grid-2col { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: var(--space-4); margin-bottom: var(--space-4); align-items: stretch; min-width: 0; }
 .chart-caption { font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: var(--space-2); margin-left: var(--space-1); }
-.dashboard-grid-2col + .dashboard-grid-2col { margin-top: var(--space-8); }
+.dashboard-grid-2col + .dashboard-grid-2col { margin-top: var(--space-4); }
 @media (max-width: 1024px) { .dashboard-grid-2col { grid-template-columns: 1fr; } }
 
 /* ===== Typography refinements only ===== */
