@@ -1,4 +1,5 @@
-from django.db import models
+from django.db import models, transaction
+from django.db.models import Sum
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from decimal import Decimal
@@ -121,8 +122,19 @@ class Sale(models.Model):
         verbose_name_plural = 'Vendas'
 
     def save(self, *args, **kwargs):
-        if not self.code:
-            self.code = f"VD{self.id:05d}" if self.id else f"VD{Sale.objects.count()+1:05d}"
+        # Prevent double insert/update conflict when Django passes force_insert
+        if self.pk and not self.code:
+            kwargs.pop('force_insert', None)
+            self.code = f"VEN-{self.pk:06d}"
+            super(Sale, self).save(update_fields=['code'], *args, **kwargs)
+            return
+        if not self.pk:
+            super().save(*args, **kwargs)
+            if not self.code and self.pk:
+                self.code = f"VEN-{self.pk:06d}"
+                kwargs.pop('force_insert', None)
+                super(Sale, self).save(update_fields=['code'], *args, **kwargs)
+            return
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -190,11 +202,12 @@ class AccountReceivable(models.Model):
 
     @property
     def amount_paid(self):
-        return sum(p.amount for p in self.payments.all())
+        result = self.payments.aggregate(s=Sum('amount'))['s']
+        return result or Decimal('0.00')
 
     @property
     def remaining_balance(self):
-        paid = self.amount_paid
+        paid = self.amount_paid or Decimal('0.00')
         return max(self.original_amount - paid, Decimal('0.00'))
 
     def update_status(self):
@@ -207,6 +220,21 @@ class AccountReceivable(models.Model):
             self.status = 'PARTIAL'
         else:
             self.status = 'PENDING'
+
+
+def register_payment(account_receivable: AccountReceivable, amount: Decimal, method: str = 'DINHEIRO', user: User = None, notes: str = '') -> Payment:
+    """Transactional payment registration; recalculates receivable afterwards."""
+    with transaction.atomic():
+        rc = AccountReceivable.objects.select_for_update().get(pk=account_receivable.pk)
+        if amount > rc.remaining_balance:
+            raise ValueError('Pagamento excede saldo restante.')
+        p = Payment.objects.create(
+            account_receivable=rc, amount=amount, method=method,
+            responsible_user=user, notes=notes
+        )
+        rc.update_status()
+        rc.save(update_fields=['status'])
+        return p
 
 
 class Payment(models.Model):
@@ -223,6 +251,28 @@ class Payment(models.Model):
         verbose_name_plural = 'Pagamentos'
 
     def clean(self):
-        if self.amount > self.account_receivable.remaining_balance:
-            from django.core.exceptions import ValidationError
-            raise ValidationError('Pagamento não pode exceder saldo restante.')
+        try:
+            if self.account_receivable_id and isinstance(self.amount, Decimal):
+                rc = AccountReceivable.objects.get(pk=self.account_receivable_id)
+                bal = rc.remaining_balance
+                if bal is not None and self.amount > bal:
+                    from django.core.exceptions import ValidationError
+                    raise ValidationError('Pagamento não pode exceder saldo restante.')
+        except TypeError:
+            pass  # form clean handles validation; avoid crash during instance init
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding
+        old_amount = None
+        if not is_new and self.pk:
+            try:
+                old = Payment.objects.get(pk=self.pk)
+                old_amount = old.amount
+            except Payment.DoesNotExist:
+                old_amount = None
+        super().save(*args, **kwargs)
+        # Guarded hook: only recalc when amount actually changed or new record
+        if is_new or old_amount != self.amount:
+            self.account_receivable.refresh_from_db()
+            self.account_receivable.update_status()
+            self.account_receivable.save(update_fields=['status'])

@@ -1,2 +1,2 @@
 # Core dependencies
-Django>=4.2,<5.0
+Django>=5.2,<5.3

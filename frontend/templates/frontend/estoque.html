@@ -61,6 +61,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
+            <form method="post" action="{% url 'frontend:estoque' %}" style="margin-bottom:12px; padding:10px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">{% csrf_token %}<h4 style="font-size:var(--font-size-sm); margin:0 0 8px;">Ajuste de estoque</h4><div style="display:flex; gap:8px; flex-wrap:wrap;"><select name="product_id" required style="padding:6px;"><option value="">Produto</option>{% for p in produtos_select %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select><input type="number" name="qty" step="1" required placeholder="Qtd (+ / -)" style="padding:6px; width:80px;"><input type="text" name="reason" placeholder="Motivo" style="padding:6px; flex:1; min-width:120px;"><button type="submit" class="btn btn-secondary" style="padding:6px 12px;">Ajustar</button></div></form>
             <table class="table">
                 <thead>
                     <tr>
@@ -74,7 +75,7 @@
                     </tr>
                 </thead>
                 <tbody id="produtos-estoque-tabela">
-                    {% for p in produtos %}
+                    {% for p in produtos_select %}
                     <tr class="product-row" data-situacao="{{ p.situacao }}" data-categoria="{{ p.categoria_id }}" data-ativo="{{ p.ativo }}">
                         <td class="product-name">
                             <strong>{{ p.nome }}</strong>

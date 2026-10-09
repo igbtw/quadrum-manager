@@ -110,15 +110,15 @@
                     <tbody id="pagamentos-recentes">
                     {% for p in pagamentos %}
                     <tr style="border-bottom: 1px solid var(--color-border);">
-                        <td>{{ p.pessoa.nome }}</td>
-                        <td class="numeric">R$ {{ p.valor }}</td>
-                        <td>{{ p.data|date:"d/m/Y H:i" }}</td>
+                        <td>{{ p.account_receivable.person.name|default:"—" }}</td>
+                        <td class="numeric">R$ {{ p.amount }}</td>
+                        <td>{{ p.payment_date|date:"d/m/Y" }}</td>
                         <td>
                             <span class="badge badge-info" style="font-size: var(--font-size-xs);">
-                                {{ p.forma }}
+                                {{ p.method }}
                             </span>
                         </td>
-                        <td>{{ p.referencia }}</td>
+                        <td>{{ p.notes|default:"—" }}</td>
                     </tr>
                     {% empty %}
                     <tr>
@@ -137,13 +137,25 @@
         </div>
     </div>
 </div>
+    <form method="post" action="{% url 'frontend:financeiro' %}" style="margin-top:12px; padding:12px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">
+        {% csrf_token %}
+        <h3 style="font-size:var(--font-size-base); margin-bottom:8px;">Registrar pagamento</h3>
+        <div style="display:grid; gap:8px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
+            <div><label for="id_account_receivable" class="form-label">Conta</label>{{ form.account_receivable }}</div>
+            <div><label for="id_amount" class="form-label">Valor</label>{{ form.amount }}</div>
+            <div><label for="id_method" class="form-label">Forma</label>{{ form.method }}</div>
+            <div><label for="id_notes" class="form-label">Referência</label>{{ form.notes }}</div>
+        </div>
+        <div style="margin-top:8px;"><button type="submit" class="btn btn-primary">Registrar</button>{% if form.non_field_errors %}<div class="text-error" style="margin-top:4px;">{{ form.non_field_errors }}</div>{% endif %}</div>
+    </form>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     window.receberConta = function(id) {
-        Cantina.showToast('Receber', `Funcionalidade de recebimento da conta ${id} (mock)`, 'info');
+        Cantina.showToast('Uso', 'Use o formulário de registro de pagamento no topo.', 'info');
     };
 });
 </script>

@@ -4,15 +4,18 @@ All data comes from mock_data.py
 """
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.db import transaction
 from decimal import Decimal
 from datetime import timedelta
-from .services import reduce_stock, create_sale_items, finalize_sale
-from .models import Product, Sale, SaleItem, AccountReceivable, StockMovement, Category, Person
+from .services import reduce_stock, create_sale_items, finalize_sale, cancel_sale
+from .models import Product, Sale, SaleItem, AccountReceivable, StockMovement, Category, Person, Payment
+from .forms import ProductForm, PersonForm
 
 
 def health_check(request):
@@ -56,6 +59,7 @@ def vendas_list(request):
     return render(request, 'frontend/vendas_list.html', context)
 
 
+@login_required
 def pdv(request):
     """PDV / Nova Venda - tela mais importante"""
     context = {
@@ -70,16 +74,43 @@ def pdv(request):
 
 def produtos(request):
     """Lista de produtos"""
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Produto salvo.')
+            return redirect('frontend:produtos')
+        else:
+            messages.error(request, 'Verifique os campos.')
+    else:
+        form = ProductForm()
     context = {
         'produtos': Product.objects.filter(active=True).select_related('category'),
         'categorias': Category.objects.filter(active=True),
+        'form': form,
         'page_title': 'Produtos',
     }
     return render(request, 'frontend/produtos.html', context)
 
 
+@login_required
 def estoque(request):
     """Controle de estoque"""
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        qty = request.POST.get('qty')
+        reason = request.POST.get('reason', '')
+        try:
+            qty = int(qty)
+            if qty == 0:
+                raise ValueError('Quantidade zero')
+            prod = Product.objects.get(pk=product_id, active=True)
+            from .services import adjust_stock
+            adjust_stock(prod, qty, reason=reason, user=request.user if request.user.is_authenticated else None)
+            messages.success(request, 'Estoque ajustado.')
+        except Exception as e:
+            messages.error(request, f'Erro no ajuste: {e}')
+        return redirect('frontend:estoque')
     # Calcular situação de cada produto
     produtos_estoque = []
     total_itens = 0
@@ -103,6 +134,7 @@ def estoque(request):
     
     context = {
         'produtos': produtos_estoque,
+        'produtos_select': Product.objects.filter(active=True).select_related('category'),
         'page_title': 'Estoque',
         'total_itens': total_itens,
         'valor_total': valor_total,
@@ -114,37 +146,83 @@ def estoque(request):
 
 def pessoas(request):
     """Cadastro de pessoas"""
+    if request.method == 'POST':
+        form = PersonForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Pessoa salva.')
+            return redirect('frontend:pessoas')
+        else:
+            messages.error(request, 'Verifique os campos.')
+    else:
+        form = PersonForm()
     context = {
         'pessoas': Person.objects.filter(active=True).order_by('name'),
-        'tipos': ['ALUNO', 'PROFESSOR', 'FUNCIONARIO', 'VISITANTE'],
+        'tipos': Person.PERSON_TYPES,
+        'form': form,
         'page_title': 'Pessoas',
     }
     return render(request, 'frontend/pessoas.html', context)
 
 
+@login_required
 def financeiro(request):
     from django.db.models import Sum
     total_aberto = AccountReceivable.objects.filter(status__in=['PENDING','PARTIAL','OVERDUE']).aggregate(s=Sum('original_amount'))['s'] or Decimal('0.00')
     overdue = AccountReceivable.objects.filter(status='OVERDUE')
     total_vencido = sum(a.remaining_balance or Decimal('0.00') for a in overdue)
+    if request.method == 'POST':
+        from .forms import PaymentForm
+        form = PaymentForm(request.POST)
+        if form.is_valid():
+            from .models import register_payment
+            rc = form.cleaned_data['account_receivable']
+            register_payment(rc, form.cleaned_data['amount'], method=form.cleaned_data['method'], user=request.user if request.user.is_authenticated else None, notes=form.cleaned_data['notes'])
+            messages.success(request, 'Pagamento registrado.')
+            return redirect('frontend:financeiro')
+        else:
+            messages.error(request, 'Verifique o pagamento.')
+    else:
+        from .forms import PaymentForm
+        form = PaymentForm()
     context = {
         'contas': AccountReceivable.objects.filter(status__in=['PENDING','PARTIAL','OVERDUE']).select_related('person').order_by('-due_date')[:20],
-        'pagamentos': [],
+        'pagamentos': Payment.objects.select_related('account_receivable__person').order_by('-created_at')[:20],
         'total_receber': total_aberto,
         'total_vencido': total_vencido,
         'contas_pendentes': AccountReceivable.objects.filter(status='PENDING').count(),
         'contas_vencidas': AccountReceivable.objects.filter(status='OVERDUE').count(),
+        'form': form,
         'page_title': 'Financeiro',
     }
     return render(request, 'frontend/financeiro.html', context)
 
 
+@login_required
 def relatorios(request):
-    """Relatórios - apenas interface"""
-    context = {
+    from django.db.models import Sum, Count, Q, F
+    from django.utils import timezone
+    today = timezone.now().date()
+    semana_antes = today - timezone.timedelta(days=7)
+    vendas_periodo = Sale.objects.filter(status='COMPLETED', created_at__date__gte=semana_antes)
+    total_vendas = vendas_periodo.aggregate(s=Sum('total'))['s'] or Decimal('0.00')
+    count_vendas = vendas_periodo.count()
+    # Best-selling by product via sale items
+    best = SaleItem.objects.filter(sale__status='COMPLETED').values('product__name').annotate(q=Sum('quantity')).order_by('-q')[:5]
+    # Low stock
+    baixo = Product.objects.filter(active=True, stock_quantity__lte=F('minimum_stock')).count()
+    # Receivables
+    receb = AccountReceivable.objects.filter(status__in=['PENDING','PARTIAL','OVERDUE']).aggregate(s=Sum('original_amount'))['s'] or Decimal('0.00')
+    contexto = {
         'page_title': 'Relatórios',
+        'total_vendas_periodo': total_vendas,
+        'count_vendas_periodo': count_vendas,
+        'best_selling': best,
+        'low_stock_count': baixo,
+        'receivable_total': receb,
+        'vendas_hoje': Sale.objects.filter(status='COMPLETED', created_at__date=today).count(),
     }
-    return render(request, 'frontend/relatorios.html', context)
+    return render(request, 'frontend/relatorios.html', contexto)
 
 
 def login_view(request):
@@ -169,37 +247,43 @@ def logout_view(request):
 # API endpoints para interações do PDV (apenas para demonstração frontend)
 @require_http_methods(["POST"])
 def api_pdv_calcular(request):
-    """Calcular total do carrinho (mock)"""
+    """Calcular total do carrinho com dados reais."""
+    import json
     try:
         data = json.loads(request.body)
         itens = data.get('itens', [])
         total = Decimal('0')
         for item in itens:
-            produto = get_produto_by_id(item['produto_id'])
-            if produto:
-                total += produto['preco'] * item['quantidade']
+            produto_id = item.get('produto_id')
+            quantidade = item.get('quantidade', 1)
+            try:
+                produto = Product.objects.get(pk=produto_id, active=True)
+            except Product.DoesNotExist:
+                return JsonResponse({'error': f'Produto {produto_id} não encontrado'}, status=404)
+            total += produto.price * Decimal(str(quantidade))
         return JsonResponse({'total': str(total)})
-    except Exception:
-        return JsonResponse({'error': 'Erro no cálculo'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': f'Erro no cálculo: {str(e)}'}, status=400)
 
 
 @require_http_methods(["POST"])
 def api_pdv_finalizar(request):
     """Finalizar venda — persistir no DB com integridade."""
-    from django.utils import timezone
+    import json
     try:
         data = json.loads(request.body)
         itens = data.get('itens', [])
         customer_id = data.get('cliente_id')
         payment_method = data.get('forma_pagamento', 'DINHEIRO')
-        # Create sale draft
+        if not itens:
+            return JsonResponse({'error': 'Carrinho vazio'}, status=400)
         from .models import Sale, Person
         customer = None
         if customer_id:
             try:
-                customer = Person.objects.get(pk=customer_id)
+                customer = Person.objects.get(pk=customer_id, active=True)
             except Person.DoesNotExist:
-                pass
+                return JsonResponse({'error': 'Cliente não encontrado'}, status=404)
         sale = Sale.objects.create(
             customer=customer,
             responsible=request.user if request.user.is_authenticated else None,
@@ -208,13 +292,11 @@ def api_pdv_finalizar(request):
             subtotal=Decimal('0'),
             total=Decimal('0'),
         )
-        # Build items from cart and finalize
-        items_data = [{'product_id': it['produto_id'], 'quantity': it['quantidade'], 'unit_price': it.get('preco_unitario')} for it in itens]
+        items_data = [{'product_id': it['produto_id'], 'quantity': it['quantidade'], 'unit_price': it.get('preco_unitario', None)} for it in itens]
         create_sale_items(sale, items_data, user=request.user if request.user.is_authenticated else None)
-        # Recalculate totals from items
         subtotal = sum(i.subtotal for i in sale.items.all())
         sale.subtotal = subtotal
-        sale.total = subtotal   # no discount for simplicity
+        sale.total = subtotal
         sale.save(update_fields=['subtotal', 'total'])
         finalize_sale(sale, user=request.user if request.user.is_authenticated else None)
         return JsonResponse({'success': True, 'codigo': sale.code, 'message': 'Venda finalizada'})

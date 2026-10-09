@@ -295,17 +295,36 @@ document.addEventListener('DOMContentLoaded', function() {
             Cantina.showToast('Carrinho vazio', 'Adicione produtos antes de finalizar', 'warning');
             return;
         }
-        
         const formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked');
         if (!formaPagamento) {
             Cantina.showToast('Forma de pagamento', 'Selecione uma forma de pagamento', 'warning');
             return;
         }
-
-        // Simular finalização
-        const total = carrinho.reduce((sum, item) => sum + item.preco * item.qtd, 0);
-        Cantina.showToast('Venda finalizada', `Total: R$ ${total.toFixed(2)} (Simulação)`, 'success');
-        limparCarrinho();
+        const clienteSelect = document.querySelector('#cliente_selecionado');
+        const clienteId = clienteSelect ? (clienteSelect.value || null) : null;
+        const payload = {
+            itens: carrinho.map(i => ({produto_id: i.id, quantidade: i.qtd, preco_unitario: i.preco})),
+            cliente_id: clienteId,
+            forma_pagamento: formaPagamento.value
+        };
+        fetch('/api/pdv/finalizar/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': (document.cookie.match('(^|;)\\s*csrftoken=([^;]+)') || []).pop() || ''
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                Cantina.showToast('Venda finalizada', 'Código: ' + data.codigo, 'success');
+                limparCarrinho();
+            } else {
+                Cantina.showToast('Erro', data.error || 'Falha ao finalizar', 'error');
+            }
+        })
+        .catch(err => Cantina.showToast('Erro', 'Não foi possível finalizar a venda.', 'error'));
     };
 });
 </script>
