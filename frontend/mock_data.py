@@ -15,7 +15,7 @@ CATEGORIAS = [
     {'id': 4, 'nome': 'Lanches', 'icone': 'burger'},
 ]
 
-# Produtos
+# Products
 PRODUTOS = [
     {'id': 1, 'nome': 'Coca-Cola 350ml', 'categoria_id': 1, 'categoria': 'Bebidas', 'preco': Decimal('6.50'), 'estoque': 45, 'estoque_minimo': 10, 'ativo': True},
     {'id': 2, 'nome': 'Suco de Laranja 300ml', 'categoria_id': 1, 'categoria': 'Bebidas', 'preco': Decimal('5.00'), 'estoque': 30, 'estoque_minimo': 8, 'ativo': True},
@@ -37,7 +37,7 @@ PRODUTOS = [
     {'id': 18, 'nome': 'Tapioca de Queijo', 'categoria_id': 4, 'categoria': 'Lanches', 'preco': Decimal('12.00'), 'estoque': 0, 'estoque_minimo': 5, 'ativo': True},
 ]
 
-# Pessoas
+# People
 PESSOAS = [
     {'id': 1, 'nome': 'João Silva', 'tipo': 'ALUNO', 'matricula': '2023001', 'status': 'ATIVO', 'saldo': Decimal('15.50')},
     {'id': 2, 'nome': 'Maria Santos', 'tipo': 'ALUNO', 'matricula': '2023002', 'status': 'ATIVO', 'saldo': Decimal('0.00')},
@@ -51,7 +51,7 @@ PESSOAS = [
     {'id': 10, 'nome': 'Patrícia Gomes', 'tipo': 'ALUNO', 'matricula': '2023005', 'status': 'ATIVO', 'saldo': Decimal('45.00')},
 ]
 
-# Formas de pagamento
+# Payment methods
 FORMAS_PAGAMENTO = [
     {'id': 1, 'nome': 'Dinheiro', 'icone': 'cash'},
     {'id': 2, 'nome': 'Cartão Débito', 'icone': 'card'},
@@ -60,7 +60,7 @@ FORMAS_PAGAMENTO = [
     {'id': 5, 'nome': 'Saldo Conta', 'icone': 'wallet'},
 ]
 
-# Vendas (histórico)
+# Sales (history)
 def gerar_vendas_mock():
     vendas = []
     base_date = datetime.now() - timedelta(days=7)
@@ -89,7 +89,7 @@ def gerar_vendas_mock():
 
 VENDAS = gerar_vendas_mock()
 
-# Contas a receber
+# Accounts receivable
 CONTAS_RECEBER = [
     {'id': 1, 'pessoa': PESSOAS[2], 'valor': Decimal('25.00'), 'vencimento': datetime.now() - timedelta(days=5), 'status': 'VENCIDA', 'descricao': 'Venda VD1005'},
     {'id': 2, 'pessoa': PESSOAS[8], 'valor': Decimal('10.00'), 'vencimento': datetime.now() - timedelta(days=2), 'status': 'VENCIDA', 'descricao': 'Venda VD1012'},
@@ -100,7 +100,7 @@ CONTAS_RECEBER = [
     {'id': 7, 'pessoa': PESSOAS[4], 'valor': Decimal('80.50'), 'vencimento': datetime.now() + timedelta(days=20), 'status': 'PENDENTE', 'descricao': 'Mensalidade'},
 ]
 
-# Pagamentos recentes
+# Recent payments
 PAGAMENTOS_RECENTES = [
     {'id': 1, 'pessoa': PESSOAS[0], 'valor': Decimal('50.00'), 'data': datetime.now() - timedelta(days=1), 'forma': 'PIX', 'referencia': 'Recarga de saldo'},
     {'id': 2, 'pessoa': PESSOAS[3], 'valor': Decimal('100.00'), 'data': datetime.now() - timedelta(days=2), 'forma': 'Cartão Débito', 'referencia': 'Mensalidade'},

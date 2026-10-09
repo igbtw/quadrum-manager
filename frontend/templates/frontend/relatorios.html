@@ -32,7 +32,7 @@
     </div>
 </div>
 
-<!-- Resultados do relatório -->
+<!-- Report results -->
 <div class="section-card">
     <div class="card-header">
         <h3 class="card-title">Resultados do Relatório</h3>
@@ -61,7 +61,7 @@
             </div>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3);" id="relatorio-detalhes">
-                <!-- Detalhes serão inseridos pelo JS -->
+                <!-- Details inserted by JS -->
             </div>
         </div>
     </div>
@@ -75,17 +75,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const periodo = document.getElementById('filtro-periodo').value;
         const tipo = document.getElementById('filtro-tipo-relatorio').value;
         
-        // Simular carregamento de dados
+        // Simulate data loading
         const vazia = document.getElementById('relatorio-vazio');
         const conteudo = document.getElementById('relatorio-conteudo');
         const detalhes = document.getElementById('relatorio-detalhes');
         
-        // Mostrar/esconder estados
+        // Show/hide states
         if (periodo && tipo) {
             vazia.style.display = 'none';
             conteudo.style.display = 'block';
             
-            // Dados mock baseados no período e tipo
+            // Mock data based on period and type
             let total = 0;
             let qtd = 0;
             const itens = [];

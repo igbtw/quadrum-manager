@@ -16,9 +16,6 @@ class TestReportDashboardTests(TestCase):
 
     def test_dashboard_sales_today(self):
         Sale.objects.create(customer=self.pers, responsible=self.user, status='COMPLETED', payment_method='DINHEIRO', total=Decimal('20'))
-        from django.db.models import Sum
-        today = timezone.now().date()
-        count = Sale.objects.filter(status='COMPLETED', created_at__date=today).count()
         agg = Sale.objects.filter(status='COMPLETED').aggregate(s=Sum('total'))['s'] or Decimal('0')
         self.assertEqual(agg, Decimal('20.00'))
 
@@ -31,15 +28,13 @@ class TestReportDashboardTests(TestCase):
         total = AccountReceivable.objects.filter(status__in=['PENDING','PARTIAL','OVERDUE']).aggregate(s=Sum('original_amount'))['s'] or Decimal('0')
         self.assertEqual(total, Decimal('30.00'))
 
-    def test_report_empty_dataset(self):
-        # With no sales, aggregates should return 0 not None
-        total = Sale.objects.filter(status='COMPLETED').aggregate(s=Sum('total'))['s']
-        self.assertIsNone(total)  # Django Sum on empty returns None; view handles with or 0
-
-    def test_best_selling_aggregation(self):
+    def test_report_best_selling(self):
         sale = Sale.objects.create(customer=self.pers, responsible=self.user, status='COMPLETED', payment_method='DINHEIRO', total=Decimal('10'))
         SaleItem.objects.create(sale=sale, product=self.prod, quantity=2, unit_price=Decimal('5'))
-        from django.db.models import Sum
         best = SaleItem.objects.filter(sale__status='COMPLETED').values('product__name').annotate(q=Sum('quantity')).order_by('-q')
         names = [b['product__name'] for b in best]
         self.assertIn('RProd', names)
+
+    def test_report_empty_dataset(self):
+        total = Sale.objects.filter(status='COMPLETED').aggregate(s=Sum('total'))['s']
+        self.assertIsNone(total)

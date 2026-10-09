@@ -1,8 +1,5 @@
-// ========================================
-// MAIN.JS - JavaScript vanilla para o frontend
-// ========================================
+// Main JS — vanilla frontend
 
-/* ===== Theme Management ===== */
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
     const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -33,31 +30,29 @@ function updateThemeIcon(theme) {
     }
 }
 
-/* ===== Inicialização ===== */
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar tema
+    // Initialize theme
     initTheme();
     updateThemeIcon(document.documentElement.getAttribute('data-theme'));
     
-    // Inicializar modais
+    // Initialize modals
     initModals();
     
-    // Inicializar carrinhos
+    // Initialize carts
     initCarrinhos();
     
-    // Inicializar filtros
+    // Initialize filters
     initFiltros();
     
-    // Inicializar notificações
+    // Initialize notifications
     initNotificacoes();
     
-    // Inicializar sidebar mobile
+    // Initialize mobile sidebar
     initSidebarMobile();
 });
 
-/* ===== Modais ===== */
 function initModals() {
-    // Abrir modal
+    // Open modal
     window.openModal = function(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -66,7 +61,7 @@ function initModals() {
         }
     };
 
-    // Fechar modal
+    // Close modal
     window.closeModal = function(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) {
@@ -75,7 +70,7 @@ function initModals() {
         }
     };
 
-    // Fechar ao clicar no overlay
+    // Close on overlay click
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', function(e) {
             if (e.target === this) {
@@ -85,7 +80,7 @@ function initModals() {
         });
     });
 
-    // Fechar com ESC
+    // Close with ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             document.querySelectorAll('.modal-overlay.open').forEach(modal => {
@@ -98,7 +93,6 @@ function initModals() {
     });
 }
 
-/* ===== Sidebar Mobile ===== */
 function initSidebarMobile() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
@@ -117,19 +111,18 @@ function initSidebarMobile() {
     }
 }
 
-/* ===== Carrinho PDV ===== */
 function initCarrinhos() {
-    // Inicializar carrinho do PDV
+    // Initialize PDV cart
     initPdvCarrinho();
 }
 
 function initPdvCarrinho() {
     let carrinho = JSON.parse(localStorage.getItem('cantinaos-carrinho') || '[]');
 
-    // Renderizar carrinho
+    // Render cart
     renderizarCarrinhoPV(carrinho);
 
-    // Adicionar produto
+    // Add product
     window.adicionarAoCarrinhoPV = function(produtoId, nome, preco) {
         const existente = carrinho.find(i => i.id == produtoId);
         if (existente) {
@@ -146,21 +139,21 @@ function initPdvCarrinho() {
         renderizarCarrinhoPV(carrinho);
     };
 
-    // Remover item
+    // Remove item
     window.removerItemPV = function(idx) {
         carrinho.splice(idx, 1);
         localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
         renderizarCarrinhoPV(carrinho);
     };
 
-    // Incrementar quantidade
+    // Increment quantity
     window.incrementarQtdPV = function(idx) {
         carrinho[idx].qtd += 1;
         localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
         renderizarCarrinhoPV(carrinho);
     };
 
-    // Decrementar quantidade
+    // Decrement quantity
     window.decrementarQtdPV = function(idx) {
         if (carrinho[idx].qtd <= 1) {
             removerItemPV(idx);
@@ -213,9 +206,8 @@ function initPdvCarrinho() {
     }
 }
 
-/* ===== Filtros ===== */
 function initFiltros() {
-    // Filtro de busca
+    // Filter search
     const searchInputs = document.querySelectorAll('.search-input');
     searchInputs.forEach(input => {
         input.addEventListener('input', function() {
@@ -249,7 +241,6 @@ function initFiltros() {
     };
 }
 
-/* ===== Notificações ===== */
 function initNotificacoes() {
     window.showNotification = function(titulo, mensagem, tipo = 'info') {
         const tipos = {
@@ -284,7 +275,7 @@ function initNotificacoes() {
 
         document.body.appendChild(notification);
 
-        // Auto remover após 5 segundos
+        // Auto-remove after 5 seconds
         setTimeout(() => {
             notification.classList.add('removing');
             setTimeout(() => notification.remove(), 300);
@@ -292,7 +283,6 @@ function initNotificacoes() {
     };
 }
 
-/* ===== Utilitários ===== */
 function formatarMoeda(valor) {
     return 'R$ ' + parseFloat(valor || 0).toFixed(2);
 }
@@ -305,7 +295,7 @@ function debounce(func, wait) {
     };
 }
 
-// Exportar funções globais necessárias
+// Export required global functions
 window.Cantina = {
     formatarMoeda,
     showNotification: window.showNotification,

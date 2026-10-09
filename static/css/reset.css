@@ -1,7 +1,3 @@
-/* ========================================
-   RESET.CSS - Graphite Baseline
-   ======================================== */
-
 *, *::before, *::after {
     box-sizing: border-box;
 }
@@ -65,7 +61,6 @@ button {
     font: inherit;
 }
 
-/* Scrollbar - Graphite */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -95,19 +90,16 @@ button {
     opacity: 0.5;
 }
 
-/* Selection */
 ::selection {
     background: var(--color-primary);
     color: var(--color-primary-text);
 }
 
-/* Mono utility */
 .mono {
     font-family: var(--font-family-mono);
     font-variant-numeric: tabular-nums;
 }
 
-/* Text utilities */
 .text-muted { color: var(--color-text-muted); }
 .text-secondary { color: var(--color-text-secondary); }
 .text-primary { color: var(--color-primary); }
@@ -116,7 +108,6 @@ button {
 .text-danger { color: var(--color-danger); }
 .text-info { color: var(--color-info); }
 
-/* Layout utilities */
 .flex { display: flex; }
 .flex-col { flex-direction: column; }
 .items-center { align-items: center; }

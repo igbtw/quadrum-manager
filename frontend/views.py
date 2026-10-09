@@ -1,7 +1,4 @@
-"""
-Frontend views - only presentation logic, no business logic.
-All data comes from mock_data.py
-"""
+"""Frontend presentation views; data from DB."""
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import login_required
@@ -51,7 +48,7 @@ def dashboard(request):
 
 
 def vendas_list(request):
-    """Histórico de vendas"""
+    """Sales history"""
     context = {
         'vendas': Sale.objects.select_related('customer').order_by('-created_at')[:50],
         'page_title': 'Vendas',
@@ -61,7 +58,7 @@ def vendas_list(request):
 
 @login_required
 def pdv(request):
-    """PDV / Nova Venda - tela mais importante"""
+    """PDV / New Sale — main screen"""
     context = {
         'produtos': Product.objects.filter(active=True).select_related('category'),
         'categorias': Category.objects.filter(active=True),
@@ -73,7 +70,7 @@ def pdv(request):
 
 
 def produtos(request):
-    """Lista de produtos"""
+    """Product list"""
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
@@ -95,7 +92,7 @@ def produtos(request):
 
 @login_required
 def estoque(request):
-    """Controle de estoque"""
+    """Inventory control"""
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
         qty = request.POST.get('qty')
@@ -111,7 +108,7 @@ def estoque(request):
         except Exception as e:
             messages.error(request, f'Erro no ajuste: {e}')
         return redirect('frontend:estoque')
-    # Calcular situação de cada produto
+    # Calculate each product inventory status
     produtos_estoque = []
     total_itens = 0
     valor_total = Decimal('0')
@@ -145,7 +142,7 @@ def estoque(request):
 
 
 def pessoas(request):
-    """Cadastro de pessoas"""
+    """People registry"""
     if request.method == 'POST':
         form = PersonForm(request.POST)
         if form.is_valid():
@@ -244,10 +241,10 @@ def logout_view(request):
     return redirect('frontend:login')
 
 
-# API endpoints para interações do PDV (apenas para demonstração frontend)
+# PDV interaction endpoints — persist to DB with integrity
 @require_http_methods(["POST"])
 def api_pdv_calcular(request):
-    """Calcular total do carrinho com dados reais."""
+    """Calculate total from cart data"""
     import json
     try:
         data = json.loads(request.body)
@@ -268,7 +265,7 @@ def api_pdv_calcular(request):
 
 @require_http_methods(["POST"])
 def api_pdv_finalizar(request):
-    """Finalizar venda — persistir no DB com integridade."""
+    """Finalize sale — persist to DB with integrity"""
     import json
     try:
         data = json.loads(request.body)

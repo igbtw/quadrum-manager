@@ -12,7 +12,7 @@
 </div>
 
 <div class="pdv-layout">
-    <!-- Painel esquerdo: Produtos -->
+    <!-- Left panel: Products -->
     <div class="pdv-products">
         <div class="card" style="margin-bottom: 0; border-radius: 0;">
             <div class="card-header">
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <!-- Painel direito: Carrinho -->
+    <!-- Right panel: Cart -->
     <div class="pdv-cart">
         <div class="cart-header">
             <h3 class="cart-title">Carrinho</h3>
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         event.target.classList.add('active');
         
-        // Filtrar produtos
+        // Filter products
         document.querySelectorAll('.product-card').forEach(card => {
             const cat = card.dataset.categoria;
             if (!categoriaId || cat == categoriaId) {
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Delegação de eventos para adicionar ao carrinho
+    // Event delegation to add to cart
     document.getElementById('resultados-produtos').addEventListener('click', function(e) {
         const card = e.target.closest('.product-card');
         if (card && !card.classList.contains('inactive')) {
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Adicionar ao carrinho
+    // Add to cart
     window.adicionarAoCarrinho = function(produtoId, nome, preco) {
         const existente = carrinho.find(i => i.id == produtoId);
         if (existente) {

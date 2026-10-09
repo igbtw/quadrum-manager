@@ -42,13 +42,13 @@ cp .env.example .env
 
 Para desenvolvimento local, o arquivo `.env` pode ficar com os valores padrão.
 
-### 4. Executar migrações
+### 4. Run migrations
 
 ```bash
 python manage.py migrate
 ```
 
-### 5. Executar servidor de desenvolvimento
+### 5. Start development server
 
 ```bash
 python manage.py runserver
@@ -56,7 +56,7 @@ python manage.py runserver
 
 Acesse: http://localhost:8000
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 cantinaos/
@@ -139,7 +139,7 @@ export DATABASE_URL="postgres://user:pass@host:5432/dbname"
 gunicorn config.wsgi:application --bind 0.0.0.0:8000
 ```
 
-## Arquivos que NÃO devem ser commitados
+## Files that must NOT be committed
 
 - `.env` - Contém credenciais e configurações sensíveis
 - `.venv/` - Ambiente virtual Python
@@ -149,14 +149,14 @@ gunicorn config.wsgi:application --bind 0.0.0.0:8000
 - `media/` - Arquivos enviados pelo usuário
 - `staticfiles/` - Arquivos estáticos coletados
 
-## Comandos Úteis
+## Useful Commands
 
 ```bash
-# Verificar configuração
+# Check configuration
 python manage.py check
 python manage.py check --deploy
 
-# Criar superusuário
+# Create superuser
 python manage.py createsuperuser
 
 # Coletar estáticos

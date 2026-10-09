@@ -1,8 +1,4 @@
-/* ========================================
-   MOTION.CSS — Quality-fixed motion system
-   Purposeful, smooth, no jank
-   ======================================== */
-
+/* Quality-fixed motion system — purposeful, smooth, no jank */
 :root {
   --motion-fast: 120ms;
   --motion-normal: 180ms;
@@ -13,7 +9,6 @@
   --ease-in-out: cubic-bezier(0.645, 0.045, 0.355, 1);
 }
 
-/* ===== Reduced Motion ===== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -43,7 +38,6 @@
   }
 }
 
-/* ===== Page Transition ===== */
 /* Extremely subtle — just a 4px rise and fade. No fly-around. */
 .main {
   animation: pageFadeIn 150ms var(--ease-out) both;
@@ -58,7 +52,6 @@
   .main { animation: none; opacity: 1; transform: none; }
 }
 
-/* ===== Sidebar — Coordinated, no jump ===== */
 /* Main and header must move together with sidebar so nothing jumps. */
 .main,
 .header {
@@ -119,7 +112,6 @@
               visibility var(--motion-normal);
 }
 
-/* ===== Dashboard — Restrained, not scattered ===== */
 /* Only 2-level hierarchy: major panels reveal together; no per-element stagger. */
 .kpi-strip .kpi {
   opacity: 0;
@@ -165,7 +157,6 @@
   box-shadow: 0 6px 16px rgba(0,0,0,0.08);
 }
 
-/* ===== Component States ===== */
 /* Buttons: fast, consistent ease */
 .btn {
   transition: background 120ms var(--ease-out),
@@ -222,7 +213,6 @@ a {
               box-shadow 120ms var(--ease-out);
 }
 
-/* ===== Dropdown / Popover ===== */
 /* Small translateY, no scale (scale creates layout perception issues) */
 .dropdown-menu,
 .profile-menu,
@@ -245,7 +235,6 @@ a {
   transform: translateY(0);
 }
 
-/* ===== Modal / Dialog ===== */
 /* Backdrop and dialog coordinated: backdrop slightly faster */
 .modal-overlay {
   opacity: 0;
@@ -268,7 +257,6 @@ a {
   transform: scale(1) translateY(0);
 }
 
-/* ===== Toast / Notification ===== */
 /* Animation kept but very short */
 @keyframes toastIn {
   from { opacity: 0; transform: translateY(8px); }
@@ -288,7 +276,6 @@ a {
   animation: toastOut 140ms var(--ease-in) both;
 }
 
-/* ===== Skeleton ===== */
 /* Subtle shimmer — slower, calmer */
 @keyframes shimmerMove {
   0% { background-position: 200% 0; }
@@ -303,7 +290,6 @@ a {
   overflow: hidden;
 }
 
-/* ===== Data Updates ===== */
 /* Only used when explicitly triggered by JS; not automatic on every render */
 .kpi-value {
   transition: opacity 120ms var(--ease-out);
@@ -319,7 +305,6 @@ a {
   animation: valueUpdate 240ms var(--ease-out) both;
 }
 
-/* ===== Empty / Error States ===== */
 /* Subtle, calm entrance */
 .empty-state,
 .alert {
@@ -327,7 +312,6 @@ a {
   animation: dashPanelIn 240ms var(--ease-out) forwards;
 }
 
-/* ===== Loading Buttons ===== */
 /* Spinner — calm, not frantic */
 .btn.loading::after {
   content: '';
@@ -356,11 +340,9 @@ a {
   to { transform: rotate(360deg); }
 }
 
-/* ===== Interruption-safe dropdown/modal ===== */
 /* When opening/closing rapidly, CSS transition handles reversal smoothly. */
 /* No JS loops needed. */
 
-/* ===== Focus ===== */
 .btn:focus-visible,
 .nav-item:focus-visible,
 .input:focus,

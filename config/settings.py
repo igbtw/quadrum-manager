@@ -20,9 +20,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# =============================================================================
 # CORE SETTINGS
-# =============================================================================
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # In development, use a default. In production, MUST be set via env var.
@@ -41,9 +39,7 @@ _csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()] if _csrf_origins else []
 
 
-# =============================================================================
 # APPLICATION DEFINITION
-# =============================================================================
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -87,9 +83,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
 
-# =============================================================================
 # DATABASE
-# =============================================================================
 
 # Default: SQLite for development
 # Production: Use PostgreSQL via DATABASE_URL or individual DB_* vars
@@ -138,9 +132,7 @@ else:
         }
 
 
-# =============================================================================
 # PASSWORD VALIDATION
-# =============================================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -154,9 +146,7 @@ if DEBUG:
     AUTH_PASSWORD_VALIDATORS = []
 
 
-# =============================================================================
 # INTERNATIONALIZATION
-# =============================================================================
 
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
@@ -164,9 +154,7 @@ USE_I18N = True
 USE_TZ = True
 
 
-# =============================================================================
 # STATIC & MEDIA FILES
-# =============================================================================
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
@@ -182,25 +170,19 @@ else:
     STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 
-# =============================================================================
 # DEFAULT PRIMARY KEY
-# =============================================================================
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# =============================================================================
 # AUTH / LOGIN
-# =============================================================================
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'
 
 
-# =============================================================================
 # SECURITY SETTINGS
-# =============================================================================
 
 # Base security (always on)
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -236,9 +218,7 @@ if not DEBUG:
     CSRF_COOKIE_SAMESITE = 'None'
 
 
-# =============================================================================
 # EMAIL
-# =============================================================================
 
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -252,9 +232,7 @@ else:
     DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@cantinaos.local')
 
 
-# =============================================================================
 # LOGGING
-# =============================================================================
 
 LOGGING = {
     'version': 1,

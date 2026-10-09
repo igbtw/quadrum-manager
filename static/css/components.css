@@ -1,8 +1,3 @@
-/* ========================================
-   COMPONENTS.CSS - Componentes reutilizáveis
-   ======================================== */
-
-/* ===== Button ===== */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -105,7 +100,6 @@
     font-size: var(--font-size-sm);
 }
 
-/* ===== Input ===== */
 .input {
     width: 100%;
     height: var(--input-height-md);
@@ -146,7 +140,6 @@
     box-shadow: 0 0 0 3px var(--color-danger-bg);
 }
 
-/* ===== SearchInput ===== */
 .search-input-wrapper {
     position: relative;
     display: inline-block;
@@ -168,7 +161,6 @@
     height: 16px;
 }
 
-/* ===== Select ===== */
 .select {
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23858A8A' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -196,7 +188,6 @@
 }
 [data-theme="dark"] .select { color-scheme: dark; }
 
-/* ===== Badge ===== */
 .badge {
     display: inline-flex;
     align-items: center;
@@ -243,7 +234,6 @@
     border: var(--border-width) solid var(--color-border);
 }
 
-/* ===== Table ===== */
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -285,7 +275,6 @@
     -webkit-overflow-scrolling: touch;
 }
 
-/* Numeric column alignment */
 .table td.numeric,
 .table th.numeric {
     text-align: right;
@@ -293,7 +282,6 @@
     font-family: var(--font-family-mono);
 }
 
-/* ===== Card ===== */
 .card {
     background: var(--color-bg-elevated);
     border: var(--border-width) solid var(--color-border);
@@ -325,7 +313,6 @@
     gap: var(--space-2);
 }
 
-/* ===== Modal ===== */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -408,7 +395,6 @@
     justify-content: flex-end;
 }
 
-/* ===== Alert ===== */
 .alert {
     padding: var(--space-3) var(--space-4);
     border-radius: var(--radius-md);
@@ -440,7 +426,6 @@
     border-color: var(--color-info-border);
 }
 
-/* ===== Stat ===== */
 .stat {
     text-align: center;
 }
@@ -458,7 +443,6 @@
     color: var(--color-text-muted);
 }
 
-/* ===== EmptyState ===== */
 .empty-state {
     text-align: center;
     padding: var(--space-8) var(--space-4);
@@ -483,7 +467,6 @@
     font-size: var(--font-size-sm);
 }
 
-/* ===== Form ===== */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -520,7 +503,6 @@
     grid-column: span 2;
 }
 
-/* ===== Section Card ===== */
 .section-card {
     background: var(--color-bg-elevated);
     border: var(--border-width) solid var(--color-border);
@@ -542,7 +524,6 @@
     color: var(--color-text);
 }
 
-/* ===== Stat Card ===== */
 .stat-card {
     background: var(--color-bg-elevated);
     border: var(--border-width) solid var(--color-border);
@@ -561,7 +542,6 @@
     color: var(--color-text-muted);
 }
 
-/* ===== Product Card (PDV) ===== */
 .product-card {
     background: var(--color-bg);
     border: var(--border-width) solid var(--color-border);
@@ -605,7 +585,6 @@
     color: var(--color-text-muted);
 }
 
-/* ===== Cart Item ===== */
 .cart-item {
     display: flex;
     align-items: center;
@@ -693,7 +672,6 @@
     color: var(--color-danger);
 }
 
-/* ===== Payment Option ===== */
 .payment-option {
     display: flex;
     align-items: center;
@@ -724,7 +702,6 @@
     color: var(--color-text);
 }
 
-/* ===== Category Button ===== */
 .category-btn {
     padding: var(--space-1) var(--space-3);
     border: var(--border-width) solid var(--color-border);
@@ -745,7 +722,6 @@
     color: var(--color-primary-text);
 }
 
-/* ===== Status Badge (table) ===== */
 .badge-status {
     display: inline-flex;
     align-items: center;
@@ -779,7 +755,6 @@
     border: var(--border-width) solid var(--color-border);
 }
 
-/* ===== Toast/Notification ===== */
 .toast {
     position: fixed;
     bottom: var(--space-4);
@@ -828,7 +803,6 @@
     border: var(--border-width) solid var(--color-info-border);
 }
 
-/* ===== KPI Strip ===== */
 .kpi-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); margin-bottom: var(--space-4); min-width: 0; min-height: 120px; }
 @media (max-width: 1024px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .kpi-strip { grid-template-columns: 1fr; } }
@@ -842,7 +816,6 @@
 .kpi-sub-warn { color: var(--color-warning); font-weight: var(--font-weight-medium); }
 .kpi-compare { color: var(--color-text-muted); font-size: var(--font-size-xs); }
 
-/* ===== Panel ===== */
 .panel { background: var(--color-bg-elevated); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-md); overflow: hidden; min-width: 0; min-height: 320px; display: flex; flex-direction: column; }
 .panel-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); border-bottom: var(--border-width) solid var(--color-border); gap: var(--space-3); }
 .panel-title { font-size: var(--font-size-xl); font-weight: 700; color: var(--color-text); line-height: 1.2; letter-spacing: -0.02em; }
@@ -851,7 +824,6 @@
 .chart-area { height: 220px; min-height: 220px; position: relative; }
 .chart-area canvas { display: block; width: 100%; height: 100%; }
 
-/* ===== Compact Tables ===== */
 .compact-table-wrap { overflow-x: auto; min-width: 0; }
 .table-compact { width: 100%; border-collapse: collapse; font-size: var(--font-size-sm); min-width: 0; }
 .table-compact thead th { text-align: left; font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; padding: var(--space-2) var(--space-3); border-bottom: var(--border-width) solid var(--color-border); white-space: nowrap; }
@@ -868,7 +840,6 @@
 .text-warning { color: var(--color-warning); }
 .text-danger { color: var(--color-danger); }
 
-/* ===== Receivable Summary ===== */
 .receivable-summary { padding: var(--space-3) 0; }
 .receivable-total { font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); color: var(--color-text); letter-spacing: -0.03em; line-height: 1.15; }
 .receivable-label { font-size: var(--font-size-sm); color: var(--color-text-muted); margin-top: var(--space-1); }
@@ -876,13 +847,11 @@
 .receivable-row { display: flex; justify-content: space-between; align-items: center; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
 .receivable-amount { font-weight: var(--font-weight-semibold); font-size: var(--font-size-base); color: var(--color-text); }
 
-/* ===== Dashboard Grid ===== */
 .dashboard-grid-2col { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: var(--space-4); margin-bottom: var(--space-4); align-items: stretch; min-width: 0; }
 .chart-caption { font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: var(--space-2); margin-left: var(--space-1); }
 .dashboard-grid-2col + .dashboard-grid-2col { margin-top: var(--space-4); }
 @media (max-width: 1024px) { .dashboard-grid-2col { grid-template-columns: 1fr; } }
 
-/* ===== Typography refinements only ===== */
 .page-title { font-size: 1.875rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em; }
 .page-subtitle { font-size: 0.875rem; font-weight: 400; line-height: 1.5; color: var(--color-text-muted); }
 .panel-title { font-size: 0.9375rem; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
@@ -902,7 +871,6 @@
 .btn { font-size: 0.8125rem; font-weight: 500; letter-spacing: 0.01em; }
 .panel-subtitle { font-size: 0.875rem; font-weight: 400; }
 
-/* ===== Polish pass — consistent components ===== */
 .panel { border-color: var(--color-border); border-radius: 6px; }
 .panel-header { padding: 14px 16px; }
 .panel-title { font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.01em; }
@@ -941,7 +909,6 @@
 /* Focus ring for chart area */
 .chart-area canvas:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; border-radius: 6px; }
 
-/* ===== Dashboard animate — motion thesis =====
 Focal: KPI strip staggered entrance (hierarchy / state acknowledgment).
 Continuity: grid panel stagger into view (spatial relationship).
 Feedback: KPI hover lift (interaction acknowledgment, 150ms).
@@ -996,7 +963,6 @@ Reduced motion: transforms removed, opacity preserved. */
   .kpi-strip .kpi:hover { transform: none !important; box-shadow: none !important; }
 }
 
-/* ===== Skeleton / Loading System ===== */
 .skeleton { background: linear-gradient(90deg, var(--color-bg-elevated) 25%, var(--color-bg-hover) 50%, var(--color-bg-elevated) 75%); background-size: 200% 100%; border-radius: var(--radius-sm); animation: shimmer 1.5s linear infinite; position: relative; overflow: hidden; }
 .skeleton-text { height: 0.75rem; width: 70%; border-radius: 2px; }
 .skeleton-title { height: 1.125rem; width: 40%; border-radius: 2px; }
