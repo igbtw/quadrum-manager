@@ -70,6 +70,7 @@ def pdv(request):
     return render(request, 'frontend/pdv.html', context)
 
 
+@login_required
 def produtos(request):
     """Product list"""
     if request.method == 'POST':
@@ -142,6 +143,7 @@ def estoque(request):
     return render(request, 'frontend/estoque.html', context)
 
 
+@login_required
 def pessoas(request):
     """People registry"""
     if request.method == 'POST':

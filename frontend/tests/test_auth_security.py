@@ -50,6 +50,26 @@ class AuthSecurityTests(TestCase):
         resp = self.client.post(reverse('frontend:api_pdv_calcular'), data='{"itens":[{"produto_id":99999,"quantidade":1}]}', content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertIn(resp.status_code, [400, 404])
 
+    def test_anonymous_produtos_post_blocked(self):
+        resp = self.client.post(reverse('frontend:produtos'), {'name': 'AnonP', 'category': self.cat.pk, 'price': '1', 'stock_quantity': '1'})
+        self.assertEqual(resp.status_code, 302)
+
+    def test_auth_produtos_post_allowed(self):
+        self.client.force_login(self.user)
+        resp = self.client.post(reverse('frontend:produtos'), {'name': 'AuthP', 'code': '', 'category': self.cat.pk, 'price': '2', 'stock_quantity': '5', 'minimum_stock': '5'})
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(Product.objects.filter(name='AuthP').exists())
+
+    def test_anonymous_pessoas_post_blocked(self):
+        resp = self.client.post(reverse('frontend:pessoas'), {'name': 'AnonPers', 'doc_id': '1', 'person_type': 'ALUNO'})
+        self.assertEqual(resp.status_code, 302)
+
+    def test_auth_pessoas_post_allowed(self):
+        self.client.force_login(self.user)
+        resp = self.client.post(reverse('frontend:pessoas'), {'name': 'AuthPers', 'doc_id': '2', 'person_type': 'PROFESSOR'})
+        self.assertEqual(resp.status_code, 302)
+        self.assertTrue(Person.objects.filter(name='AuthPers').exists())
+
     def test_xss_safe_output_in_template_context(self):
         p = Product.objects.create(name='<script>alert(1)</script>', code='XSS1', category=self.cat, price=Decimal('1'), stock_quantity=5)
         self.assertIn('<script>', p.name)
