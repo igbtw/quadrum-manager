@@ -5,6 +5,7 @@ from decimal import Decimal
 from frontend.models import Category, Product, Person, Sale, SaleItem, StockMovement, AccountReceivable, Payment
 from frontend.services import cancel_sale, finalize_sale, create_sale_items, reduce_stock
 from frontend.models import register_payment
+from django.db import IntegrityError
 
 
 class PhaseARegressionTests(TestCase):
@@ -82,16 +83,98 @@ class PhaseARegressionTests(TestCase):
         prod = Product.objects.create(name='RegP', code='RP', category=cat, price=Decimal('99.99'), stock_quantity=50)
         # Anonymous access must be denied
         resp = self.client.post(reverse('frontend:api_pdv_finalizar'),
-            data='{"itens":[{"produto_id":%d,"quantidade":1,"preco_unitario":"0.01"}],"forma_pagamento":"DINHEIRO"}' % prod.pk,
+            data='{"itens":[{"produto_id":%d,"quantidade":1,"preco_unitario":"0.01"}],"forma_pagamento":"DINHEIRO","idempotency_key":"ANON-01"}' % prod.pk,
             content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 302)  # redirect to login
         # Authenticated user cannot under-price item
         self.client.force_login(self.user)
         resp = self.client.post(reverse('frontend:api_pdv_finalizar'),
-            data='{"itens":[{"produto_id":%d,"quantidade":2,"preco_unitario":"1.00"}],"forma_pagamento":"DINHEIRO"}' % prod.pk,
+            data='{"itens":[{"produto_id":%d,"quantidade":2,"preco_unitario":"1.00"}],"forma_pagamento":"DINHEIRO","idempotency_key":"PRICE-01"}' % prod.pk,
             content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 200)
         sale = Sale.objects.filter(status='COMPLETED').latest('id')
         item = sale.items.first()
         self.assertEqual(item.unit_price, Decimal('99.99'))
         self.assertEqual(sale.total, Decimal('199.98'))
+
+    def test_duplicate_finalization_idempotent(self):
+        """Same session + same payload should not create second sale."""
+        cat = Category.objects.create(name='DupC')
+        prod = Product.objects.create(name='DupP', code='DP', category=cat, price=Decimal('5'), stock_quantity=10)
+        self.client.force_login(self.user)
+        payload = '{"itens":[{"produto_id":%d,"quantidade":1}],"forma_pagamento":"DINHEIRO","idempotency_key":"KEY-001"}' % prod.pk
+        resp1 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp1.status_code, 200)
+        sale1 = Sale.objects.filter(status='COMPLETED').latest('id')
+        # Repeat with same session
+        resp2 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp2.status_code, 200)
+        # Must not create second completed sale
+        self.assertEqual(Sale.objects.filter(status='COMPLETED').count(), 1)
+        # Inventory decremented exactly once
+        self.assertEqual(Product.objects.get(pk=prod.pk).stock_quantity, 9)
+
+    def test_idempotency_ownership_and_conflict(self):
+        """Same key different user => 403; different fingerprint => 409; same => 200."""
+        from frontend.models import Sale
+        cat = Category.objects.create(name='OwnC')
+        prod = Product.objects.create(name='OwnP', code='OW', category=cat, price=Decimal('10'), stock_quantity=10)
+        u1 = User.objects.create_user('ow1', password='t')
+        u2 = User.objects.create_user('ow2', password='t')
+        self.client.force_login(u1)
+        payload = '{"itens":[{"produto_id":%d,"quantidade":1}],"forma_pagamento":"DINHEIRO","idempotency_key":"OWN-01"}' % prod.pk
+        resp1 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp1.status_code, 200)
+        self.client.force_login(u2)
+        resp2 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp2.status_code, 403)
+        self.client.force_login(u1)
+        resp3 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp3.status_code, 200)
+        payload_bad = '{"itens":[{"produto_id":%d,"quantidade":99}],"forma_pagamento":"DINHEIRO","idempotency_key":"OWN-01"}' % prod.pk
+        resp4 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload_bad, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp4.status_code, 409)
+        self.assertEqual(Sale.objects.filter(idempotency_key='OWN-01', status='COMPLETED').count(), 1)
+
+    def test_integrityerror_without_matching_record_returns_500(self):
+        """IntegrityError without a corresponding sale must return generic 500, not 400 conflict."""
+        from unittest.mock import patch
+        cat = Category.objects.create(name='IEC')
+        prod = Product.objects.create(name='IEP', code='IE', category=cat, price=Decimal('10'), stock_quantity=10)
+        self.client.force_login(self.user)
+        payload = '{"itens":[{"produto_id":%d,"quantidade":1}],"forma_pagamento":"DINHEIRO","idempotency_key":"IE-01"}' % prod.pk
+        with patch('frontend.views.Sale.objects.create', side_effect=IntegrityError('simulated')):
+            resp = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp.status_code, 500)
+        data = resp.json()
+        self.assertNotIn('simulated', str(data.get('error', '')))
+        self.assertIn('Erro interno', data.get('error', ''))
+
+    def test_unexpected_exception_returns_generic_500(self):
+        from unittest.mock import patch
+        cat = Category.objects.create(name='ErrC')
+        prod = Product.objects.create(name='ErrP', code='ER', category=cat, price=Decimal('1'), stock_quantity=10)
+        self.client.force_login(self.user)
+        payload = '{"itens":[{"produto_id":%d,"quantidade":1}],"forma_pagamento":"DINHEIRO","idempotency_key":"ERR-01"}' % prod.pk
+        with patch('frontend.views.Sale.objects.create', side_effect=RuntimeError('internal simulated failure')):
+            resp = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp.status_code, 500)
+        data = resp.json()
+        self.assertNotIn('internal simulated failure', str(data.get('error', '')))
+        self.assertIn('Erro interno', data.get('error', ''))
+
+    def test_missing_fingerprint_returns_409(self):
+        """Legacy completed sale with key but no fingerprint must not return success."""
+        cat = Category.objects.create(name='LegacyC')
+        prod = Product.objects.create(name='LegacyP', code='LG', category=cat, price=Decimal('10'), stock_quantity=10)
+        pers = Person.objects.create(name='L', doc_id='L', person_type='ALUNO')
+        sale = Sale.objects.create(
+            customer=pers, responsible=self.user, status='COMPLETED',
+            payment_method='DINHEIRO', total=Decimal('10'),
+            idempotency_key='LEGACY-01', request_fingerprint=None,
+        )
+        self.client.force_login(self.user)
+        resp = self.client.post(reverse('frontend:api_pdv_finalizar'),
+            data='{"itens":[{"produto_id":%d,"quantidade":1}],"forma_pagamento":"DINHEIRO","idempotency_key":"LEGACY-01"}' % prod.pk,
+            content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp.status_code, 409)

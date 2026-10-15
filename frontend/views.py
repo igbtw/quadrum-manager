@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
+import logging
+logger = logging.getLogger(__name__)
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.db import transaction
@@ -270,37 +272,96 @@ def api_pdv_calcular(request):
 @login_required
 @require_http_methods(["POST"])
 def api_pdv_finalizar(request):
-    """Finalize sale — persist to DB with integrity"""
-    import json
+    """Finalize sale — idempotent, atomic, DB-enforced."""
+    import json, re
+    from django.db import IntegrityError, transaction
+    from .models import Sale, Person
     try:
         data = json.loads(request.body)
         itens = data.get('itens', [])
         customer_id = data.get('cliente_id')
         payment_method = data.get('forma_pagamento', 'DINHEIRO')
+        idempotency_key = str(data.get('idempotency_key', '')).strip()
         if not itens:
             return JsonResponse({'error': 'Carrinho vazio'}, status=400)
-        from .models import Sale, Person
+        if not idempotency_key or len(idempotency_key) > 255 or not re.match(r'^[A-Za-z0-9_-]+$', idempotency_key):
+            return JsonResponse({'error': 'Chave de idempotência inválida'}, status=400)
+        import hashlib
+        def _fingerprint():
+            norm = {
+                'itens': sorted([(int(i.get('produto_id', 0)), int(i.get('quantidade', 0))) for i in itens]),
+                'cliente_id': int(customer_id) if customer_id is not None else None,
+                'forma_pagamento': str(payment_method),
+            }
+            return hashlib.sha256(json.dumps(norm, sort_keys=True).encode()).hexdigest()
+        fingerprint = _fingerprint()
         customer = None
         if customer_id:
             try:
                 customer = Person.objects.get(pk=customer_id, active=True)
             except Person.DoesNotExist:
                 return JsonResponse({'error': 'Cliente não encontrado'}, status=404)
-        sale = Sale.objects.create(
-            customer=customer,
-            responsible=request.user if request.user.is_authenticated else None,
-            status='PENDING',
-            payment_method=payment_method,
-            subtotal=Decimal('0'),
-            total=Decimal('0'),
-        )
-        items_data = [{'product_id': it['produto_id'], 'quantity': it['quantidade']} for it in itens]
-        create_sale_items(sale, items_data, user=request.user if request.user.is_authenticated else None)
-        subtotal = sum(i.subtotal for i in sale.items.all())
-        sale.subtotal = subtotal
-        sale.total = subtotal
-        sale.save(update_fields=['subtotal', 'total'])
-        finalize_sale(sale, user=request.user if request.user.is_authenticated else None)
-        return JsonResponse({'success': True, 'codigo': sale.code, 'message': 'Venda finalizada'})
-    except Exception as e:
-        return JsonResponse({'error': f'Erro ao finalizar: {str(e)}'}, status=400)
+        with transaction.atomic():
+            # Single authoritative lookup by unique key
+            try:
+                existing = Sale.objects.select_related('customer').get(
+                    idempotency_key=idempotency_key
+                )
+                # Ownership: same user only; legacy null-responsible treated as not matching
+                if (existing.responsible_id or 0) != (request.user.id if request.user.is_authenticated else None):
+                    return JsonResponse({'error': 'Chave de idempotência não autorizada'}, status=403)
+                if existing.status == 'COMPLETED':
+                    if existing.request_fingerprint and existing.request_fingerprint != fingerprint:
+                        return JsonResponse({'error': 'Conflito de chave: dados da requisição alterados'}, status=409)
+                    if not existing.request_fingerprint:
+                        return JsonResponse({'error': 'Conflito de chave: venda existente sem fingerprint de verificação'}, status=409)
+                    return JsonResponse({
+                        'success': True, 'codigo': existing.code,
+                        'message': 'Venda finalizada'
+                    })
+                else:
+                    return JsonResponse({'error': 'Tentativa de checkout já em andamento ou incompleta'}, status=409)
+            except Sale.DoesNotExist:
+                pass
+            sale = Sale.objects.create(
+                customer=customer,
+                responsible=request.user if request.user.is_authenticated else None,
+                status='PENDING',
+                payment_method=payment_method,
+                subtotal=Decimal('0'),
+                total=Decimal('0'),
+                idempotency_key=idempotency_key,
+                request_fingerprint=fingerprint,
+            )
+            items_data = [{'product_id': it['produto_id'], 'quantity': it['quantidade']} for it in itens]
+            create_sale_items(sale, items_data, user=request.user if request.user.is_authenticated else None)
+            subtotal = sum(i.subtotal for i in sale.items.all())
+            sale.subtotal = subtotal
+            sale.total = subtotal
+            sale.save(update_fields=['subtotal', 'total', 'request_fingerprint'])
+            finalize_sale(sale, user=request.user if request.user.is_authenticated else None)
+            return JsonResponse({'success': True, 'codigo': sale.code, 'message': 'Venda finalizada'})
+    except IntegrityError:
+        try:
+            existing = Sale.objects.select_related('customer').get(
+                idempotency_key=idempotency_key
+            )
+            if (existing.responsible_id or 0) != (request.user.id if request.user.is_authenticated else None):
+                return JsonResponse({'error': 'Chave de idempotência não autorizada'}, status=403)
+            if existing.status == 'COMPLETED':
+                if existing.request_fingerprint and existing.request_fingerprint != fingerprint:
+                    return JsonResponse({'error': 'Conflito de chave: dados da requisição alterados'}, status=409)
+                if not existing.request_fingerprint:
+                    return JsonResponse({'error': 'Conflito de chave: venda existente sem fingerprint de verificação'}, status=409)
+                return JsonResponse({
+                    'success': True, 'codigo': existing.code,
+                    'message': 'Venda finalizada'
+                })
+            else:
+                return JsonResponse({'error': 'Tentativa de checkout já em andamento ou incompleta'}, status=409)
+        except Sale.DoesNotExist:
+            logger.exception("IntegrityError sem registro de idempotência para chave %s", idempotency_key)
+            return JsonResponse({'error': 'Erro interno ao finalizar venda'}, status=500)
+    except Exception:
+        logger.exception("Erro inesperado ao finalizar venda")
+        return JsonResponse({'error': 'Erro interno ao finalizar venda'}, status=500)

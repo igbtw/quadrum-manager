@@ -105,6 +105,8 @@ class Sale(models.Model):
         ('A_PRAZO', 'A prazo'),
     ]
     code = models.CharField(max_length=20, unique=True, blank=True)
+    idempotency_key = models.CharField(max_length=255, unique=True, blank=True, null=True, db_index=True, default=None)
+    request_fingerprint = models.CharField(max_length=255, blank=True, null=True, db_index=True, default=None)
     customer = models.ForeignKey(Person, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales')
     responsible = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales')
     status = models.CharField(max_length=20, choices=SALE_STATUSES, default='PENDING')

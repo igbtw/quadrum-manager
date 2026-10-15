@@ -113,6 +113,13 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const saved = sessionStorage.getItem('pdv_checkout');
+        if (saved) {
+            const d = JSON.parse(saved);
+            if (d && d.idempotency_key) window._pdv_key = d.idempotency_key;
+        }
+    } catch (e) {}
     let carrinho = [];
 
     const searchInput = document.getElementById('buscarProduto');
@@ -291,22 +298,44 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.finalizarVenda = function() {
-        if (carrinho.length === 0) {
-            Cantina.showToast('Carrinho vazio', 'Adicione produtos antes de finalizar', 'warning');
-            return;
+        if (window._finalizarEmCurso) return;
+        let payload = null;
+        let formaPagamento = null;
+        try {
+            const saved = sessionStorage.getItem('pdv_checkout');
+            if (saved && window._pdv_key) {
+                const d = JSON.parse(saved);
+                if (d && d.idempotency_key === window._pdv_key && d.payload) {
+                    payload = d.payload;
+                }
+            }
+        } catch (e) {}
+        if (!payload) {
+            if (carrinho.length === 0) {
+                Cantina.showToast('Carrinho vazio', 'Adicione produtos antes de finalizar', 'warning');
+                return;
+            }
+            formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked');
+            if (!formaPagamento) {
+                Cantina.showToast('Forma de pagamento', 'Selecione uma forma de pagamento', 'warning');
+                return;
+            }
         }
-        const formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked');
-        if (!formaPagamento) {
-            Cantina.showToast('Forma de pagamento', 'Selecione uma forma de pagamento', 'warning');
-            return;
-        }
-        const clienteSelect = document.querySelector('#cliente_selecionado');
+        window._finalizarEmCurso = true;
+        const clienteSelect = document.querySelector('#cliente_seleccionado');
         const clienteId = clienteSelect ? (clienteSelect.value || null) : null;
-        const payload = {
-            itens: carrinho.map(i => ({produto_id: i.id, quantidade: i.qtd, preco_unitario: i.preco})),
-            cliente_id: clienteId,
-            forma_pagamento: formaPagamento.value
-        };
+        if (!payload) {
+            if (!window._pdv_key) window._pdv_key = crypto?.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2));
+            const clienteSelect = document.querySelector('#cliente_selecionado');
+            const clienteId = clienteSelect ? (clienteSelect.value || null) : null;
+            payload = {
+                itens: carrinho.map(i => ({produto_id: i.id, quantidade: i.qtd, preco_unitario: i.preco})),
+                cliente_id: clienteId,
+                forma_pagamento: formaPagamento.value,
+                idempotency_key: window._pdv_key
+            };
+            try { sessionStorage.setItem('pdv_checkout', JSON.stringify({idempotency_key: window._pdv_key, payload: payload})); } catch (e) {}
+        }
         fetch('/api/pdv/finalizar/', {
             method: 'POST',
             headers: {
@@ -317,14 +346,17 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(r => r.json())
         .then(data => {
+            window._finalizarEmCurso = false;
             if (data.success) {
+                window._pdv_key = null;
+                try { sessionStorage.removeItem('pdv_checkout'); } catch (e) {}
                 Cantina.showToast('Venda finalizada', 'Código: ' + data.codigo, 'success');
                 limparCarrinho();
             } else {
                 Cantina.showToast('Erro', data.error || 'Falha ao finalizar', 'error');
             }
         })
-        .catch(err => Cantina.showToast('Erro', 'Não foi possível finalizar a venda.', 'error'));
+        .catch(err => { window._finalizarEmCurso = false; Cantina.showToast('Erro', 'Não foi possível finalizar a venda.', 'error'); try { sessionStorage.setItem('pdv_checkout', JSON.stringify({idempotency_key: window._pdv_key || null, payload: payload || null})); } catch (e) {} });
     };
 });
 </script>
