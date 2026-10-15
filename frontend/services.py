@@ -30,6 +30,9 @@ def create_sale_items(sale: Sale, items_data: list, user: User = None):
         for d in items_data:
             prod = Product.objects.select_for_update().get(pk=d['product_id'])
             unit_price = Decimal(str(d.get('unit_price', prod.price)))
+            # Server-side price enforcement: never trust client price
+            if unit_price != prod.price:
+                unit_price = prod.price
             item = SaleItem.objects.create(
                 sale=sale, product=prod, quantity=d['quantity'],
                 unit_price=unit_price,

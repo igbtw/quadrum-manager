@@ -2,6 +2,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
@@ -242,6 +243,7 @@ def logout_view(request):
 
 
 # PDV interaction endpoints — persist to DB with integrity
+@login_required
 @require_http_methods(["POST"])
 def api_pdv_calcular(request):
     """Calculate total from cart data"""
@@ -263,6 +265,7 @@ def api_pdv_calcular(request):
         return JsonResponse({'error': f'Erro no cálculo: {str(e)}'}, status=400)
 
 
+@login_required
 @require_http_methods(["POST"])
 def api_pdv_finalizar(request):
     """Finalize sale — persist to DB with integrity"""
@@ -289,7 +292,7 @@ def api_pdv_finalizar(request):
             subtotal=Decimal('0'),
             total=Decimal('0'),
         )
-        items_data = [{'product_id': it['produto_id'], 'quantity': it['quantidade'], 'unit_price': it.get('preco_unitario', None)} for it in itens]
+        items_data = [{'product_id': it['produto_id'], 'quantity': it['quantidade']} for it in itens]
         create_sale_items(sale, items_data, user=request.user if request.user.is_authenticated else None)
         subtotal = sum(i.subtotal for i in sale.items.all())
         sale.subtotal = subtotal

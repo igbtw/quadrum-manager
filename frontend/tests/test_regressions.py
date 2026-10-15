@@ -59,10 +59,12 @@ class PhaseARegressionTests(TestCase):
     def test_api_pdv_calcular_real_product(self):
         from frontend.models import Product
         prod = Product.objects.create(name='APIProd', code='AP', category=Category.objects.create(name='API'), price=Decimal('5'), stock_quantity=10)
+        self.client.force_login(self.user)
         resp = self.client.post(reverse('frontend:api_pdv_calcular'), data='{"itens":[{"produto_id":%d,"quantidade":2}]}' % prod.pk, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 200)
 
     def test_api_pdv_calcular_bad_id(self):
+        self.client.force_login(self.user)
         resp = self.client.post(reverse('frontend:api_pdv_calcular'), data='{"itens":[{"produto_id":99999,"quantidade":1}]}', content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertIn(resp.status_code, [400, 404])
 
@@ -73,3 +75,23 @@ class PhaseARegressionTests(TestCase):
         rc.refresh_from_db()
         self.assertEqual(rc.status, 'PARTIAL')
         self.assertEqual(rc.remaining_balance, Decimal('70'))
+
+    def test_api_pdv_requires_login_and_ignores_client_price(self):
+        """Regression: anonymous users must not finalize sales or manipulate prices."""
+        cat = Category.objects.create(name='RegC')
+        prod = Product.objects.create(name='RegP', code='RP', category=cat, price=Decimal('99.99'), stock_quantity=50)
+        # Anonymous access must be denied
+        resp = self.client.post(reverse('frontend:api_pdv_finalizar'),
+            data='{"itens":[{"produto_id":%d,"quantidade":1,"preco_unitario":"0.01"}],"forma_pagamento":"DINHEIRO"}' % prod.pk,
+            content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp.status_code, 302)  # redirect to login
+        # Authenticated user cannot under-price item
+        self.client.force_login(self.user)
+        resp = self.client.post(reverse('frontend:api_pdv_finalizar'),
+            data='{"itens":[{"produto_id":%d,"quantidade":2,"preco_unitario":"1.00"}],"forma_pagamento":"DINHEIRO"}' % prod.pk,
+            content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        self.assertEqual(resp.status_code, 200)
+        sale = Sale.objects.filter(status='COMPLETED').latest('id')
+        item = sale.items.first()
+        self.assertEqual(item.unit_price, Decimal('99.99'))
+        self.assertEqual(sale.total, Decimal('199.98'))
