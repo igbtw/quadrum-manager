@@ -178,6 +178,8 @@ python manage.py test
 - **Servidor Dev**: `runserver`
 - **Servidor Prod**: Gunicorn (WSGI)
 
-## Licença
+## License
 
-Projeto interno - CantinaOS
+CantinaOS is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+
+Third-party dependencies and assets remain subject to their respective licenses.
