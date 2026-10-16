@@ -1,2 +1,5 @@
 # Core dependencies
 Django>=5.2,<5.3
+psycopg[binary]>=3.2,<4
+gunicorn>=21.0,<22.0
+python-dotenv>=1.0,<2.0

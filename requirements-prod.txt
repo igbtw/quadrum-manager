@@ -1,6 +1,7 @@
 # Production dependencies for CantinaOS
-# Install with: pip install -r requirements.txt -r requirements-prod.txt
-
-gunicorn>=21.0,<22.0
-psycopg2-binary>=2.9,<3.0
-python-dotenv>=1.0,<2.0
+# Install with: pip install -r requirements.txt
+#
+# All production dependencies (Django, psycopg[binary], gunicorn, whitenoise,
+# python-dotenv) are declared in requirements.txt.
+# This file is intentionally empty; it is kept for backward compatibility
+# with deployment scripts that reference it.

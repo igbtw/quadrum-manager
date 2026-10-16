@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -93,12 +94,16 @@ if DATABASE_URL:
     # Parse DATABASE_URL (format: postgres://user:pass@host:port/dbname)
     import urllib.parse
     url = urllib.parse.urlparse(DATABASE_URL)
+    if not url.hostname:
+        raise ValueError('DATABASE_URL must include a host (e.g., postgres://user:pass@host:port/dbname)')
+    if not url.path[1:]:
+        raise ValueError('DATABASE_URL must include a database name (e.g., postgres://user:pass@host:port/dbname)')
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': url.path[1:],
             'USER': url.username,
-            'PASSWORD': url.password,
+            'PASSWORD': urllib.parse.unquote(url.password) if url.password else '',
             'HOST': url.hostname,
             'PORT': url.port or 5432,
             'CONN_MAX_AGE': 60,
@@ -110,14 +115,20 @@ else:
     db_engine = os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3')
     
     if db_engine == 'django.db.backends.postgresql':
+        db_name = os.environ.get('DB_NAME')
+        db_user = os.environ.get('DB_USER')
+        if not db_name:
+            raise ValueError('DB_NAME must be set when DB_ENGINE is postgresql')
+        if not db_user:
+            raise ValueError('DB_USER must be set when DB_ENGINE is postgresql')
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.postgresql',
-                'NAME': os.environ.get('DB_NAME', 'cantinaos'),
-                'USER': os.environ.get('DB_USER', 'cantinaos'),
+                'NAME': db_name,
+                'USER': db_user,
                 'PASSWORD': os.environ.get('DB_PASSWORD', ''),
                 'HOST': os.environ.get('DB_HOST', 'localhost'),
-                'PORT': os.environ.get('DB_PORT', '5432'),
+                'PORT': int(os.environ.get('DB_PORT', '5432')),
                 'CONN_MAX_AGE': 60,
                 'OPTIONS': {'connect_timeout': 10},
             }
@@ -163,11 +174,25 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Use manifest storage in production for cache busting
+# Use STORAGES setting (Django 4.2+ recommended over STATICFILES_STORAGE)
 if not DEBUG:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+    STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
 else:
-    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
+        'staticfiles': {
+            'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+        },
+    }
 
 
 # DEFAULT PRIMARY KEY
@@ -208,14 +233,15 @@ if not DEBUG:
     # HTTPS enforcement
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    
+    # HSTS: start with a short duration; increase only after HTTPS is verified.
+    # Do NOT enable SECURE_HSTS_PRELOAD automatically — submit to the HSTS
+    # preload list only after domain and HTTPS configuration are verified.
+    SECURE_HSTS_SECONDS = 300  # 5 minutes for initial deployment
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
     
     SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = 'None'
     CSRF_COOKIE_SECURE = True
-    CSRF_COOKIE_SAMESITE = 'None'
 
 
 # EMAIL
