@@ -16,9 +16,9 @@ distribution). OS-specific commands are marked as conditional.
 |---|---|
 | **Python** | 3.12, 3.13, or 3.14 (developed on 3.14) |
 | **Django** | 5.2.x |
-| **Database** | PostgreSQL 14+ (SQLite for local development only; Django 5.2 requires PostgreSQL 14+) |
+| **Database** | PostgreSQL 14+ (recommended for production); SQLite 3.31+ supported by Django 5.2 but not interchangeable for all production workloads |
 | **WSGI server** | Gunicorn 21+ |
-| **Static file middleware** | WhiteNoise 6.8+ (installed in `.venv` via `whitenoise`; see settings `STORAGES` and middleware) |
+| **Static file middleware** | WhiteNoise 6.8+ (declared in `requirements.txt`; configured in `STORAGES` and middleware) |
 | **Reverse proxy** | nginx or Apache (recommended) |
 | **OS** | Any modern Linux distribution (Alpine, AlmaLinux, Ubuntu, Debian, etc.) |
 
