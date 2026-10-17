@@ -1,6 +1,6 @@
-# Contributing to CantinaOS
+# Contributing to quadrum
 
-CantinaOS is a demonstration Django application for school cafeteria management. Contributions should be small, reviewable, and focused on fixing verified issues or adding clearly needed functionality.
+quadrum is a demonstration Django application for school cafeteria management. Contributions should be small, reviewable, and focused on fixing verified issues or adding clearly needed functionality.
 
 ## Development Setup
 

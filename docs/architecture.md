@@ -1,10 +1,10 @@
-# CantinaOS Architecture
+# quadrum Architecture
 
-This document describes the verified structure of CantinaOS based on the current source code. It is intended to help reviewers and contributors navigate the application quickly.
+This document describes the verified structure of quadrum based on the current source code. It is intended to help reviewers and contributors navigate the application quickly.
 
 ## Application Overview
 
-CantinaOS is a single Django project (`config/`) with one primary application (`frontend/`). It is designed as a demonstration of school cafeteria management, using Django templates for rendering and SQLite for local development. Production deployment uses PostgreSQL (optional), Gunicorn, and WhiteNoise for static files.
+quadrum is a single Django project (`config/`) with one primary application (`frontend/`). It is designed as a demonstration of school cafeteria management, using Django templates for rendering and SQLite for local development. Production deployment uses PostgreSQL (optional), Gunicorn, and WhiteNoise for static files.
 
 ## Django Settings (`config/`)
 

@@ -1,7 +1,7 @@
 {% extends "frontend/base.html" %}
 {% load static %}
 
-{% block title %}Dashboard — CantinaOS{% endblock %}
+{% block title %}Dashboard — quadrum{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -59,14 +59,14 @@
     <section class="panel" aria-labelledby="estoque-heading">
         <div class="panel-header">
             <h2 id="estoque-heading" class="panel-title">Inventory</h2>
-            <a href="{% url 'frontend:estoque' %}" class="btn btn-ghost btn-sm">Ver estoque <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <a href="{% url 'frontend:estoque' %}" class="btn btn-ghost btn-sm">View inventory <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             {% if stats.produtos_baixo_estoque %}
             <div class="compact-table-wrap">
                 <table class="table-compact">
                     <thead>
-                        <tr><th>Product</th><th class="num">Qtd</th><th class="num">Mín</th><th>Situação</th></tr>
+                        <tr><th>Product</th><th class="num">Quantity</th><th class="num">Minimum</th><th>Status</th></tr>
                     </thead>
                     <tbody>
                         {% for p in stats.produtos_baixo_estoque %}
@@ -86,8 +86,8 @@
             </div>
             {% else %}
             <div class="empty-state compact">
-                <div class="empty-state-title">Estoço OK</div>
-                <div class="empty-state-description">Todos os produtos com estoque adequado — nenhuma reposição urgente.</div>
+                <div class="empty-state-title">Stock OK</div>
+                <div class="empty-state-description">All products have adequate stock — no urgent replenishment.</div>
             </div>
             {% endif %}
         </div>
@@ -98,14 +98,14 @@
 <div class="dashboard-grid-2col">
     <section class="panel" aria-labelledby="vendas-heading">
         <div class="panel-header">
-            <h2 id="vendas-heading" class="panel-title">Sales Recentes</h2>
-            <a href="#" class="btn btn-ghost btn-sm">Ver todas <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <h2 id="vendas-heading" class="panel-title">Recent Sales</h2>
+            <a href="#" class="btn btn-ghost btn-sm">View all <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="compact-table-wrap">
                 <table class="table-compact">
                     <thead>
-                        <tr><th>Código</th><th>Customer</th><th>Horário</th><th class="num">Total</th><th>Status</th></tr>
+                        <tr><th>CODE</th><th>Customer</th><th>TIME</th><th class="num">Total</th><th>Status</th></tr>
                     </thead>
                     <tbody>
                         {% for venda in stats.vendas_recentes %}
@@ -121,7 +121,7 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="5" class="empty-state compact">No sales recente</td></tr>
+                        <tr><td colspan="5" class="empty-state compact">No recent sales</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -132,12 +132,12 @@
     <section class="panel" aria-labelledby="receb-heading">
         <div class="panel-header">
             <h2 id="receb-heading" class="panel-title">Receivables</h2>
-            <a href="#" class="btn btn-ghost btn-sm">Ver financeiro <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <a href="#" class="btn btn-ghost btn-sm">View finance <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="receivable-summary">
                 <div class="receivable-total">R$ {{ stats.valor_receber|default:"0.00" }}</div>
-                <div class="receivable-label">em aberto</div>
+                <div class="receivable-label">outstanding</div>
                 <div class="receivable-breakdown">
                     {% if stats.valor_receber %}
                     <div class="receivable-row">
@@ -153,12 +153,12 @@
                     {% endif %}
                     {% if not stats.valor_receber and not stats.valor_vencido %}
                     <div class="receivable-row">
-                        <span>Tudo em dia</span>
+                        <span>Up to date</span>
                         <span class="receivable-amount">—</span>
                     </div>
                     {% endif %}
                 </div>
-                <div style="margin-top:12px;font-size:0.6875rem;color:var(--color-text-muted);line-height:1.4;">Contas com atraso precisam de acompanhamento imediato para evitar impacto no fluxo.</div>
+                <div style="margin-top:12px;font-size:0.6875rem;color:var(--color-text-muted);line-height:1.4;">Overdue accounts need immediate follow-up to avoid cash flow impact.</div>
             </div>
         </div>
     </section>
@@ -179,7 +179,7 @@
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
                     datasets: [{
                         label: 'Sales',
                         data: [12, 19, 15, 27, 22, 30, 24],

@@ -103,7 +103,7 @@
                             <th>Person</th>
                             <th class="numeric">Valor</th>
                             <th>Data</th>
-                            <th>Forma</th>
+                            <th>Method</th>
                             <th>Referência</th>
                         </tr>
                     </thead>
@@ -127,7 +127,7 @@
                                 <path d="M12 5.01l-3.09 6.91L8 10l-3 4 9-11 9 11-3-4L12 5.01zM2 4l6 20 6-20H2zm10 16l-5 5h2l-5-5h-2z"/>
                             </svg>
                             <div class="empty-state-title">No payment recorded</div>
-                            <div class="empty-state-description">Payments aparecerão aqui</div>
+                            <div class="empty-state-description">Payments will appear here</div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -155,7 +155,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     window.receberConta = function(id) {
-        Cantina.showToast('Usage', 'Use the payment registration form at the top.', 'info');
+        quadrum.showToast('Usage', 'Use the payment registration form at the top.', 'info');
     };
 });
 </script>

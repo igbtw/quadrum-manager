@@ -20,7 +20,7 @@ from .forms import ProductForm, PersonForm
 
 def health_check(request):
     """Health check endpoint"""
-    return JsonResponse({'status': 'ok', 'service': 'cantinaos'})
+    return JsonResponse({'status': 'ok', 'service': 'quadrum'})
 
 
 def dashboard(request):

@@ -117,7 +117,7 @@ function initCart() {
 }
 
 function initPosCart() {
-    let carrinho = JSON.parse(localStorage.getItem('cantinaos-carrinho') || '[]');
+    let carrinho = JSON.parse(localStorage.getItem('quadrum-carrinho') || '[]');
 
     // Render cart
     renderCart(carrinho);
@@ -135,21 +135,21 @@ function initPosCart() {
                 qtd: 1
             });
         }
-        localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
+        localStorage.setItem('quadrum-carrinho', JSON.stringify(carrinho));
         renderCart(carrinho);
     };
 
     // Remove item
     window.removeCartItem = function(idx) {
         carrinho.splice(idx, 1);
-        localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
+        localStorage.setItem('quadrum-carrinho', JSON.stringify(carrinho));
         renderCart(carrinho);
     };
 
     // Increment quantity
     window.increaseQuantity = function(idx) {
         carrinho[idx].qtd += 1;
-        localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
+        localStorage.setItem('quadrum-carrinho', JSON.stringify(carrinho));
         renderCart(carrinho);
     };
 
@@ -159,7 +159,7 @@ function initPosCart() {
             removeCartItem(idx);
         } else {
             carrinho[idx].qtd -= 1;
-            localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
+            localStorage.setItem('quadrum-carrinho', JSON.stringify(carrinho));
             renderCart(carrinho);
         }
     };
@@ -296,7 +296,7 @@ function debounce(func, wait) {
 }
 
 // Export required global functions
-window.Cantina = {
+window.quadrum = {
     formatCurrency,
     showNotification: window.showNotification,
     toggleSidebar: window.toggleSidebar,

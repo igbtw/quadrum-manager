@@ -1,6 +1,6 @@
-# CantinaOS Deployment Guide
+# quadrum Deployment Guide
 
-This document describes how to deploy CantinaOS to a production server.  
+This document describes how to deploy quadrum to a production server.
 It separates **application-level requirements** (what the app needs) from
 **OS-specific instructions** (how to install packages on your Linux
 distribution). OS-specific commands are marked as conditional.
@@ -38,7 +38,7 @@ Copy `.env.example` to `.env` and set the following in production:
 | `DJANGO_SECRET_KEY` | (see §3) | A cryptographically random 50+ character key. **Never reuse the dev key (`django-insecure-dev-key-change-in-production`).** |
 | `ALLOWED_HOSTS` | `yourdomain.com,www.yourdomain.com` | Comma-separated list of host/domain names. Empty in production raises `ValueError`. |
 | `CSRF_TRUSTED_ORIGINS` | `https://yourdomain.com,https://www.yourdomain.com` | Origins sending CSRF-protected POST requests. Must include scheme. Empty in production raises `ValueError`. |
-| `DATABASE_URL` | `postgres://user:pass@localhost:5432/cantinaos` | PostgreSQL connection string. When set, `DB_*` variables are not required. |
+| `DATABASE_URL` | `postgres://user:pass@localhost:5432/quadrum` | PostgreSQL connection string. When set, `DB_*` variables are not required. |
 
 ### Optional (production services)
 
@@ -55,7 +55,7 @@ Copy `.env.example` to `.env` and set the following in production:
 | `EMAIL_USE_TLS` | `True` | Use TLS for SMTP. |
 | `EMAIL_HOST_USER` | — | SMTP username. |
 | `EMAIL_HOST_PASSWORD` | — | SMTP password. |
-| `DEFAULT_FROM_EMAIL` | `noreply@cantinaos.local` | Default sender for outgoing email. |
+| `DEFAULT_FROM_EMAIL` | `noreply@quadrum.local` | Default sender for outgoing email. |
 
 > ⚠️ **Django does not load `.env` automatically.** The `python-dotenv` package is included in `requirements.txt`, but you must explicitly load it (e.g., via `python-dotenv` in Python or by exporting variables before starting Gunicorn). The `.env` file is for convenience during manual setup; production services should either use `EnvironmentFile` (systemd) or export variables explicitly. It is in `.gitignore`.
 
@@ -83,8 +83,8 @@ Copy the output to `DJANGO_SECRET_KEY` in your `.env` file on the server.
 
 ```bash
 # Create a dedicated user and database (PostgreSQL default setup)
-sudo -u postgres createuser cantinaos -P
-sudo -u postgres createdb -O cantinaos cantinaos
+sudo -u postgres createuser quadrum -P
+sudo -u postgres createdb -O quadrum quadrum
 ```
 
 ### Network Restrictions
@@ -100,7 +100,7 @@ Edit PostgreSQL configuration to restrict remote access:
 # In pg_hba.conf, restrict access:
 # TYPE  DATABASE  USER      ADDRESS      METHOD
 local    all       all                   peer
-host    cantinaos  cantinaos  127.0.0.1/32  md5
+host    quadrum  quadrum  127.0.0.1/32  md5
 host    all        all      0.0.0.0/0        reject  # deny all other hosts
 
 # In postgresql.conf:
@@ -123,10 +123,10 @@ Restart PostgreSQL after changes:
 
 ```bash
 # Create a dedicated system user (conditional)
-# sudo useradd -r -m -d /opt/cantinaos cantinaos
+# sudo useradd -r -m -d /opt/quadrum quadrum
 
 # Switch to the application directory
-cd /opt/cantinaos  # or wherever you deploy
+cd /opt/quadrum  # or wherever you deploy
 
 # Create a virtual environment (use the system Python interpreter)
 python3 -m venv .venv
@@ -195,7 +195,7 @@ source .venv/bin/activate
 python manage.py collectstatic --noinput --clear
 ```
 
-After this, static files are in `<BASE_DIR>/staticfiles/`.  
+After this, static files are in `<BASE_DIR>/staticfiles/`.
 WhiteNoise will serve these directly from the staticfiles directory.
 
 ---
@@ -210,11 +210,11 @@ export DJANGO_DEBUG=False
 export DJANGO_SECRET_KEY="your-secret-key-here"
 export ALLOWED_HOSTS="yourdomain.com"
 export CSRF_TRUSTED_ORIGINS="https://yourdomain.com"
-export DATABASE_URL="postgres://user:pass@localhost:5432/cantinaos"
+export DATABASE_URL="postgres://user:pass@localhost:5432/quadrum"
 gunicorn config.wsgi:application --bind 127.0.0.1:8000 --workers 3
 
 # Alternative: load from .env file using python-dotenv in Python, or export variables manually
-# Note: Using a systemd service with EnvironmentFile=/opt/cantinaos/.env is preferred for production.
+# Note: Using a systemd service with EnvironmentFile=/opt/quadrum/.env is preferred for production.
 ```
 
 > **Workers**: Use `$(nproc)` or `2 * $(nproc) + 1` as a starting point.
@@ -230,7 +230,7 @@ This project supports nginx and Apache. Configure based on your OS.
 ### nginx Configuration (conditional)
 
 ```nginx
-# /etc/nginx/sites-available/cantinaos
+# /etc/nginx/sites-available/quadrum
 upstream app_server {
     server 127.0.0.1:8000;
 }
@@ -257,14 +257,14 @@ server {
 
     # Static files (optional — WhiteNoise handles these)
     location /static/ {
-        alias /opt/cantinaos/staticfiles/;
+        alias /opt/quadrum/staticfiles/;
         expires 30d;
         add_header Cache-Control "public, max-age=2592000";
     }
 
     # Media files
     location /media/ {
-        alias /opt/cantinaos/media/;
+        alias /opt/quadrum/media/;
     }
 
     location / {
@@ -284,7 +284,7 @@ server {
 Enable and reload:
 ```bash
 # Conditional (Ubuntu/Debian):
-# sudo ln -s /etc/nginx/sites-available/cantinaos /etc/nginx/sites-enabled/
+# sudo ln -s /etc/nginx/sites-available/quadrum /etc/nginx/sites-enabled/
 # sudo nginx -t
 # sudo systemctl reload nginx
 ```
@@ -292,8 +292,8 @@ Enable and reload:
 ### Apache Configuration (conditional)
 
 ```apache
-# /etc/apache2/sites-available/cantinaos.conf (Ubuntu/Debian)
-# or /etc/httpd/conf.d/cantinaos.conf (AlmaLinux/RHEL)
+# /etc/apache2/sites-available/quadrum.conf (Ubuntu/Debian)
+# or /etc/httpd/conf.d/quadrum.conf (AlmaLinux/RHEL)
 
 <VirtualHost *:80>
     ServerName yourdomain.com
@@ -318,8 +318,8 @@ Enable and reload:
     RequestHeader set X-Forwarded-Proto "https" env=HTTPS
 
     # Static files (optional — WhiteNoise handles these)
-    Alias /static/ /opt/cantinaos/staticfiles/
-    <Directory /opt/cantinaos/staticfiles/>
+    Alias /static/ /opt/quadrum/staticfiles/
+    <Directory /opt/quadrum/staticfiles/>
         Require all granted
     </Directory>
 
@@ -332,7 +332,7 @@ Enable and reload:
 ```bash
 # Conditional (Ubuntu/Debian):
 # sudo a2enmod ssl proxy proxy_http headers
-# sudo a2ensite cantinaos
+# sudo a2ensite quadrum
 # sudo systemctl reload apache2
 ```
 
@@ -430,17 +430,17 @@ Only after verification should you:
 
 Create a service file:
 ```ini
-# /etc/systemd/system/cantinaos.service
+# /etc/systemd/system/quadrum.service
 [Unit]
-Description=CantinaOS Gunicorn
+Description=quadrum Gunicorn
 After=network.target
 
 [Service]
-User=cantinaos
-Group=cantinaos
-WorkingDirectory=/opt/cantinaos
-EnvironmentFile=/opt/cantinaos/.env
-ExecStart=/opt/cantinaos/.venv/bin/gunicorn config.wsgi:application \
+User=quadrum
+Group=quadrum
+WorkingDirectory=/opt/quadrum
+EnvironmentFile=/opt/quadrum/.env
+ExecStart=/opt/quadrum/.venv/bin/gunicorn config.wsgi:application \
     --workers 3 \
     --bind 127.0.0.1:8000
 Restart=always
@@ -456,26 +456,26 @@ WantedBy=multi-user.target
 Enable and start:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable cantinaos
-sudo systemctl start cantinaos
-sudo systemctl status cantinaos
+sudo systemctl enable quadrum
+sudo systemctl start quadrum
+sudo systemctl status quadrum
 ```
 
 ### OpenRC (conditional — Alpine Linux, Devuan)
 
 Create a service script:
 ```bash
-# /etc/init.d/cantinaos
+# /etc/init.d/quadrum
 #!/sbin/openrc-run
 
-description="CantinaOS Gunicorn"
-command="/opt/cantinaos/.venv/bin/gunicorn"
+description="quadrum Gunicorn"
+command="/opt/quadrum/.venv/bin/gunicorn"
 command_args="config.wsgi:application --workers 3 --bind 127.0.0.1:8000"
-command_user="cantinaos:cantinaos"
-directory="/opt/cantinaos"
-pidfile="/var/run/cantinaos.pid"
-output_log="/var/log/cantinaos/output.log"
-error_log="/var/log/cantinaos/error.log"
+command_user="quadrum:quadrum"
+directory="/opt/quadrum"
+pidfile="/var/run/quadrum.pid"
+output_log="/var/log/quadrum/output.log"
+error_log="/var/log/quadrum/error.log"
 depend() {
     need net
     use postgresql
@@ -484,12 +484,12 @@ depend() {
 
 Enable and start:
 ```bash
-sudo chmod +x /etc/init.d/cantinaos
-sudo mkdir -p /var/log/cantinaos
-sudo chown cantinaos:cantinaos /var/log/cantinaos
-sudo rc-update add cantinaos default
-sudo rc-service cantinaos start
-sudo rc-service cantinaos status
+sudo chmod +x /etc/init.d/quadrum
+sudo mkdir -p /var/log/quadrum
+sudo chown quadrum:quadrum /var/log/quadrum
+sudo rc-update add quadrum default
+sudo rc-service quadrum start
+sudo rc-service quadrum status
 ```
 
 ---
@@ -500,30 +500,30 @@ sudo rc-service cantinaos status
 
 ```bash
 # systemd
-sudo journalctl -u cantinaos -f
+sudo journalctl -u quadrum -f
 
 # OpenRC
-sudo tail -f /var/log/cantinaos/error.log
-sudo tail -f /var/log/cantinaos/output.log
+sudo tail -f /var/log/quadrum/error.log
+sudo tail -f /var/log/quadrum/output.log
 ```
 
 ### Gunicorn Access Logs
 
 Add `--access-logfile -` to Gunicorn args to log to stdout, or:
 ```bash
---access-logfile /var/log/cantinaos/access.log --error-logfile /var/log/cantinaos/error.log
+--access-logfile /var/log/quadrum/access.log --error-logfile /var/log/quadrum/error.log
 ```
 
 ### Web Server Logs
 
 ```bash
 # nginx (conditional)
-# sudo tail -f /var/log/nginx/cantinaos_access.log
-# sudo tail -f /var/log/nginx/cantinaos_error.log
+# sudo tail -f /var/log/nginx/quadrum_access.log
+# sudo tail -f /var/log/nginx/quadrum_error.log
 
 # Apache (conditional)
-# sudo tail -f /var/log/apache2/cantinaos_access.log
-# sudo tail -f /var/log/apache2/cantinaos_error.log
+# sudo tail -f /var/log/apache2/quadrum_access.log
+# sudo tail -f /var/log/apache2/quadrum_error.log
 ```
 
 > ⚠️ **Do not log sensitive data** (passwords, session cookies, secret keys).
@@ -542,7 +542,7 @@ Use `PGPASSWORD` or `.pgpass` for non-interactive authentication:
 export PGPASSWORD="your-db-password"
 
 # Create backup
-pg_dump -U cantinaos -h localhost cantinaos > backup_$(date +%F).sql
+pg_dump -U quadrum -h localhost quadrum > backup_$(date +%F).sql
 
 echo "Backup created: backup_$(date +%F).sql (exit code: $?)"
 # Verify the file exists and is non-empty:
@@ -555,15 +555,15 @@ ls -lh backup_$(date +%F).sql
 
 ```bash
 # Restore from backup
-createdb -U cantinaos -h localhost cantinaos_restore_test
-psql -U cantinaos -h localhost cantinaos_restore_test < backup_2024-01-01.sql
+createdb -U quadrum -h localhost quadrum_restore_test
+psql -U quadrum -h localhost quadrum_restore_test < backup_2024-01-01.sql
 
 # Verify data integrity (compare row counts or checksums)
-psql -U cantinaos -h localhost -c "SELECT count(*) FROM frontend_sale;"
-psql -U cantinaos -h localhost -c "SELECT count(*) FROM frontend_product;"
+psql -U quadrum -h localhost -c "SELECT count(*) FROM frontend_sale;"
+psql -U quadrum -h localhost -c "SELECT count(*) FROM frontend_product;"
 
 # Clean up test database
-dropdb -U cantinaos -h localhost cantinaos_restore_test
+dropdb -U quadrum -h localhost quadrum_restore_test
 ```
 
 ### Automated Backups (conditional — cron)
@@ -573,12 +573,12 @@ Use `.pgpass` or a dedicated PostgreSQL user with restricted access. Verify exit
 ```bash
 # Example crontab entry (use .pgpass file, chmod 600; do NOT use PGPASSWORD in crontab directly)
 # Verify pg_dump output SEPARATELY before gzip; record failures explicitly
-0 2 * * * /usr/bin/pg_dump -U cantinaos -h localhost -w cantinaos > /tmp/cantinaos_backup_$(date +\%F).sql 2>/tmp/backup_$(date +\%F).err; PG_EXIT=$?; if [ $PG_EXIT -ne 0 ]; then echo "FAIL: pg_dump exit code $PG_EXIT on $(date)" >> /var/log/cantinaos/backup.log; cat /tmp/backup_$(date +\%F).err >> /var/log/cantinaos/backup.log; rm -f /tmp/cantinaos_backup_$(date +\%F).sql; else /usr/bin/gzip /tmp/cantinaos_backup_$(date +\%F).sql; /usr/bin/mv /tmp/cantinaos_backup_$(date +\%F).sql.gz /var/backups/cantinaos_$(date +\%F).sql.gz; echo "SUCCESS: backup $(date +\%F) created, size: $(ls -lh /var/backups/cantinaos_$(date +\%F).sql.gz | awk '{print $5}')" >> /var/log/cantinaos/backup.log; ls -lh /var/backups/cantinaos_$(date +\%F).sql.gz >> /var/log/cantinaos/backup.log 2>&1; fi; /usr/bin/rm -f /tmp/backup_$(date +\%F).err
+0 2 * * * /usr/bin/pg_dump -U quadrum -h localhost -w quadrum > /tmp/quadrum_backup_$(date +\%F).sql 2>/tmp/backup_$(date +\%F).err; PG_EXIT=$?; if [ $PG_EXIT -ne 0 ]; then echo "FAIL: pg_dump exit code $PG_EXIT on $(date)" >> /var/log/quadrum/backup.log; cat /tmp/backup_$(date +\%F).err >> /var/log/quadrum/backup.log; rm -f /tmp/quadrum_backup_$(date +\%F).sql; else /usr/bin/gzip /tmp/quadrum_backup_$(date +\%F).sql; /usr/bin/mv /tmp/quadrum_backup_$(date +\%F).sql.gz /var/backups/quadrum_$(date +\%F).sql.gz; echo "SUCCESS: backup $(date +\%F) created, size: $(ls -lh /var/backups/quadrum_$(date +\%F).sql.gz | awk '{print $5}')" >> /var/log/quadrum/backup.log; ls -lh /var/backups/quadrum_$(date +\%F).sql.gz >> /var/log/quadrum/backup.log 2>&1; fi; /usr/bin/rm -f /tmp/backup_$(date +\%F).err
 ```
 
 > ⚠️ Never commit `.pgpass` or backup scripts to version control. Always verify the backup file exists (`ls -lh`) and check the exit code (`echo $?`). A backup is only considered valid after a successful restore test on a separate database.
 
-> ⚠️ Store backups on a separate volume or remote server.  
+> ⚠️ Store backups on a separate volume or remote server.
 > Never commit backups to version control.
 
 ---
@@ -590,8 +590,8 @@ After deployment, verify the application is working:
 ```bash
 # 1. Check Gunicorn is running
 # Conditional:
-# sudo systemctl status cantinaos  # systemd
-# sudo rc-service cantinaos status  # OpenRC
+# sudo systemctl status quadrum  # systemd
+# sudo rc-service quadrum status  # OpenRC
 
 # 2. Check HTTP response (requires application running; HTTPS tests require domain + SSL cert configured)
 curl -I http://127.0.0.1:8000/health/
@@ -604,7 +604,7 @@ curl -I https://yourdomain.com/login/ || echo "HTTPS test skipped: no domain or 
 
 # 4. Verify static files are served (local or via proxy; works with or without HTTPS)
 # Note: If no domain/SSL, verify the local static file path directly:
-ls -l /opt/cantinaos/staticfiles/css/reset.css || echo "Static file not found at expected path"
+ls -l /opt/quadrum/staticfiles/css/reset.css || echo "Static file not found at expected path"
 # Via proxy (only if domain configured):
 # curl -I https://yourdomain.com/static/css/reset.css || echo "Static file via proxy not verified"
 
@@ -630,7 +630,7 @@ curl -I http://yourdomain.com/ 2>/dev/null | grep "301\|302" || echo "No HTTPS r
 To roll back to a previous release, select the previous Git tag or commit, then reinstall dependencies and restart:
 
 ```bash
-cd /opt/cantinaos
+cd /opt/quadrum
 
 # Select the previous release tag (or commit hash)
 # Example: git checkout v1.0.0  OR  git checkout <previous-commit-hash>
@@ -650,9 +650,9 @@ python manage.py collectstatic --noinput
 
 # Restart the service
 # Conditional (systemd):
-# sudo systemctl restart cantinaos
+# sudo systemctl restart quadrum
 # Conditional (OpenRC):
-# sudo rc-service cantinaos restart
+# sudo rc-service quadrum restart
 ```
 
 > ⚠️ **Never rely on `python manage.py migrate` without an explicit target to roll back.** Without a target, `migrate` applies pending migrations forward, not backward. For backward migrations, specify the previous migration number (e.g., `python manage.py migrate frontend 0001`). For destructive (non-backward-compatible) migrations, the only safe rollback is to restore from a database backup (see below).
@@ -667,7 +667,7 @@ If a migration is **forward-only** (e.g., data is dropped/removed):
 
 1. **Take a full backup before applying**:
    ```bash
-   pg_dump -U cantinaos -h localhost cantinaos > pre_migration_backup.sql
+   pg_dump -U quadrum -h localhost quadrum > pre_migration_backup.sql
    ```
 
 2. **Apply the migration during a maintenance window**:
@@ -680,8 +680,8 @@ If a migration is **forward-only** (e.g., data is dropped/removed):
 3. **If rollback is needed**:
    ```bash
    # Restore from backup (the only safe option for destructive migrations)
-   createdb -U cantinaos -h localhost cantinaos_rollback
-   psql -U cantinaos -h localhost cantinaos_rollback < pre_migration_backup.sql
+   createdb -U quadrum -h localhost quadrum_rollback
+   psql -U quadrum -h localhost quadrum_rollback < pre_migration_backup.sql
    ```
 
 4. **Never combine schema and destructive data changes in a single migration**.

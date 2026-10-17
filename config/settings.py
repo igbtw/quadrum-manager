@@ -1,5 +1,5 @@
 """
-Django settings for CantinaOS project.
+Django settings for quadrum project.
 
 Environment-based configuration:
 - Development: DEBUG=True, SQLite, console email
@@ -255,7 +255,7 @@ else:
     EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
     EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
     EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
-    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@cantinaos.local')
+    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@quadrum.local')
 
 
 # LOGGING

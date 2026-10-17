@@ -1,4 +1,4 @@
-# CantinaOS
+# quadrum
 
 A Django-based web application for managing a school cafeteria (school cafeteria). It provides product inventory, point-of-sale (PDV) sales, accounts receivable, and basic reporting using Django templates and vanilla CSS/JavaScript.
 
@@ -97,11 +97,11 @@ Deployment instructions, reverse proxy configuration (nginx/Apache), HTTPS setup
 - Sales history and stock adjustments with audit trails (`StockMovement`)
 - Accounts receivable (`AccountReceivable`) and payment registration (`Payment`)
 - Basic dashboard statistics and reports
-- Health endpoint (`/health/`) returning `{"status":"ok","service":"cantinaos"}`
+- Health endpoint (`/health/`) returning `{"status":"ok","service":"quadrum"}`
 - User authentication (`@login_required` on protected views); no custom user roles implemented
 
 ## License
 
-CantinaOS is licensed under the MIT License. See [LICENSE](LICENSE) for the full text.
+quadrum is licensed under the MIT License. See [LICENSE](LICENSE) for the full text.
 
 Third-party dependencies (Django, WhiteNoise, Gunicorn, etc.) remain subject to their respective licenses.

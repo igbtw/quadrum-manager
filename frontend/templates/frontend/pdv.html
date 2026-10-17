@@ -73,7 +73,7 @@
                 <thead>
                     <tr>
                         <th>Product</th>
-                        <th>Qtd</th>
+                        <th>Quantity</th>
                         <th class="numeric">Subtotal</th>
                         <th>Ação</th>
                     </tr>
@@ -231,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         renderizarCart();
-        Cantina.showToast('Adicionado', `${nome} adicionado ao carrinho`, 'success', 2000);
+        quadrum.showToast('Added', `${nome} adicionado ao carrinho`, 'success', 2000);
     };
 
     window.removerItemCart = function(idx) {
@@ -275,9 +275,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 tr.innerHTML = `
                     <td>${item.nome}</td>
                     <td style="display: flex; align-items: center; gap: var(--space-2);">
-                        <button onclick="decrementarQtd(${idx})" class="btn btn-icon-sm" aria-label="Diminuir quantidade">−</button>
+                        <button onclick="decrementarQtd(${idx})" class="btn btn-icon-sm" aria-label="Decrease quantity">−</button>
                         <span style="min-width: 24px; text-align: center;">${item.qtd}</span>
-                        <button onclick="incrementarQtd(${idx})" class="btn btn-icon-sm" aria-label="Aumentar quantidade">+</button>
+                        <button onclick="incrementarQtd(${idx})" class="btn btn-icon-sm" aria-label="Increase quantity">+</button>
                     </td>
                     <td class="numeric">R$ ${subtotalItem.toFixed(2)}</td>
                     <td><button class="btn btn-icon-sm btn-danger" onclick="removerItemCart(${idx})" aria-label="Remover item">×</button></td>
@@ -294,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (carrinho.length === 0) return;
         carrinho = [];
         renderizarCart();
-        Cantina.showToast('Cart limpo', 'Todos os itens foram removidos', 'info');
+        quadrum.showToast('Cart cleared', 'All items removed', 'info');
     };
 
     window.finalizarSale = function() {
@@ -312,12 +312,12 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) {}
         if (!payload) {
             if (carrinho.length === 0) {
-                Cantina.showToast('Cart vazio', 'Adicione produtos antes de finalizar', 'warning');
+                quadrum.showToast('Cart empty', 'Add products before finalizing', 'warning');
                 return;
             }
             formaPayment = document.querySelector('input[name="forma_pagamento"]:checked');
             if (!formaPayment) {
-                Cantina.showToast('Forma de pagamento', 'Selecione uma forma de pagamento', 'warning');
+                quadrum.showToast('Payment method', 'Select a payment method', 'warning');
                 return;
             }
         }
@@ -350,13 +350,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 window._pdv_key = null;
                 try { sessionStorage.removeItem('pdv_checkout'); } catch (e) {}
-                Cantina.showToast('Sale finalizada', 'Código: ' + data.codigo, 'success');
+                quadrum.showToast('Sale finalized', 'Code: ' + data.codigo, 'success');
                 limparCart();
             } else {
-                Cantina.showToast('Erro', data.error || 'Falha ao finalizar', 'error');
+                quadrum.showToast('Error', data.error || 'Failed to finalize', 'error');
             }
         })
-        .catch(err => { window._finalizarEmCurso = false; Cantina.showToast('Erro', 'Não foi possível finalizar a venda.', 'error'); try { sessionStorage.setItem('pdv_checkout', JSON.stringify({idempotency_key: window._pdv_key || null, payload: payload || null})); } catch (e) {} });
+        .catch(err => { window._finalizarEmCurso = false; quadrum.showToast('Error', 'Failed to finalize sale.', 'error'); try { sessionStorage.setItem('pdv_checkout', JSON.stringify({idempotency_key: window._pdv_key || null, payload: payload || null})); } catch (e) {} });
     };
 });
 </script>
