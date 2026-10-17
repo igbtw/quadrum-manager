@@ -373,7 +373,7 @@ Buttons
 
 Buttons are compact, tactile, and explicit.
 
-Primary: solid Cantina Mint with dark text. Use for the single highest-value action in a context: Confirmar venda, Salvar, Registrar pagamento, etc.
+Primary: solid Cantina Mint with dark text. Use for the single highest-value action in a context: Confirm sale, Save, Register payment, etc.
 
 Secondary: transparent or tonal surface with a 1px border. Use for alternative actions.
 
@@ -391,7 +391,7 @@ Loading: preserve button width and label; use a subtle inline indicator rather t
 
 Chips / Badges / Status
 
-Use compact semantic badges for categorical state such as Ativo, Pago, Pendente, Baixo estoque, Cancelado.
+Use compact semantic badges for categorical state such as Active, Paid, Pending, Low stock, Cancelled.
 
 Pills are reserved for status/tags, not general containers.
 

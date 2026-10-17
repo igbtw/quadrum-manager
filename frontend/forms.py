@@ -16,13 +16,13 @@ class ProductForm(forms.ModelForm):
     def clean_price(self):
         price = self.cleaned_data.get('price')
         if price is not None and price < Decimal('0.00'):
-            raise forms.ValidationError('Preço não pode ser negativo.')
+            raise forms.ValidationError('Price cannot be negative.')
         return price
 
     def clean_stock_quantity(self):
         qty = self.cleaned_data.get('stock_quantity')
         if qty is not None and qty < 0:
-            raise forms.ValidationError('Estoque não pode ser negativo.')
+            raise forms.ValidationError('Stock cannot be negative.')
         return qty
 
 
@@ -51,7 +51,7 @@ class SaleForm(forms.ModelForm):
     def clean_total(self):
         total = self.cleaned_data.get('total')
         if total is not None and total < Decimal('0.00'):
-            raise forms.ValidationError('Total não pode ser negativo.')
+            raise forms.ValidationError('Total cannot be negative.')
         return total
 
 
@@ -66,10 +66,10 @@ class PaymentForm(forms.ModelForm):
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
         if amount is None or amount < Decimal('0.01'):
-            raise forms.ValidationError('Valor mínimo é 0,01.')
+            raise forms.ValidationError('Minimum value is 0.01.')
         rc = self.cleaned_data.get('account_receivable')
         if rc:
             bal = rc.remaining_balance
             if bal is not None and amount > bal:
-                raise forms.ValidationError('Pagamento excede saldo restante.')
+                raise forms.ValidationError('Payment exceeds remaining balance.')
         return amount

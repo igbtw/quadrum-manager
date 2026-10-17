@@ -12,10 +12,10 @@ class TestReportDashboardTests(TestCase):
         self.user = User.objects.create_user(username='rd', password='t')
         self.cat = Category.objects.create(name='R')
         self.prod = Product.objects.create(name='RProd', code='RP1', category=self.cat, price=Decimal('10'), stock_quantity=5)
-        self.pers = Person.objects.create(name='Jo', doc_id='1', person_type='ALUNO')
+        self.pers = Person.objects.create(name='Jo', doc_id='1', person_type='STUDENT')
 
     def test_dashboard_sales_today(self):
-        Sale.objects.create(customer=self.pers, responsible=self.user, status='COMPLETED', payment_method='DINHEIRO', total=Decimal('20'))
+        Sale.objects.create(customer=self.pers, responsible=self.user, status='COMPLETED', payment_method='CASH', total=Decimal('20'))
         agg = Sale.objects.filter(status='COMPLETED').aggregate(s=Sum('total'))['s'] or Decimal('0')
         self.assertEqual(agg, Decimal('20.00'))
 
@@ -29,7 +29,7 @@ class TestReportDashboardTests(TestCase):
         self.assertEqual(total, Decimal('30.00'))
 
     def test_report_best_selling(self):
-        sale = Sale.objects.create(customer=self.pers, responsible=self.user, status='COMPLETED', payment_method='DINHEIRO', total=Decimal('10'))
+        sale = Sale.objects.create(customer=self.pers, responsible=self.user, status='COMPLETED', payment_method='CASH', total=Decimal('10'))
         SaleItem.objects.create(sale=sale, product=self.prod, quantity=2, unit_price=Decimal('5'))
         best = SaleItem.objects.filter(sale__status='COMPLETED').values('product__name').annotate(q=Sum('quantity')).order_by('-q')
         names = [b['product__name'] for b in best]

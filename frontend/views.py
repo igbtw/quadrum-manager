@@ -54,20 +54,20 @@ def vendas_list(request):
     """Sales history"""
     context = {
         'vendas': Sale.objects.select_related('customer').order_by('-created_at')[:50],
-        'page_title': 'Vendas',
+        'page_title': 'Sales',
     }
     return render(request, 'frontend/vendas_list.html', context)
 
 
 @login_required
 def pdv(request):
-    """PDV / New Sale — main screen"""
+    """Point of Sale (POS) / New Sale — main screen"""
     context = {
         'produtos': Product.objects.filter(active=True).select_related('category'),
         'categorias': Category.objects.filter(active=True),
         'pessoas': Person.objects.filter(active=True).order_by('name'),
-        'formas_pagamento': ['DINHEIRO','DEBITO','CREDITO','PIX','A_PRAZO'],
-        'page_title': 'Nova Venda',
+        'formas_pagamento': ['CASH','DEBIT','CREDIT','PIX','ON_ACCOUNT'],
+        'page_title': 'New Sale',
     }
     return render(request, 'frontend/pdv.html', context)
 
@@ -79,17 +79,17 @@ def produtos(request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Produto salvo.')
+            messages.success(request, 'Product saved.')
             return redirect('frontend:produtos')
         else:
-            messages.error(request, 'Verifique os campos.')
+            messages.error(request, 'Please check the fields.')
     else:
         form = ProductForm()
     context = {
         'produtos': Product.objects.filter(active=True).select_related('category'),
         'categorias': Category.objects.filter(active=True),
         'form': form,
-        'page_title': 'Produtos',
+        'page_title': 'Products',
     }
     return render(request, 'frontend/produtos.html', context)
 
@@ -104,31 +104,31 @@ def estoque(request):
         try:
             qty = int(qty)
             if qty == 0:
-                raise ValueError('Quantidade zero')
+                raise ValueError('Quantity zero')
             prod = Product.objects.get(pk=product_id, active=True)
             from .services import adjust_stock
             adjust_stock(prod, qty, reason=reason, user=request.user if request.user.is_authenticated else None)
-            messages.success(request, 'Estoque ajustado.')
+            messages.success(request, 'Inventory adjusted.')
         except Exception as e:
-            messages.error(request, f'Erro no ajuste: {e}')
+            messages.error(request, f'Adjustment error: {e}')
         return redirect('frontend:estoque')
     # Calculate each product inventory status
     produtos_estoque = []
-    total_itens = 0
+    total_items = 0
     valor_total = Decimal('0')
     baixo_estoque = 0
     sem_estoque = 0
     
     for p in Product.objects.filter(active=True):
         if p.stock_quantity == 0:
-            situacao = 'SEM ESTOQUE'
+            situacao = 'OUT_OF_STOCK'
             sem_estoque += 1
         elif p.stock_quantity <= p.minimum_stock:
-            situacao = 'BAIXO'
+            situacao = 'LOW'
             baixo_estoque += 1
         else:
             situacao = 'NORMAL'
-        total_itens += 1
+        total_items += 1
         valor_total += p.price * p.stock_quantity
         
         produtos_estoque.append({'nome': p.name, 'estoque': p.stock_quantity, 'estoque_minimo': p.minimum_stock, 'situacao': situacao, 'preco': p.price})
@@ -136,8 +136,8 @@ def estoque(request):
     context = {
         'produtos': produtos_estoque,
         'produtos_select': Product.objects.filter(active=True).select_related('category'),
-        'page_title': 'Estoque',
-        'total_itens': total_itens,
+        'page_title': 'Inventory',
+        'total_items': total_items,
         'valor_total': valor_total,
         'baixo_estoque': baixo_estoque,
         'sem_estoque': sem_estoque,
@@ -152,17 +152,17 @@ def pessoas(request):
         form = PersonForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Pessoa salva.')
+            messages.success(request, 'Person saved.')
             return redirect('frontend:pessoas')
         else:
-            messages.error(request, 'Verifique os campos.')
+            messages.error(request, 'Please check the fields.')
     else:
         form = PersonForm()
     context = {
         'pessoas': Person.objects.filter(active=True).order_by('name'),
         'tipos': Person.PERSON_TYPES,
         'form': form,
-        'page_title': 'Pessoas',
+        'page_title': 'People',
     }
     return render(request, 'frontend/pessoas.html', context)
 
@@ -180,10 +180,10 @@ def financeiro(request):
             from .models import register_payment
             rc = form.cleaned_data['account_receivable']
             register_payment(rc, form.cleaned_data['amount'], method=form.cleaned_data['method'], user=request.user if request.user.is_authenticated else None, notes=form.cleaned_data['notes'])
-            messages.success(request, 'Pagamento registrado.')
+            messages.success(request, 'Payment registered.')
             return redirect('frontend:financeiro')
         else:
-            messages.error(request, 'Verifique o pagamento.')
+            messages.error(request, 'Please verify the payment.')
     else:
         from .forms import PaymentForm
         form = PaymentForm()
@@ -195,7 +195,7 @@ def financeiro(request):
         'contas_pendentes': AccountReceivable.objects.filter(status='PENDING').count(),
         'contas_vencidas': AccountReceivable.objects.filter(status='OVERDUE').count(),
         'form': form,
-        'page_title': 'Financeiro',
+        'page_title': 'Finance',
     }
     return render(request, 'frontend/financeiro.html', context)
 
@@ -216,7 +216,7 @@ def relatorios(request):
     # Receivables
     receb = AccountReceivable.objects.filter(status__in=['PENDING','PARTIAL','OVERDUE']).aggregate(s=Sum('original_amount'))['s'] or Decimal('0.00')
     contexto = {
-        'page_title': 'Relatórios',
+        'page_title': 'Reports',
         'total_vendas_periodo': total_vendas,
         'count_vendas_periodo': count_vendas,
         'best_selling': best,
@@ -237,7 +237,7 @@ def login_view(request):
             return redirect('frontend:dashboard')
         else:
             return render(request, 'frontend/login.html', {
-                'page_title': 'Login', 'error': 'Credenciais inválidas',
+                'page_title': 'Login', 'error': 'Invalid credentials',
             })
     return render(request, 'frontend/login.html', {'page_title': 'Login'})
 
@@ -254,19 +254,19 @@ def api_pdv_calcular(request):
     import json
     try:
         data = json.loads(request.body)
-        itens = data.get('itens', [])
+        items = data.get('items', [])
         total = Decimal('0')
-        for item in itens:
-            produto_id = item.get('produto_id')
-            quantidade = item.get('quantidade', 1)
+        for item in items:
+            product_id = item.get('product_id')
+            quantity = item.get('quantity', 1)
             try:
-                produto = Product.objects.get(pk=produto_id, active=True)
+                product = Product.objects.get(pk=product_id, active=True)
             except Product.DoesNotExist:
-                return JsonResponse({'error': f'Produto {produto_id} não encontrado'}, status=404)
-            total += produto.price * Decimal(str(quantidade))
+                return JsonResponse({'error': f'Product {product_id} not found'}, status=404)
+            total += product.price * Decimal(str(quantity))
         return JsonResponse({'total': str(total)})
     except Exception as e:
-        return JsonResponse({'error': f'Erro no cálculo: {str(e)}'}, status=400)
+        return JsonResponse({'error': f'Calculation error: {str(e)}'}, status=400)
 
 
 @login_required
@@ -278,20 +278,20 @@ def api_pdv_finalizar(request):
     from .models import Sale, Person
     try:
         data = json.loads(request.body)
-        itens = data.get('itens', [])
-        customer_id = data.get('cliente_id')
-        payment_method = data.get('forma_pagamento', 'DINHEIRO')
+        items = data.get('items', [])
+        customer_id = data.get('customer_id')
+        payment_method = data.get('payment_method', 'CASH')
         idempotency_key = str(data.get('idempotency_key', '')).strip()
-        if not itens:
-            return JsonResponse({'error': 'Carrinho vazio'}, status=400)
+        if not items:
+            return JsonResponse({'error': 'Empty cart'}, status=400)
         if not idempotency_key or len(idempotency_key) > 255 or not re.match(r'^[A-Za-z0-9_-]+$', idempotency_key):
-            return JsonResponse({'error': 'Chave de idempotência inválida'}, status=400)
+            return JsonResponse({'error': 'Invalid idempotency key'}, status=400)
         import hashlib
         def _fingerprint():
             norm = {
-                'itens': sorted([(int(i.get('produto_id', 0)), int(i.get('quantidade', 0))) for i in itens]),
-                'cliente_id': int(customer_id) if customer_id is not None else None,
-                'forma_pagamento': str(payment_method),
+                'items': sorted([(int(i.get('product_id', 0)), int(i.get('quantity', 0))) for i in items]),
+                'customer_id': int(customer_id) if customer_id is not None else None,
+                'payment_method': str(payment_method),
             }
             return hashlib.sha256(json.dumps(norm, sort_keys=True).encode()).hexdigest()
         fingerprint = _fingerprint()
@@ -300,7 +300,7 @@ def api_pdv_finalizar(request):
             try:
                 customer = Person.objects.get(pk=customer_id, active=True)
             except Person.DoesNotExist:
-                return JsonResponse({'error': 'Cliente não encontrado'}, status=404)
+                return JsonResponse({'error': 'Customer not found'}, status=404)
         with transaction.atomic():
             # Single authoritative lookup by unique key
             try:
@@ -309,18 +309,18 @@ def api_pdv_finalizar(request):
                 )
                 # Ownership: same user only; legacy null-responsible treated as not matching
                 if (existing.responsible_id or 0) != (request.user.id if request.user.is_authenticated else None):
-                    return JsonResponse({'error': 'Chave de idempotência não autorizada'}, status=403)
+                    return JsonResponse({'error': 'Idempotency key not authorized'}, status=403)
                 if existing.status == 'COMPLETED':
                     if existing.request_fingerprint and existing.request_fingerprint != fingerprint:
-                        return JsonResponse({'error': 'Conflito de chave: dados da requisição alterados'}, status=409)
+                        return JsonResponse({'error': 'Key conflict: request data changed'}, status=409)
                     if not existing.request_fingerprint:
-                        return JsonResponse({'error': 'Conflito de chave: venda existente sem fingerprint de verificação'}, status=409)
+                        return JsonResponse({'error': 'Key conflict: existing sale without verification fingerprint'}, status=409)
                     return JsonResponse({
                         'success': True, 'codigo': existing.code,
-                        'message': 'Venda finalizada'
+                        'message': 'Sale completed'
                     })
                 else:
-                    return JsonResponse({'error': 'Tentativa de checkout já em andamento ou incompleta'}, status=409)
+                    return JsonResponse({'error': 'Checkout attempt already in progress or incomplete'}, status=409)
             except Sale.DoesNotExist:
                 pass
             sale = Sale.objects.create(
@@ -333,35 +333,35 @@ def api_pdv_finalizar(request):
                 idempotency_key=idempotency_key,
                 request_fingerprint=fingerprint,
             )
-            items_data = [{'product_id': it['produto_id'], 'quantity': it['quantidade']} for it in itens]
+            items_data = [{'product_id': it['product_id'], 'quantity': it['quantity']} for it in items]
             create_sale_items(sale, items_data, user=request.user if request.user.is_authenticated else None)
             subtotal = sum(i.subtotal for i in sale.items.all())
             sale.subtotal = subtotal
             sale.total = subtotal
             sale.save(update_fields=['subtotal', 'total', 'request_fingerprint'])
             finalize_sale(sale, user=request.user if request.user.is_authenticated else None)
-            return JsonResponse({'success': True, 'codigo': sale.code, 'message': 'Venda finalizada'})
+            return JsonResponse({'success': True, 'codigo': sale.code, 'message': 'Sale completed'})
     except IntegrityError:
         try:
             existing = Sale.objects.select_related('customer').get(
                 idempotency_key=idempotency_key
             )
             if (existing.responsible_id or 0) != (request.user.id if request.user.is_authenticated else None):
-                return JsonResponse({'error': 'Chave de idempotência não autorizada'}, status=403)
+                return JsonResponse({'error': 'Idempotency key not authorized'}, status=403)
             if existing.status == 'COMPLETED':
                 if existing.request_fingerprint and existing.request_fingerprint != fingerprint:
-                    return JsonResponse({'error': 'Conflito de chave: dados da requisição alterados'}, status=409)
+                    return JsonResponse({'error': 'Key conflict: request data changed'}, status=409)
                 if not existing.request_fingerprint:
-                    return JsonResponse({'error': 'Conflito de chave: venda existente sem fingerprint de verificação'}, status=409)
+                    return JsonResponse({'error': 'Key conflict: existing sale without verification fingerprint'}, status=409)
                 return JsonResponse({
                     'success': True, 'codigo': existing.code,
-                    'message': 'Venda finalizada'
+                    'message': 'Sale completed'
                 })
             else:
-                return JsonResponse({'error': 'Tentativa de checkout já em andamento ou incompleta'}, status=409)
+                return JsonResponse({'error': 'Checkout attempt already in progress or incomplete'}, status=409)
         except Sale.DoesNotExist:
-            logger.exception("IntegrityError sem registro de idempotência para chave %s", idempotency_key)
-            return JsonResponse({'error': 'Erro interno ao finalizar venda'}, status=500)
+            logger.exception("IntegrityError without idempotency record for key %s", idempotency_key)
+            return JsonResponse({'error': 'Internal error finalizing sale'}, status=500)
     except Exception:
-        logger.exception("Erro inesperado ao finalizar venda")
-        return JsonResponse({'error': 'Erro interno ao finalizar venda'}, status=500)
+        logger.exception("Unexpected error finalizing sale")
+        return JsonResponse({'error': 'Internal error finalizing sale'}, status=500)

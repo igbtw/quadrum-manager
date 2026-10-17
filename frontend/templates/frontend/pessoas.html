@@ -1,55 +1,55 @@
 {% extends "frontend/base.html" %}
 {% load static %}
 
-{% block title %}Pessoas{% endblock %}
+{% block title %}People{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Pessoas</h1>
-        <p class="page-subtitle">Cadastro e consulta de pessoas</p>
+        <h1 class="page-title">People</h1>
+        <p class="page-subtitle">People registration and lookup</p>
     </div>
 </div>
 
 <div class="section-card" style="margin-bottom: var(--space-4);">
     <div class="card-header">
-        <h3 class="card-title">Novo Cadastro</h3>
+        <h3 class="card-title">New Registration</h3>
     </div>
     <div class="card-body">
         <form id="form-pessoa" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3);">
             <div class="form-group">
-                <label class="form-label">Nome</label>
-                <input type="text" class="input" placeholder="Nome completo" required>
+                <label class="form-label">Name</label>
+                <input type="text" class="input" placeholder="Full name" required>
             </div>
             <div class="form-group">
-                <label class="form-label">Tipo</label>
+                <label class="form-label">Type</label>
                 <select class="select" required>
-                    <option value="ALUNO">ALUNO</option>
-                    <option value="PROFESSOR">PROFESSOR</option>
-                    <option value="FUNCIONÁRIO">FUNCIONÁRIO</option>
-                    <option value="VISITANTE">VISITANTE</option>
+                    <option value="STUDENT">STUDENT</option>
+                    <option value="TEACHER">TEACHER</option>
+                    <option value="STAFF">STAFF</option>
+                    <option value="VISITOR">VISITOR</option>
                 </select>
             </div>
             <div class="form-group">
-                <label class="form-label">Matrícula</label>
-                <input type="text" class="input" placeholder="Matrícula" required>
+                <label class="form-label">Registration</label>
+                <input type="text" class="input" placeholder="Registration" required>
             </div>
             <div class="form-group">
                 <label class="form-label">Status</label>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2);">
                     <label style="display: flex; align-items: center; gap: var(--space-2);">
-                        <input type="radio" name="status" value="ATIVO" checked>
-                        <span style="font-size: var(--font-size-sm);">Ativo</span>
+                        <input type="radio" name="status" value="ACTIVE" checked>
+                        <span style="font-size: var(--font-size-sm);">Active</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: var(--space-2);">
-                        <input type="radio" name="status" value="INATIVO">
-                        <span style="font-size: var(--font-size-sm);">Inativo</span>
+                        <input type="radio" name="status" value="INACTIVE">
+                        <span style="font-size: var(--font-size-sm);">Inactive</span>
                     </label>
                 </div>
             </div>
             <div style="grid-column: 1 / -1; display: flex; gap: var(--space-2);">
-                <button type="submit" class="btn btn-primary">Salvar</button>
-                <button type="reset" class="btn btn-secondary">Limpar</button>
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="reset" class="btn btn-secondary">Clear</button>
             </div>
         </form>
     </div>
@@ -58,19 +58,19 @@
 <div class="section-card">
     <div class="card-header">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);">
-            <h3 class="card-title" style="margin: 0;">Lista de Pessoas</h3>
+            <h3 class="card-title" style="margin: 0;">People List</h3>
             <div class="pessoas-filters" style="display: flex; gap: var(--space-2);">
-                <select id="filtro-tipo" class="select" onchange="filtrarPessoas()">
-                    <option value="">Todos tipos</option>
-                    <option value="ALUNO">ALUNO</option>
-                    <option value="PROFESSOR">PROFESSOR</option>
-                    <option value="FUNCIONÁRIO">FUNCIONÁRIO</option>
-                    <option value="VISITANTE">VISITANTE</option>
+                <select id="filtro-tipo" class="select" onchange="filtrarPeople()">
+                    <option value="">All types</option>
+                    <option value="STUDENT">STUDENT</option>
+                    <option value="TEACHER">TEACHER</option>
+                    <option value="STAFF">STAFF</option>
+                    <option value="VISITOR">VISITOR</option>
                 </select>
-                <select id="filtro-status-pessoa" class="select" onchange="filtrarPessoas()">
-                    <option value="">Todos status</option>
-                    <option value="ATIVO">Ativo</option>
-                    <option value="INATIVO">Inativo</option>
+                <select id="filtro-status-pessoa" class="select" onchange="filtrarPeople()">
+                    <option value="">All statuses</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="INACTIVE">Inactive</option>
                 </select>
             </div>
         </div>
@@ -80,12 +80,12 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Nome</th>
-                        <th>Tipo</th>
-                        <th>Matrícula</th>
-                        <th class="numeric">Saldo</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Registration</th>
+                        <th class="numeric">Balance</th>
                         <th>Status</th>
-                        <th>Ação</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="pessoas-tabela">
@@ -103,18 +103,18 @@
                             {% if p.saldo < 0 %}color: var(--color-danger);
                             {% elif p.saldo > 0 %}color: var(--color-success);
                             {% else %}color: var(--color-text-muted);{% endif %}">
-                            R$ {{ p.saldo }}
+                            R$ {{ p.balance }}
                         </span>
                     </td>
                     <td>
                         <span class="badge 
-                            {% if p.status == 'ATIVO' %}badge-success{% else %}badge-neutral{% endif %}"
+                            {% if p.status == 'ACTIVE' %}badge-success{% else %}badge-neutral{% endif %}"
                             style="font-size: var(--font-size-xs);">
                             {{ p.status }}
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-icon btn-ghost" title="Copiar matrícula" aria-label="Copiar matrícula de {{ p.nome }}" onclick="copiarMatricula('{{ p.matricula }}')">
+                        <button class="btn btn-icon btn-ghost" title="Copy registration" aria-label="Copy registration of {{ p.nome }}" onclick="copiarMatricula('{{ p.matricula }}')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -130,8 +130,8 @@
                             <circle cx="9" cy="7" r="4"></circle>
                             <line x1="12" y1="12" x2="12.01" y2="12"></path>
                         </svg>
-                        <div class="empty-state-title">Nenhuma pessoa cadastrada</div>
-                        <div class="empty-state-description">Use o formulário acima para cadastrar a primeira pessoa</div>
+                        <div class="empty-state-title">No people registered</div>
+                        <div class="empty-state-description">Use the form above to register the first person</div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -145,7 +145,7 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    window.filtrarPessoas = function() {
+    window.filtrarPeople = function() {
         const tipo = document.getElementById('filtro-tipo').value;
         const status = document.getElementById('filtro-status-pessoa').value;
         
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.copiarMatricula = function(matricula) {
-        Cantina.copyToClipboard(matricula, `Matrícula ${matricula} copiada`);
+        Cantina.copyToClipboard(matricula, `Registration ${matricula} copied`);
     };
 });
 </script>

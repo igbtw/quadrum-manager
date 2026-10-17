@@ -35,8 +35,8 @@ class ModelTests(TestCase):
             self.assertEqual(p.person_type, t)
 
     def test_sale_code_generated_from_pk(self):
-        pers = Person.objects.create(name='Jo', doc_id='1', person_type='ALUNO')
-        sale = Sale.objects.create(customer=pers, status='PENDING', payment_method='DINHEIRO')
+        pers = Person.objects.create(name='Jo', doc_id='1', person_type='STUDENT')
+        sale = Sale.objects.create(customer=pers, status='PENDING', payment_method='CASH')
         self.assertTrue(sale.code.startswith('VEN-'))
         sale.refresh_from_db()
         self.assertEqual(sale.code, f"VEN-{sale.pk:06d}")
@@ -48,8 +48,8 @@ class ModelTests(TestCase):
     def test_sale_item_subtotal_computation(self):
         cat = Category.objects.create(name='C')
         prod = Product.objects.create(name='P', code='P3', category=cat, price=Decimal('5'))
-        pers = Person.objects.create(name='Jo', doc_id='1', person_type='ALUNO')
-        sale = Sale.objects.create(customer=pers, status='PENDING', payment_method='DINHEIRO', total=Decimal('0'))
+        pers = Person.objects.create(name='Jo', doc_id='1', person_type='STUDENT')
+        sale = Sale.objects.create(customer=pers, status='PENDING', payment_method='CASH', total=Decimal('0'))
         item = SaleItem.objects.create(sale=sale, product=prod, quantity=3, unit_price=Decimal('5'))
         self.assertEqual(item.subtotal, Decimal('15.00'))
 
@@ -60,15 +60,15 @@ class ModelTests(TestCase):
         self.assertEqual(sm.movement_type, 'SALE')
 
     def test_payment_clean_rejects_over_balance(self):
-        pers = Person.objects.create(name='Jo', doc_id='1', person_type='ALUNO')
+        pers = Person.objects.create(name='Jo', doc_id='1', person_type='STUDENT')
         rc = AccountReceivable.objects.create(person=pers, original_amount=Decimal('50'), due_date='2030-01-01', status='PENDING')
-        p = Payment(account_receivable=rc, amount=Decimal('100'), method='DINHEIRO')
+        p = Payment(account_receivable=rc, amount=Decimal('100'), method='CASH')
         with self.assertRaises(ValidationError):
             p.full_clean()
 
     def test_payment_amount_positive(self):
-        pers = Person.objects.create(name='Jo', doc_id='1', person_type='ALUNO')
+        pers = Person.objects.create(name='Jo', doc_id='1', person_type='STUDENT')
         rc = AccountReceivable.objects.create(person=pers, original_amount=Decimal('50'), due_date='2030-01-01', status='PENDING')
-        p = Payment(account_receivable=rc, amount=Decimal('0.01'), method='DINHEIRO')
+        p = Payment(account_receivable=rc, amount=Decimal('0.01'), method='CASH')
         p.full_clean()
         self.assertTrue(True)

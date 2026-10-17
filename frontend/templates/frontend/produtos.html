@@ -1,13 +1,13 @@
 {% extends "frontend/base.html" %}
 {% load static %}
 
-{% block title %}Produtos{% endblock %}
+{% block title %}Products{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Produtos</h1>
-        <p class="page-subtitle">Catálogo de produtos da cantina</p>
+        <h1 class="page-title">Products</h1>
+        <p class="page-subtitle">Cafeteria product catalog</p>
     </div>
     <div class="page-actions">
         <button class="btn btn-primary" onclick="openModal('modal-produto')">
@@ -15,7 +15,7 @@
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Novo Produto
+            New Product
         </button>
     </div>
 </div>
@@ -23,18 +23,18 @@
 <div class="section-card">
     <div class="card-header">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);">
-            <h3 class="card-title" style="margin: 0;">Produtos Cadastrados</h3>
+            <h3 class="card-title" style="margin: 0;">Registered Products</h3>
             <div class="produtos-filters" style="display: flex; gap: var(--space-2);">
-                <select id="filtro-categoria" class="select" onchange="filtrarProdutos()">
-                    <option value="">Todas categorias</option>
+                <select id="filtro-categoria" class="select" onchange="filtrarProducts()">
+                    <option value="">All categories</option>
                     {% for c in categorias %}
                     <option value="{{ c.id }}">{{ c.nome }}</option>
                     {% endfor %}
                 </select>
-                <select id="filtro-status" class="select" onchange="filtrarProdutos()">
-                    <option value="">Todos status</option>
-                    <option value="true">Ativos</option>
-                    <option value="false">Inativos</option>
+                <select id="filtro-status" class="select" onchange="filtrarProducts()">
+                    <option value="">All statuses</option>
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
                 </select>
             </div>
         </div>
@@ -44,13 +44,13 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Produto</th>
-                        <th>Categoria</th>
-                        <th class="numeric">Preço</th>
-                        <th class="numeric">Estoque</th>
-                        <th>Situação</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th class="numeric">Price</th>
+                        <th class="numeric">Inventory</th>
                         <th>Status</th>
-                        <th>Ação</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="produtos-tabela">
@@ -59,7 +59,7 @@
                     <td class="product-name">
                         <strong>{{ produto.nome }}</strong>
                         {% if not produto.ativo %}
-                            <span class="badge badge-danger" style="font-size: var(--font-size-xs); margin-left: var(--space-2);">Inativo</span>
+                            <span class="badge badge-danger" style="font-size: var(--font-size-xs); margin-left: var(--space-2);">Inactive</span>
                         {% endif %}
                     </td>
                     <td>{{ produto.categoria }}</td>
@@ -68,25 +68,25 @@
                     <td>
                         <span class="badge 
                             {% if produto.situacao == 'NORMAL' %}badge-status-normal
-                            {% elif produto.situacao == 'BAIXO' %}badge-status-baixo
-                            {% elif produto.situacao == 'SEM ESTOQUE' %}badge-status-sem-estoque
+                            {% elif produto.situacao == 'LOW' %}badge-status-baixo
+                            {% elif produto.situacao == 'OUT_OF_STOCK' %}badge-status-out-of-stock
                             {% else %}badge-status-normal{% endif %}">
                             {{ produto.situacao }}
                         </span>
                     </td>
                     <td>
                         <span class="badge {% if produto.ativo %}badge-success{% else %}badge-neutral{% endif %}" style="font-size: var(--font-size-xs);">
-                            {% if produto.ativo %}Ativo{% else %}Inativo{% endif %}
+                            {% if produto.ativo %}Ativo{% else %}Inactive{% endif %}
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-icon btn-ghost" title="Editar" aria-label="Editar {{ produto.nome }}" onclick="editarProduto({{ produto.id }})">
+                        <button class="btn btn-icon btn-ghost" title="Edit" aria-label="Edit {{ produto.nome }}" onclick="editarProduct({{ produto.id }})">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                             </svg>
                         </button>
-                        <button class="btn btn-icon btn-ghost" title="Copiar código" aria-label="Copiar código do produto" onclick="copiarCodigo('PROD-{{ produto.id }}')">
+                        <button class="btn btn-icon btn-ghost" title="Copy code" aria-label="Copy product code" onclick="copiarCodigo('PROD-{{ produto.id }}')">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -103,8 +103,8 @@
                             <line x1="12" y1="22.08" x2="12" y2="12"></path>
                             <line x1="12" y1="8" x2="12.01" y2="8"></path>
                         </svg>
-                        <div class="empty-state-title">Nenhum produto cadastrado</div>
-                        <div class="empty-state-description">Clique em "Novo Produto" para começar</div>
+                        <div class="empty-state-title">No product registered</div>
+                        <div class="empty-state-description">Clique em "New Product" para começar</div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -118,8 +118,8 @@
 <div class="modal-overlay" id="modal-produto">
     <div class="modal-content">
         <div class="modal-header">
-            <h2 class="modal-title">Novo Produto</h2>
-            <button class="modal-close" onclick="closeModal('modal-produto')" aria-label="Fechar">
+            <h2 class="modal-title">New Product</h2>
+            <button class="modal-close" onclick="closeModal('modal-produto')" aria-label="Close">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -131,13 +131,13 @@
                 <div class="row">
                     <div class="col-span-1">
                         <div class="form-group">
-                            <label for="nome-produto" class="form-label">Nome do Produto</label>
+                            <label for="nome-produto" class="form-label">Product name</label>
                             <input type="text" id="nome-produto" class="input" placeholder="Ex: Coca-Cola 350ml">
                         </div>
                     </div>
                     <div class="col-span-1">
                         <div class="form-group">
-                            <label for="categoria-produto" class="form-label">Categoria</label>
+                            <label for="categoria-produto" class="form-label">Category</label>
                             <select id="categoria-produto" class="select">
                                 {% for c in categorias %}
                                 <option value="{{ c.id }}">{{ c.nome }}</option>
@@ -149,13 +149,13 @@
                 <div class="row">
                     <div class="col-span-1">
                         <div class="form-group">
-                            <label for="preco-produto" class="form-label">Preço</label>
+                            <label for="preco-produto" class="form-label">Price</label>
                             <input type="number" id="preco-produto" class="input" step="0.01" placeholder="0.00">
                         </div>
                     </div>
                     <div class="col-span-1">
                         <div class="form-group">
-                            <label for="estoque-produto" class="form-label">Estoque</label>
+                            <label for="estoque-produto" class="form-label">Inventory</label>
                             <input type="number" id="estoque-produto" class="input" min="0" placeholder="0">
                         </div>
                     </div>
@@ -163,7 +163,7 @@
                 <div class="row">
                     <div class="col-span-1">
                         <div class="form-group">
-                            <label for="estoque-minimo" class="form-label">Estoque Mínimo</label>
+                            <label for="estoque-minimo" class="form-label">Minimum inventory</label>
                             <input type="number" id="estoque-minimo" class="input" min="0" placeholder="10">
                         </div>
                     </div>
@@ -176,8 +176,8 @@
                                     <span style="font-size: var(--font-size-sm);">Ativo</span>
                                 </label>
                                 <label style="display: flex; align-items: center; gap: var(--space-2);">
-                                    <input type="radio" name="status" value="INATIVO">
-                                    <span style="font-size: var(--font-size-sm);">Inativo</span>
+                                    <input type="radio" name="status" value="INACTIVE">
+                                    <span style="font-size: var(--font-size-sm);">Inactive</span>
                                 </label>
                             </div>
                         </div>
@@ -186,8 +186,8 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeModal('modal-produto')">Cancelar</button>
-            <button class="btn btn-primary">Salvar Produto</button>
+            <button class="btn btn-secondary" onclick="closeModal('modal-produto')">Cancel</button>
+            <button class="btn btn-primary">Save Product</button>
         </div>
     </div>
 </div>
@@ -196,7 +196,7 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    window.filtrarProdutos = function() {
+    window.filtrarProducts = function() {
         const categoria = document.getElementById('filtro-categoria').value;
         const status = document.getElementById('filtro-status').value;
         
@@ -215,8 +215,8 @@ document.addEventListener('DOMContentLoaded', function() {
         Cantina.copyToClipboard(codigo, `Código ${codigo} copiado`);
     };
 
-    window.editarProduto = function(id) {
-        Cantina.showToast('Editar', `Funcionalidade de edição do produto ${id} (mock)`, 'info');
+    window.editarProduct = function(id) {
+        Cantina.showToast('Edit', `Feature de edição do produto ${id} (mock)`, 'info');
     };
 });
 </script>

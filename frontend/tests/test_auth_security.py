@@ -11,7 +11,7 @@ class AuthSecurityTests(TestCase):
         self.user = User.objects.create_user(username='authtest', password='t')
         self.cat = Category.objects.create(name='AuthC')
         self.prod = Product.objects.create(name='AuthP', code='AP1', category=self.cat, price=Decimal('1'), stock_quantity=10)
-        self.pers = Person.objects.create(name='Jo', doc_id='1', person_type='ALUNO')
+        self.pers = Person.objects.create(name='Jo', doc_id='1', person_type='STUDENT')
 
     def test_login_logout(self):
         resp = self.client.post(reverse('frontend:login'), {'username': 'authtest', 'password': 't'})
@@ -30,7 +30,7 @@ class AuthSecurityTests(TestCase):
         self.assertEqual(resp.status_code, 302)
 
     def test_anonymous_finance_post_blocked(self):
-        resp = self.client.post(reverse('frontend:financeiro'), {'account_receivable': 1, 'amount': 10, 'method': 'DINHEIRO'})
+        resp = self.client.post(reverse('frontend:financeiro'), {'account_receivable': 1, 'amount': 10, 'method': 'CASH'})
         self.assertEqual(resp.status_code, 302)
 
     def test_authenticated_pdv_access(self):
@@ -47,7 +47,7 @@ class AuthSecurityTests(TestCase):
 
     def test_invalid_product_id_in_api(self):
         self.client.force_login(self.user)
-        resp = self.client.post(reverse('frontend:api_pdv_calcular'), data='{"itens":[{"produto_id":99999,"quantidade":1}]}', content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp = self.client.post(reverse('frontend:api_pdv_calcular'), data='{"items":[{"product_id":99999,"quantity":1}]}', content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertIn(resp.status_code, [400, 404])
 
     def test_anonymous_produtos_post_blocked(self):
@@ -61,12 +61,12 @@ class AuthSecurityTests(TestCase):
         self.assertTrue(Product.objects.filter(name='AuthP').exists())
 
     def test_anonymous_pessoas_post_blocked(self):
-        resp = self.client.post(reverse('frontend:pessoas'), {'name': 'AnonPers', 'doc_id': '1', 'person_type': 'ALUNO'})
+        resp = self.client.post(reverse('frontend:pessoas'), {'name': 'AnonPers', 'doc_id': '1', 'person_type': 'STUDENT'})
         self.assertEqual(resp.status_code, 302)
 
     def test_auth_pessoas_post_allowed(self):
         self.client.force_login(self.user)
-        resp = self.client.post(reverse('frontend:pessoas'), {'name': 'AuthPers', 'doc_id': '2', 'person_type': 'PROFESSOR'})
+        resp = self.client.post(reverse('frontend:pessoas'), {'name': 'AuthPers', 'doc_id': '2', 'person_type': 'TEACHER'})
         self.assertEqual(resp.status_code, 302)
         self.assertTrue(Person.objects.filter(name='AuthPers').exists())
 

@@ -1,59 +1,59 @@
 <!-- Sidebar -->
-<aside class="sidebar" id="sidebar" role="navigation" aria-label="Menu principal">
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Main menu">
     <div class="sidebar-header">
         <a href="{% url 'frontend:dashboard' %}" class="sidebar-logo" aria-label="CantinaOS">
             <div class="sidebar-logo-mark">C</div>
             <span>CantinaOS</span>
         </a>
-        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Colapsar sidebar" onclick="toggleSidebarCollapse()" title="Colapsar sidebar (Ctrl+B)">
+        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar" onclick="toggleSidebarCollapse()" title="Collapse sidebar (Ctrl+B)">
             <i data-lucide="chevron-left" style="width:14px;height:14px;stroke-width:2.5;"></i>
         </button>
     </div>
 
-    <nav class="sidebar-nav" aria-label="Navegação principal">
-        <div class="nav-section" aria-label="Navegação">
-            <div class="nav-section-label">Navegação</div>
+    <nav class="sidebar-nav" aria-label="Main navigation">
+        <div class="nav-section" aria-label="Navigation">
+            <div class="nav-section-label">Navigation</div>
             <a href="{% url 'frontend:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" aria-label="Dashboard" title="Dashboard">
                 <i data-lucide="layout-dashboard" style="width:18px;height:18px;stroke-width:2;"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="{% url 'frontend:vendas_list' %}" class="nav-item {% if request.resolver_match.url_name == 'vendas_list' %}active{% endif %}" aria-label="Vendas" title="Vendas">
+            <a href="{% url 'frontend:vendas_list' %}" class="nav-item {% if request.resolver_match.url_name == 'vendas_list' %}active{% endif %}" aria-label="Sales" title="Sales">
                 <i data-lucide="receipt" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Vendas</span>
+                <span>Sales</span>
             </a>
-            <a href="{% url 'frontend:pdv' %}" class="nav-item {% if request.resolver_match.url_name == 'pdv' %}active{% endif %}" aria-label="Nova Venda" title="Nova Venda">
+            <a href="{% url 'frontend:pdv' %}" class="nav-item {% if request.resolver_match.url_name == 'pdv' %}active{% endif %}" aria-label="New Sale" title="New Sale">
                 <i data-lucide="credit-card" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Nova Venda</span>
+                <span>New Sale</span>
             </a>
-            <a href="{% url 'frontend:produtos' %}" class="nav-item {% if request.resolver_match.url_name == 'produtos' %}active{% endif %}" aria-label="Produtos" title="Produtos">
+            <a href="{% url 'frontend:produtos' %}" class="nav-item {% if request.resolver_match.url_name == 'produtos' %}active{% endif %}" aria-label="Products" title="Products">
                 <i data-lucide="package" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Produtos</span>
+                <span>Products</span>
             </a>
-            <a href="{% url 'frontend:estoque' %}" class="nav-item {% if request.resolver_match.url_name == 'estoque' %}active{% endif %}" aria-label="Estoque" title="Estoque">
+            <a href="{% url 'frontend:estoque' %}" class="nav-item {% if request.resolver_match.url_name == 'estoque' %}active{% endif %}" aria-label="Inventory" title="Inventory">
                 <i data-lucide="boxes" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Estoque</span>
+                <span>Inventory</span>
             </a>
-            <a href="{% url 'frontend:pessoas' %}" class="nav-item {% if request.resolver_match.url_name == 'pessoas' %}active{% endif %}" aria-label="Pessoas" title="Pessoas">
+            <a href="{% url 'frontend:pessoas' %}" class="nav-item {% if request.resolver_match.url_name == 'pessoas' %}active{% endif %}" aria-label="People" title="People">
                 <i data-lucide="users" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Pessoas</span>
+                <span>People</span>
             </a>
-            <a href="{% url 'frontend:financeiro' %}" class="nav-item {% if request.resolver_match.url_name == 'financeiro' %}active{% endif %}" aria-label="Financeiro" title="Financeiro">
+            <a href="{% url 'frontend:financeiro' %}" class="nav-item {% if request.resolver_match.url_name == 'financeiro' %}active{% endif %}" aria-label="Finance" title="Finance">
                 <i data-lucide="banknote" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Financeiro</span>
+                <span>Finance</span>
             </a>
-            <a href="{% url 'frontend:relatorios' %}" class="nav-item {% if request.resolver_match.url_name == 'relatorios' %}active{% endif %}" aria-label="Relatórios" title="Relatórios">
+            <a href="{% url 'frontend:relatorios' %}" class="nav-item {% if request.resolver_match.url_name == 'relatorios' %}active{% endif %}" aria-label="Reports" title="Reports">
                 <i data-lucide="bar-chart-3" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Relatórios</span>
+                <span>Reports</span>
             </a>
         </div>
     </nav>
 
     <div class="sidebar-footer">
-        <div class="user-card" onclick="togglePanel('profileMenu')" role="button" aria-label="Perfil" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePanel('profileMenu');}">
+        <div class="user-card" onclick="togglePanel('profileMenu')" role="button" aria-label="Profile" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePanel('profileMenu');}">
             <div class="user-avatar">U</div>
             <div class="user-info-text">
-                <div class="user-name">Usuário</div>
-                <div class="user-role">Padrão</div>
+                <div class="user-name">User</div>
+                <div class="user-role">Standard</div>
             </div>
         </div>
     </div>

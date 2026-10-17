@@ -1,13 +1,13 @@
 {% extends "frontend/base.html" %}
 {% load static %}
 
-{% block title %}Financeiro{% endblock %}
+{% block title %}Finance{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Financeiro</h1>
-        <p class="page-subtitle">Contas a receber e pagamentos</p>
+        <h1 class="page-title">Finance</h1>
+        <p class="page-subtitle">Receivables and payments</p>
     </div>
 </div>
 
@@ -15,19 +15,19 @@
 <div class="financeiro-summary">
     <div class="stat-card">
         <div class="stat-value" style="color: var(--color-primary);">R$ {{ total_receber|default:0 }}</div>
-        <div class="stat-label">Total a Receber</div>
+        <div class="stat-label">Total Receivable</div>
     </div>
     <div class="stat-card">
         <div class="stat-value" style="color: var(--color-danger);">R$ {{ total_vencido|default:0 }}</div>
-        <div class="stat-label">Total Vencido</div>
+        <div class="stat-label">Total Overdue</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ contas_pendentes|default:0 }}</div>
-        <div class="stat-label">Contas Pendentes</div>
+        <div class="stat-label">Pending Accounts</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ contas_vencidas|default:0 }}</div>
-        <div class="stat-label">Contas Vencidas</div>
+        <div class="stat-label">Overdue Accounts</div>
     </div>
 </div>
 
@@ -35,14 +35,14 @@
 <div class="financeiro-cards">
     <div class="section-card">
         <div class="card-header">
-            <h3 class="card-title">Contas a Receber</h3>
+            <h3 class="card-title">Receivables</h3>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Pessoa</th>
+                            <th>Person</th>
                             <th class="numeric">Valor</th>
                             <th>Vencimento</th>
                             <th>Status</th>
@@ -58,15 +58,15 @@
                         <td>{{ c.vencimento|date:"d/m/Y" }}</td>
                         <td>
                             <span class="badge 
-                                {% if c.status == 'PENDENTE' %}badge-warning
-                                {% elif c.status == 'VENCIDA' %}badge-danger
+                                {% if c.status == 'PENDING' %}badge-warning
+                                {% elif c.status == 'OVERDUE' %}badge-danger
                                 {% else %}badge-info{% endif %}">
                                 {{ c.status }}
                             </span>
                         </td>
                         <td>{{ c.descricao }}</td>
                         <td>
-                            <button class="btn btn-icon" style="width: 32px; height: 32px; padding: 0;" title="Receber" aria-label="Marcar como recebido" onclick="receberConta({{ c.id }})">
+                            <button class="btn btn-icon" style="width: 32px; height: 32px; padding: 0;" title="Receive" aria-label="Mark as received" onclick="receberConta({{ c.id }})">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 5.01l-3.09 6.91L8 10l-3 4 9-11 9 11-3-4L12 5.01zM2 4l6 20 6-20H2zm10 16l-5 5h2l-5-5h-2z"/>
                                 </svg>
@@ -79,8 +79,8 @@
                             <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path d="M12 5.01l-3.09 6.91L8 10l-3 4 9-11 9 11-3-4L12 5.01zM2 4l6 20 6-20H2zm10 16l-5 5h2l-5-5h-2z"/>
                             </svg>
-                            <div class="empty-state-title">Nenhuma conta cadastrada</div>
-                            <div class="empty-state-description">Todas as contas estão em dia</div>
+                            <div class="empty-state-title">No account registered</div>
+                            <div class="empty-state-description">All accounts are up to date</div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -93,14 +93,14 @@
     <!-- Recent payments -->
     <div class="section-card">
         <div class="card-header">
-            <h3 class="card-title">Pagamentos Recentes</h3>
+            <h3 class="card-title">Payments Recentes</h3>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Pessoa</th>
+                            <th>Person</th>
                             <th class="numeric">Valor</th>
                             <th>Data</th>
                             <th>Forma</th>
@@ -126,8 +126,8 @@
                             <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path d="M12 5.01l-3.09 6.91L8 10l-3 4 9-11 9 11-3-4L12 5.01zM2 4l6 20 6-20H2zm10 16l-5 5h2l-5-5h-2z"/>
                             </svg>
-                            <div class="empty-state-title">Nenhum pagamento registrado</div>
-                            <div class="empty-state-description">Pagamentos aparecerão aqui</div>
+                            <div class="empty-state-title">No payment recorded</div>
+                            <div class="empty-state-description">Payments aparecerão aqui</div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -139,14 +139,14 @@
 </div>
     <form method="post" action="{% url 'frontend:financeiro' %}" style="margin-top:12px; padding:12px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">
         {% csrf_token %}
-        <h3 style="font-size:var(--font-size-base); margin-bottom:8px;">Registrar pagamento</h3>
+        <h3 style="font-size:var(--font-size-base); margin-bottom:8px;">Register Payment</h3>
         <div style="display:grid; gap:8px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
-            <div><label for="id_account_receivable" class="form-label">Conta</label>{{ form.account_receivable }}</div>
-            <div><label for="id_amount" class="form-label">Valor</label>{{ form.amount }}</div>
-            <div><label for="id_method" class="form-label">Forma</label>{{ form.method }}</div>
-            <div><label for="id_notes" class="form-label">Referência</label>{{ form.notes }}</div>
+            <div><label for="id_account_receivable" class="form-label">Account</label>{{ form.account_receivable }}</div>
+            <div><label for="id_amount" class="form-label">Amount</label>{{ form.amount }}</div>
+            <div><label for="id_method" class="form-label">Method</label>{{ form.method }}</div>
+            <div><label for="id_notes" class="form-label">Reference</label>{{ form.notes }}</div>
         </div>
-        <div style="margin-top:8px;"><button type="submit" class="btn btn-primary">Registrar</button>{% if form.non_field_errors %}<div class="text-error" style="margin-top:4px;">{{ form.non_field_errors }}</div>{% endif %}</div>
+        <div style="margin-top:8px;"><button type="submit" class="btn btn-primary">Register</button>{% if form.non_field_errors %}<div class="text-error" style="margin-top:4px;">{{ form.non_field_errors }}</div>{% endif %}</div>
     </form>
 
 {% endblock %}
@@ -155,7 +155,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     window.receberConta = function(id) {
-        Cantina.showToast('Uso', 'Use o formulário de registro de pagamento no topo.', 'info');
+        Cantina.showToast('Usage', 'Use the payment registration form at the top.', 'info');
     };
 });
 </script>

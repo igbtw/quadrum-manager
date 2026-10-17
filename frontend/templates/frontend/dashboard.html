@@ -7,37 +7,37 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Visão geral da operação</p>
+        <p class="page-subtitle">Operation overview</p>
     </div>
     <div class="page-actions">
         <a href="{% url 'frontend:pdv' %}" class="btn btn-primary">
             <i data-lucide="plus" style="width:16px;height:16px;stroke-width:2;"></i>
-            Nova Venda
+            New Sale
         </a>
     </div>
 </div>
 
 <!-- KPI Strip -->
-<div class="kpi-strip" aria-label="Indicadores principais">
+<div class="kpi-strip" aria-label="Key indicators">
     <div class="kpi">
-        <div class="kpi-label">Vendas Hoje</div>
+        <div class="kpi-label">Sales Today</div>
         <div class="kpi-value">{{ stats.vendas_dia }}</div>
-        <div class="kpi-meta"><span class="kpi-delta kpi-delta-up">+12%</span> <span class="kpi-compare">vs. ontem</span></div>
+        <div class="kpi-meta"><span class="kpi-delta kpi-delta-up">+12%</span> <span class="kpi-compare">vs. yesterday</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Faturamento</div>
+        <div class="kpi-label">Revenue</div>
         <div class="kpi-value">R$ {{ stats.faturamento_dia }}</div>
-        <div class="kpi-meta"><span class="kpi-delta kpi-delta-up">+8,4%</span> <span class="kpi-compare">vs. ontem</span></div>
+        <div class="kpi-meta"><span class="kpi-delta kpi-delta-up">+8,4%</span> <span class="kpi-compare">vs. yesterday</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">A Receber</div>
+        <div class="kpi-label">Receivable</div>
         <div class="kpi-value">R$ {{ stats.valor_receber }}</div>
-        <div class="kpi-meta"><span class="kpi-sub">4 contas em aberto</span></div>
+        <div class="kpi-meta"><span class="kpi-sub">4 open accounts</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Estoque Baixo</div>
+        <div class="kpi-label">Low Inventory</div>
         <div class="kpi-value">{{ stats.produtos_baixo_estoque|length }}</div>
-        <div class="kpi-meta"><span class="kpi-sub kpi-sub-warn">requer atenção</span></div>
+        <div class="kpi-meta"><span class="kpi-sub kpi-sub-warn">needs attention</span></div>
     </div>
 </div>
 
@@ -45,20 +45,20 @@
 <div class="dashboard-grid-2col">
     <section class="panel" aria-labelledby="chart-heading">
         <div class="panel-header">
-            <h2 id="chart-heading" class="panel-title">Vendas <span class="panel-subtitle">últimos 7 dias</span></h2>
-            <a href="#" class="btn btn-ghost btn-sm">Ver relatório <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <h2 id="chart-heading" class="panel-title">Sales <span class="panel-subtitle">last 7 days</span></h2>
+            <a href="#" class="btn btn-ghost btn-sm">View report <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="chart-area">
                 <canvas id="salesChart"></canvas>
             </div>
-            <div class="chart-caption" aria-label="Legenda do gráfico">Últimos 7 dias — unidades vendidas por dia (eixo Y: unidades). A tendência indica volume operacional, não receita.</div>
+            <div class="chart-caption" aria-label="Chart legend">Last 7 days — units sold per day (Y axis: units). The trend indicates operational volume, not revenue.</div>
         </div>
     </section>
 
     <section class="panel" aria-labelledby="estoque-heading">
         <div class="panel-header">
-            <h2 id="estoque-heading" class="panel-title">Estoque</h2>
+            <h2 id="estoque-heading" class="panel-title">Inventory</h2>
             <a href="{% url 'frontend:estoque' %}" class="btn btn-ghost btn-sm">Ver estoque <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
@@ -66,7 +66,7 @@
             <div class="compact-table-wrap">
                 <table class="table-compact">
                     <thead>
-                        <tr><th>Produto</th><th class="num">Qtd</th><th class="num">Mín</th><th>Situação</th></tr>
+                        <tr><th>Product</th><th class="num">Qtd</th><th class="num">Mín</th><th>Situação</th></tr>
                     </thead>
                     <tbody>
                         {% for p in stats.produtos_baixo_estoque %}
@@ -76,7 +76,7 @@
                             <td class="num mono text-muted">{{ p.estoque_minimo }}</td>
                             <td>
                                 <span class="badge {% if p.estoque == 0 %}badge-danger{% else %}badge-warning{% endif %}">
-                                    {% if p.estoque == 0 %}SEM ESTOQUE{% else %}BAIXO{% endif %}
+                                    {% if p.estoque == 0 %}OUT OF STOCK{% else %}LOW{% endif %}
                                 </span>
                             </td>
                         </tr>
@@ -98,14 +98,14 @@
 <div class="dashboard-grid-2col">
     <section class="panel" aria-labelledby="vendas-heading">
         <div class="panel-header">
-            <h2 id="vendas-heading" class="panel-title">Vendas Recentes</h2>
+            <h2 id="vendas-heading" class="panel-title">Sales Recentes</h2>
             <a href="#" class="btn btn-ghost btn-sm">Ver todas <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="compact-table-wrap">
                 <table class="table-compact">
                     <thead>
-                        <tr><th>Código</th><th>Cliente</th><th>Horário</th><th class="num">Total</th><th>Status</th></tr>
+                        <tr><th>Código</th><th>Customer</th><th>Horário</th><th class="num">Total</th><th>Status</th></tr>
                     </thead>
                     <tbody>
                         {% for venda in stats.vendas_recentes %}
@@ -115,13 +115,13 @@
                             <td class="mono">{{ venda.data_hora|date:"H:i" }}</td>
                             <td class="num font-semibold text-primary">R$ {{ venda.total }}</td>
                             <td>
-                                <span class="badge {% if venda.status == 'CONCLUIDA' %}badge-success{% elif venda.status == 'CANCELADA' %}badge-danger{% elif venda.status == 'PENDENTE' %}badge-warning{% else %}badge-info{% endif %}">
+                                <span class="badge {% if venda.status == 'COMPLETED' %}badge-success{% elif venda.status == 'CANCELLED' %}badge-danger{% elif venda.status == 'PENDING' %}badge-warning{% else %}badge-info{% endif %}">
                                     {{ venda.status }}
                                 </span>
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="5" class="empty-state compact">Nenhuma venda recente</td></tr>
+                        <tr><td colspan="5" class="empty-state compact">No sales recente</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -131,7 +131,7 @@
 
     <section class="panel" aria-labelledby="receb-heading">
         <div class="panel-header">
-            <h2 id="receb-heading" class="panel-title">Contas a Receber</h2>
+            <h2 id="receb-heading" class="panel-title">Receivables</h2>
             <a href="#" class="btn btn-ghost btn-sm">Ver financeiro <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
@@ -141,13 +141,13 @@
                 <div class="receivable-breakdown">
                     {% if stats.valor_receber %}
                     <div class="receivable-row">
-                        <span>Pendente</span>
+                        <span>Pending</span>
                         <span class="receivable-amount text-warning">R$ {{ stats.valor_receber }}</span>
                     </div>
                     {% endif %}
                     {% if stats.valor_vencido %}
                     <div class="receivable-row">
-                        <span>Vencido</span>
+                        <span>Overdue</span>
                         <span class="receivable-amount text-danger">R$ {{ stats.valor_vencido }}</span>
                     </div>
                     {% endif %}
@@ -181,7 +181,7 @@
                 data: {
                     labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
                     datasets: [{
-                        label: 'Vendas',
+                        label: 'Sales',
                         data: [12, 19, 15, 27, 22, 30, 24],
                         borderColor: '#606060',
                         backgroundColor: 'rgba(96,96,96,0.08)',

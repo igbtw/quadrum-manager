@@ -1,13 +1,13 @@
 {% extends "frontend/base.html" %}
 {% load static %}
 
-{% block title %}Nova Venda{% endblock %}
+{% block title %}New Sale{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Nova Venda</h1>
-        <p class="page-subtitle">Registrar venda na cantina</p>
+        <h1 class="page-title">New Sale</h1>
+        <p class="page-subtitle">Record sale in cafeteria</p>
     </div>
 </div>
 
@@ -16,11 +16,11 @@
     <div class="pdv-products">
         <div class="card" style="margin-bottom: 0; border-radius: 0;">
             <div class="card-header">
-                <h3 class="card-title">Buscar Produtos</h3>
+                <h3 class="card-title">Search Products</h3>
             </div>
             <div class="card-body" style="padding: var(--space-3);">
                 <div class="search-input-wrapper">
-                    <input type="search" id="buscarProduto" class="search-input" placeholder="Digite o nome do produto..." aria-label="Buscar produto">
+                    <input type="search" id="buscarProduct" class="search-input" placeholder="Search product name..." aria-label="Search product">
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -31,7 +31,7 @@
 
         <div class="pdv-categories">
             {% for categoria in categorias %}
-            <button class="category-btn" onclick="filtrarPorCategoria({{ categoria.id }})">
+            <button class="category-btn" onclick="filtrarPorCategory({{ categoria.id }})">
                 {{ categoria.nome }}
             </button>
             {% endfor %}
@@ -44,11 +44,11 @@
                     <span class="product-card-name">{{ produto.nome }}</span>
                     <span class="product-card-price">R$ {{ produto.preco }}</span>
                 </div>
-                <div class="product-card-stock">Estoque: {{ produto.estoque }} | Mín: {{ produto.estoque_minimo }}</div>
+                <div class="product-card-stock">Inventory: {{ produto.estoque }} | Min: {{ produto.estoque_minimo }}</div>
             </div>
             {% empty %}
             <div style="text-align: center; color: var(--color-text-muted); padding: var(--space-4);">
-                Nenhum produto encontrado
+                No products found
             </div>
             {% endfor %}
         </div>
@@ -57,7 +57,7 @@
     <!-- Right panel: Cart -->
     <div class="pdv-cart">
         <div class="cart-header">
-            <h3 class="cart-title">Carrinho</h3>
+            <h3 class="cart-title">Cart</h3>
         </div>
         <div class="cart-items" id="carrinho-itens">
             <div id="carrinho-itens-vazio" class="empty-state" style="padding: var(--space-8);">
@@ -66,13 +66,13 @@
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <path d="M16 10a4 4 0 0 1-8 0"></path>
                 </svg>
-                <div class="empty-state-title">Carrinho vazio</div>
-                <div class="empty-state-description">Adicione produtos clicando neles</div>
+                <div class="empty-state-title">Cart vazio</div>
+                <div class="empty-state-description">Add products by clicking on them</div>
             </div>
             <table id="carrinho-tabela" class="table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Produto</th>
+                        <th>Product</th>
                         <th>Qtd</th>
                         <th class="numeric">Subtotal</th>
                         <th>Ação</th>
@@ -102,8 +102,8 @@
                 {% endfor %}
             </div>
             <div class="cart-actions">
-                <button class="btn btn-secondary" onclick="limparCarrinho()">Limpar</button>
-                <button class="btn btn-primary" onclick="finalizarVenda()">Finalizar Venda</button>
+                <button class="btn btn-secondary" onclick="limparCart()">Clear</button>
+                <button class="btn btn-primary" onclick="finalizarSale()">Finalizar Sale</button>
             </div>
         </div>
     </div>
@@ -122,15 +122,15 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch (e) {}
     let carrinho = [];
 
-    const searchInput = document.getElementById('buscarProduto');
+    const searchInput = document.getElementById('buscarProduct');
     let searchTerm = '';
 
     searchInput.addEventListener('input', function(e) {
         searchTerm = e.target.value.toLowerCase();
-        filtrarProdutos();
+        filtrarProducts();
     });
 
-    window.filtrarPorCategoria = function(categoriaId) {
+    window.filtrarPorCategory = function(categoriaId) {
         // Atualizar botões ativos
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.classList.remove('active');
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    window.filtrarProdutos = function() {
+    window.filtrarProducts = function() {
         document.querySelectorAll('.product-card').forEach(card => {
             const nome = card.dataset.nome;
             const catMatch = card.style.display !== 'none';
@@ -182,10 +182,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const id = parseInt(card.dataset.id);
                 const nome = card.querySelector('.product-card-name').textContent;
                 const preco = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
-                adicionarAoCarrinho(id, nome, preco);
+                adicionarAoCart(id, nome, preco);
                 searchInput.value = '';
                 searchTerm = '';
-                filtrarProdutos();
+                filtrarProducts();
                 highlightedIndex = -1;
                 updateHighlight(cards);
             }
@@ -213,12 +213,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const id = parseInt(card.dataset.id);
             const nome = card.querySelector('.product-card-name').textContent;
             const preco = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
-            adicionarAoCarrinho(id, nome, preco);
+            adicionarAoCart(id, nome, preco);
         }
     });
 
     // Add to cart
-    window.adicionarAoCarrinho = function(produtoId, nome, preco) {
+    window.adicionarAoCart = function(produtoId, nome, preco) {
         const existente = carrinho.find(i => i.id == produtoId);
         if (existente) {
             existente.qtd += 1;
@@ -230,30 +230,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 qtd: 1
             });
         }
-        renderizarCarrinho();
+        renderizarCart();
         Cantina.showToast('Adicionado', `${nome} adicionado ao carrinho`, 'success', 2000);
     };
 
-    window.removerItemCarrinho = function(idx) {
+    window.removerItemCart = function(idx) {
         carrinho.splice(idx, 1);
-        renderizarCarrinho();
+        renderizarCart();
     };
 
     window.incrementarQtd = function(idx) {
         carrinho[idx].qtd += 1;
-        renderizarCarrinho();
+        renderizarCart();
     };
 
     window.decrementarQtd = function(idx) {
         if (carrinho[idx].qtd <= 1) {
-            removerItemCarrinho(idx);
+            removerItemCart(idx);
         } else {
             carrinho[idx].qtd -= 1;
-            renderizarCarrinho();
+            renderizarCart();
         }
     };
 
-    function renderizarCarrinho() {
+    function renderizarCart() {
         const tabelaBody = document.getElementById('carrinho-tabela-body');
         const carrinhoVazio = document.getElementById('carrinho-itens-vazio');
         const tabela = document.getElementById('carrinho-tabela');
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button onclick="incrementarQtd(${idx})" class="btn btn-icon-sm" aria-label="Aumentar quantidade">+</button>
                     </td>
                     <td class="numeric">R$ ${subtotalItem.toFixed(2)}</td>
-                    <td><button class="btn btn-icon-sm btn-danger" onclick="removerItemCarrinho(${idx})" aria-label="Remover item">×</button></td>
+                    <td><button class="btn btn-icon-sm btn-danger" onclick="removerItemCart(${idx})" aria-label="Remover item">×</button></td>
                 `;
                 tabelaBody.appendChild(tr);
             });
@@ -290,17 +290,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    window.limparCarrinho = function() {
+    window.limparCart = function() {
         if (carrinho.length === 0) return;
         carrinho = [];
-        renderizarCarrinho();
-        Cantina.showToast('Carrinho limpo', 'Todos os itens foram removidos', 'info');
+        renderizarCart();
+        Cantina.showToast('Cart limpo', 'Todos os itens foram removidos', 'info');
     };
 
-    window.finalizarVenda = function() {
+    window.finalizarSale = function() {
         if (window._finalizarEmCurso) return;
         let payload = null;
-        let formaPagamento = null;
+        let formaPayment = null;
         try {
             const saved = sessionStorage.getItem('pdv_checkout');
             if (saved && window._pdv_key) {
@@ -312,11 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) {}
         if (!payload) {
             if (carrinho.length === 0) {
-                Cantina.showToast('Carrinho vazio', 'Adicione produtos antes de finalizar', 'warning');
+                Cantina.showToast('Cart vazio', 'Adicione produtos antes de finalizar', 'warning');
                 return;
             }
-            formaPagamento = document.querySelector('input[name="forma_pagamento"]:checked');
-            if (!formaPagamento) {
+            formaPayment = document.querySelector('input[name="forma_pagamento"]:checked');
+            if (!formaPayment) {
                 Cantina.showToast('Forma de pagamento', 'Selecione uma forma de pagamento', 'warning');
                 return;
             }
@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
             payload = {
                 itens: carrinho.map(i => ({produto_id: i.id, quantidade: i.qtd, preco_unitario: i.preco})),
                 cliente_id: clienteId,
-                forma_pagamento: formaPagamento.value,
+                forma_pagamento: formaPayment.value,
                 idempotency_key: window._pdv_key
             };
             try { sessionStorage.setItem('pdv_checkout', JSON.stringify({idempotency_key: window._pdv_key, payload: payload})); } catch (e) {}
@@ -350,8 +350,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 window._pdv_key = null;
                 try { sessionStorage.removeItem('pdv_checkout'); } catch (e) {}
-                Cantina.showToast('Venda finalizada', 'Código: ' + data.codigo, 'success');
-                limparCarrinho();
+                Cantina.showToast('Sale finalizada', 'Código: ' + data.codigo, 'success');
+                limparCart();
             } else {
                 Cantina.showToast('Erro', data.error || 'Falha ao finalizar', 'error');
             }

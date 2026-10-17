@@ -15,7 +15,7 @@ CantinaOS is a single Django project (`config/`) with one primary application (`
 
 ## Request Flow
 
-A simplified flow for a protected view (e.g., `/vendas/nova/`):
+A simplified flow for a protected view (e.g., `/sales/nova/`):
 
 ```
 URL (frontend/urls.py) -> View (frontend/views.py) -> Model query/update -> Template render -> HTTP response
@@ -49,7 +49,7 @@ Key design decisions from the code:
 Verified view categories:
 
 - Public: `health_check`, `login_view`, `logout_view`
-- Protected (`@login_required`): `dashboard`, `vendas_list`, `pdv`, `produtos`, `estoque`, `pessoas`, `financeiro`, `relatorios`
+- Protected (`@login_required`): `dashboard`, `sales_list`, `pdv`, `products`, `inventory`, `people`, `finance`, `reports`
 - API (`@require_http_methods(["POST"])` + `@login_required`): `api_pdv_calcular` (cart total), `api_pdv_finalizar` (atomic sale creation with idempotency)
 
 The dashboard aggregates counts and sums from `Sale`, `AccountReceivable`, and `Product`.
@@ -76,6 +76,8 @@ WhiteNoise handles static-file compression and manifest in production (`STORAGES
 - Migrations exist for `frontend` (verified: 4 migrations in `frontend/migrations/`).
 
 ## Important Design Notes (Verified)
+
+- URL route names (`frontend/urls.py`) use English paths (`sales/`, `inventory/`, etc.) but keep original name identifiers for compatibility.
 
 - `.env` is **not** loaded automatically by Django or the application. Variables must be exported in the environment or provided by the deployment mechanism (`DEPLOYMENT.md` covers `EnvironmentFile` for systemd).
 - The application uses a single app (`frontend`) for business logic, rather than splitting into multiple Django apps.

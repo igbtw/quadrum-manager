@@ -14,8 +14,8 @@ class Category(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Categoria'
-        verbose_name_plural = 'Categorias'
+        verbose_name = 'Category'
+        verbose_name_plural = 'Categories'
 
     def __str__(self):
         return self.name
@@ -36,8 +36,8 @@ class Product(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Produto'
-        verbose_name_plural = 'Produtos'
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
         constraints = [
             models.CheckConstraint(check=models.Q(stock_quantity__gte=0), name='stock_non_negative'),
         ]
@@ -68,14 +68,14 @@ class Product(models.Model):
 
 class Person(models.Model):
     PERSON_TYPES = [
-        ('ALUNO', 'Aluno'),
-        ('PROFESSOR', 'Professor'),
-        ('FUNCIONARIO', 'Funcionário'),
-        ('VISITANTE', 'Visitante'),
+        ('STUDENT', 'Student'),
+        ('TEACHER', 'Teacher'),
+        ('STAFF', 'Staff'),
+        ('VISITOR', 'Visitor'),
     ]
     name = models.CharField(max_length=200)
-    doc_id = models.CharField(max_length=50, blank=True, verbose_name='Registro/Doc')
-    person_type = models.CharField(max_length=20, choices=PERSON_TYPES, default='ALUNO')
+    doc_id = models.CharField(max_length=50, blank=True, verbose_name='Record/Doc')
+    person_type = models.CharField(max_length=20, choices=PERSON_TYPES, default='STUDENT')
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=30, blank=True)
     active = models.BooleanField(default=True)
@@ -84,8 +84,8 @@ class Person(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Pessoa'
-        verbose_name_plural = 'Pessoas'
+        verbose_name = 'Person'
+        verbose_name_plural = 'People'
 
     def __str__(self):
         return self.name
@@ -93,16 +93,16 @@ class Person(models.Model):
 
 class Sale(models.Model):
     SALE_STATUSES = [
-        ('PENDING', 'Pendente'),
-        ('COMPLETED', 'Concluída'),
-        ('CANCELLED', 'Cancelada'),
+        ('PENDING', 'Pending'),
+        ('COMPLETED', 'Completed'),
+        ('CANCELLED', 'Cancelled'),
     ]
     PAYMENT_METHODS = [
-        ('DINHEIRO', 'Dinheiro'),
-        ('DEBITO', 'Débito'),
-        ('CREDITO', 'Crédito'),
+        ('CASH', 'Cash'),
+        ('DEBIT', 'Debit'),
+        ('CREDIT', 'Credit'),
         ('PIX', 'PIX'),
-        ('A_PRAZO', 'A prazo'),
+        ('ON_ACCOUNT', 'On Account'),
     ]
     code = models.CharField(max_length=20, unique=True, blank=True)
     idempotency_key = models.CharField(max_length=255, unique=True, blank=True, null=True, db_index=True, default=None)
@@ -110,7 +110,7 @@ class Sale(models.Model):
     customer = models.ForeignKey(Person, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales')
     responsible = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sales')
     status = models.CharField(max_length=20, choices=SALE_STATUSES, default='PENDING')
-    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='DINHEIRO')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='CASH')
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     discount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
@@ -120,8 +120,8 @@ class Sale(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Venda'
-        verbose_name_plural = 'Vendas'
+        verbose_name = 'Sale'
+        verbose_name_plural = 'Sales'
 
     def save(self, *args, **kwargs):
         # Prevent double insert/update conflict when Django passes force_insert
@@ -151,8 +151,8 @@ class SaleItem(models.Model):
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     class Meta:
-        verbose_name = 'Item de Venda'
-        verbose_name_plural = 'Itens de Venda'
+        verbose_name = 'Sale Item'
+        verbose_name_plural = 'Sale Items'
 
     def save(self, *args, **kwargs):
         self.subtotal = Decimal(str(self.quantity)) * self.unit_price
@@ -161,11 +161,11 @@ class SaleItem(models.Model):
 
 class StockMovement(models.Model):
     MOVEMENT_TYPES = [
-        ('ENTRY', 'Entrada'),
-        ('EXIT', 'Saída'),
-        ('ADJUSTMENT', 'Ajuste'),
-        ('SALE', 'Venda'),
-        ('RETURN', 'Devolução'),
+        ('ENTRY', 'Entry'),
+        ('EXIT', 'Exit'),
+        ('ADJUSTMENT', 'Adjustment'),
+        ('SALE', 'Sale'),
+        ('RETURN', 'Return'),
     ]
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='movements')
     movement_type = models.CharField(max_length=20, choices=MOVEMENT_TYPES, default='ADJUSTMENT')
@@ -177,17 +177,17 @@ class StockMovement(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Movimento de Estoque'
-        verbose_name_plural = 'Movimentos de Estoque'
+        verbose_name = 'Stock Movement'
+        verbose_name_plural = 'Stock Movements'
 
 
 class AccountReceivable(models.Model):
     RECEIVABLE_STATUSES = [
-        ('PENDING', 'Pendente'),
-        ('PARTIAL', 'Parcial'),
-        ('PAID', 'Pago'),
-        ('OVERDUE', 'Vencido'),
-        ('CANCELLED', 'Cancelado'),
+        ('PENDING', 'Pending'),
+        ('PARTIAL', 'Partial'),
+        ('PAID', 'Paid'),
+        ('OVERDUE', 'Overdue'),
+        ('CANCELLED', 'Cancelled'),
     ]
     person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='receivables')
     sale = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True, blank=True, related_name='receivable')
@@ -199,8 +199,8 @@ class AccountReceivable(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Conta a Receber'
-        verbose_name_plural = 'Contas a Receber'
+        verbose_name = 'Account Receivable'
+        verbose_name_plural = 'Accounts Receivable'
 
     @property
     def amount_paid(self):
@@ -224,12 +224,12 @@ class AccountReceivable(models.Model):
             self.status = 'PENDING'
 
 
-def register_payment(account_receivable: AccountReceivable, amount: Decimal, method: str = 'DINHEIRO', user: User = None, notes: str = '') -> Payment:
+def register_payment(account_receivable: AccountReceivable, amount: Decimal, method: str = 'CASH', user: User = None, notes: str = '') -> Payment:
     """Transactional payment registration; recalculates receivable afterwards."""
     with transaction.atomic():
         rc = AccountReceivable.objects.select_for_update().get(pk=account_receivable.pk)
         if amount > rc.remaining_balance:
-            raise ValueError('Pagamento excede saldo restante.')
+            raise ValueError('Payment exceeds remaining balance.')
         p = Payment.objects.create(
             account_receivable=rc, amount=amount, method=method,
             responsible_user=user, notes=notes
@@ -243,14 +243,14 @@ class Payment(models.Model):
     account_receivable = models.ForeignKey(AccountReceivable, on_delete=models.PROTECT, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     payment_date = models.DateField(auto_now_add=True)
-    method = models.CharField(max_length=20, choices=[('DINHEIRO','Dinheiro'),('DEBITO','Débito'),('CREDITO','Crédito'),('PIX','PIX'),('TRANSFERENCIA','Transferência')], default='DINHEIRO')
+    method = models.CharField(max_length=20, choices=[('CASH','Cash'),('DEBIT','Debit'),('CREDIT','Credit'),('PIX','PIX'),('TRANSFER','Transfer')], default='CASH')
     responsible_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = 'Pagamento'
-        verbose_name_plural = 'Pagamentos'
+        verbose_name = 'Payment'
+        verbose_name_plural = 'Payments'
 
     def clean(self):
         try:
@@ -259,7 +259,7 @@ class Payment(models.Model):
                 bal = rc.remaining_balance
                 if bal is not None and self.amount > bal:
                     from django.core.exceptions import ValidationError
-                    raise ValidationError('Pagamento não pode exceder saldo restante.')
+                    raise ValidationError('Payment cannot exceed remaining balance.')
         except TypeError:
             pass  # form clean handles validation; avoid crash during instance init
 

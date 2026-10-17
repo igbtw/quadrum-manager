@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Cantina Escolar{% endblock %}</title>
+    <title>{% block title %}School Cafeteria{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     <link rel="stylesheet" href="{% static 'css/variables.css' %}">
@@ -34,14 +34,14 @@
         <!-- Header -->
         <header class="header" role="banner">
             <div class="header-left">
-                <button class="mobile-menu-btn" aria-label="Abrir menu" onclick="toggleSidebar()">
+                <button class="mobile-menu-btn" aria-label="Open menu" onclick="toggleSidebar()">
                     <i data-lucide="menu" style="width:24px;height:24px;stroke-width:2;"></i>
                 </button>
 
                 <form class="search-form" role="search">
                     <div class="search-input-wrapper">
                         <i data-lucide="search" class="search-icon" style="width:16px;height:16px;stroke-width:2;"></i>
-                        <input class="search-input" type="search" placeholder="Buscar produtos, pessoas, vendas..." aria-label="Buscar global" id="globalSearchInput">
+                        <input class="search-input" type="search" placeholder="Search products, people, vendas..." aria-label="Search global" id="globalSearchInput">
                     </div>
                 </form>
             </div>
@@ -54,17 +54,17 @@
                         </svg>
                     </button>
                 </div>
-                <button class="header-action" aria-label="Notificações" onclick="togglePanel('notificationPanel')">
+                <button class="header-action" aria-label="Notifications" onclick="togglePanel('notificationPanel')">
                     <i data-lucide="bell" style="width:20px;height:20px;stroke-width:2;"></i>
                 </button>
-                <button class="header-action" aria-label="Mensagens">
+                <button class="header-action" aria-label="Messages">
                     <i data-lucide="message-square" style="width:20px;height:20px;stroke-width:2;"></i>
                 </button>
                 <div class="user-info">
                     <div class="user-avatar">U</div>
                     <div class="user-details">
-                        <div class="user-name">Usuário</div>
-                        <div class="user-role">Padrão</div>
+                        <div class="user-name">User</div>
+                        <div class="user-role">Standard</div>
                     </div>
                 </div>
             </div>
@@ -75,21 +75,21 @@
         </main>
     </div>
 
-    <div class="notification-panel" id="notificationPanel" role="dialog" aria-label="Notificações" style="position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
-        <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Notificações</div>
-        <div style="font-size:0.875rem;color:var(--color-text-secondary);">Nenhuma notificação no momento</div>
+    <div class="notification-panel" id="notificationPanel" role="dialog" aria-label="Notifications" style="position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
+        <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Notifications</div>
+        <div style="font-size:0.875rem;color:var(--color-text-secondary);">No notifications at this time</div>
     </div>
 
-    <div class="message-panel" id="messagePanel" role="dialog" aria-label="Mensagens" style="position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
-        <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Mensagens</div>
-        <div style="font-size:0.875rem;color:var(--color-text-secondary);">Nenhuma mensagem</div>
+    <div class="message-panel" id="messagePanel" role="dialog" aria-label="Messages" style="position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
+        <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Messages</div>
+        <div style="font-size:0.875rem;color:var(--color-text-secondary);">No messages</div>
     </div>
 
-    <div class="profile-menu" id="profileMenu" role="menu" aria-label="Perfil" style="position:fixed;top:58px;right:16px;width:200px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:8px;z-index:700;box-shadow:var(--shadow-lg);">
-        <a href="#" onclick="document.getElementById('profileMenu').classList.remove('open'); return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Perfil</a>
-        <a href="#" onclick="document.getElementById('profileMenu').classList.remove('open'); return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Configurações</a>
+    <div class="profile-menu" id="profileMenu" role="menu" aria-label="Profile" style="position:fixed;top:58px;right:16px;width:200px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:8px;z-index:700;box-shadow:var(--shadow-lg);">
+        <a href="#" onclick="document.getElementById('profileMenu').classList.remove('open'); return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Profile</a>
+        <a href="#" onclick="document.getElementById('profileMenu').classList.remove('open'); return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Settings</a>
         <div style="border-top:1px solid var(--color-border);margin:4px 0;"></div>
-        <a href="{% url 'frontend:login' %}" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-danger);font-size:0.875rem;text-decoration:none;">Sair</a>
+        <a href="{% url 'frontend:login' %}" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-danger);font-size:0.875rem;text-decoration:none;">Sign out</a>
     </div>
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>

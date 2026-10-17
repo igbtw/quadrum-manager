@@ -1,13 +1,13 @@
 {% extends "frontend/base.html" %}
 {% load static %}
 
-{% block title %}Vendas{% endblock %}
+{% block title %}Sales{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Vendas</h1>
-        <p class="page-subtitle">Histórico de vendas realizadas</p>
+        <h1 class="page-title">Sales</h1>
+        <p class="page-subtitle">Completed sales history</p>
     </div>
     <div class="page-actions">
         <a href="{% url 'frontend:pdv' %}" class="btn btn-primary">
@@ -15,7 +15,7 @@
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Nova Venda
+            New Sale
         </a>
     </div>
 </div>
@@ -26,15 +26,15 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Código</th>
-                        <th>Data/Hora</th>
-                        <th>Cliente</th>
-                        <th>Tipo</th>
-                        <th>Itens</th>
+                        <th>Code</th>
+                        <th>Date/Time</th>
+                        <th>Customer</th>
+                        <th>Type</th>
+                        <th>Items</th>
                         <th class="numeric">Total</th>
-                        <th>Pagamento</th>
+                        <th>Payment</th>
                         <th>Status</th>
-                        <th>Ação</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,15 +49,15 @@
                         <td>{{ venda.forma_pagamento }}</td>
                         <td>
                             <span class="badge 
-                                {% if venda.status == 'CONCLUIDA' %}badge-success
-                                {% elif venda.status == 'CANCELADA' %}badge-danger
-                                {% elif venda.status == 'PENDENTE' %}badge-warning
+                                {% if venda.status == 'COMPLETED' %}badge-success
+                                {% elif venda.status == 'CANCELLED' %}badge-danger
+                                {% elif venda.status == 'PENDING' %}badge-warning
                                 {% else %}badge-info{% endif %}">
                                 {{ venda.status }}
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-icon btn-ghost" title="Copiar código" aria-label="Copiar código da venda" onclick="copiarCodigo('{{ venda.codigo }}')">
+                            <button class="btn btn-icon btn-ghost" title="Copy code" aria-label="Copy sale code" onclick="copiarCodigo('{{ venda.codigo }}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -72,8 +72,8 @@
                                 <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
                                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                             </svg>
-                            <div class="empty-state-title">Nenhuma venda registrada</div>
-                            <div class="empty-state-description">Faça a primeira venda no PDV</div>
+                            <div class="empty-state-title">No sale registered</div>
+                            <div class="empty-state-description">Make the first sale at the POS</div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -88,7 +88,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     window.copiarCodigo = function(codigo) {
-        Cantina.copyToClipboard(codigo, `Código ${codigo} copiado`);
+        Cantina.copyToClipboard(codigo, `Code ${codigo} copiado`);
     };
 });
 </script>

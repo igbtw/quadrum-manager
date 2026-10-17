@@ -1,13 +1,13 @@
 {% extends "frontend/base.html" %}
 {% load static %}
 
-{% block title %}Estoque{% endblock %}
+{% block title %}Inventory{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Estoque</h1>
-        <p class="page-subtitle">Controle de estoque da cantina</p>
+        <h1 class="page-title">Inventory</h1>
+        <p class="page-subtitle">Cafeteria inventory control</p>
     </div>
 </div>
 
@@ -24,12 +24,12 @@
         <div class="stat-label">Valor Total</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value" id="baixo-estoque">{{ baixo_estoque }}</div>
-        <div class="stat-label">Estoque Baixo</div>
+        <div class="stat-value" id="low-estoque">{{ low_estoque }}</div>
+        <div class="stat-label">Low Inventory</div>
     </div>
     <div class="stat-card">
         <div class="stat-value" id="sem-estoque">{{ sem_estoque }}</div>
-        <div class="stat-label">Sem Estoque</div>
+        <div class="stat-label">Out of Stock</div>
     </div>
 </div>
 
@@ -37,15 +37,15 @@
 <div class="section-card" style="margin-bottom: var(--space-4);">
     <div class="card-body" style="padding: var(--space-3) var(--space-4);">
         <div class="estoque-filters">
-            <select id="filtro-situacao" class="select" onchange="filtrarEstoque()">
-                <option value="">Todas situações</option>
+            <select id="filtro-situacao" class="select" onchange="filtrarInventory()">
+                <option value="">All statuses</option>
                 <option value="NORMAL">Normal</option>
-                <option value="BAIXO">Baixo</option>
-                <option value="SEM ESTOQUE">Sem Estoque</option>
-                <option value="INATIVO">Inativo</option>
+                <option value="LOW">Low</option>
+                <option value="OUT OF STOCK">Out of Stock</option>
+                <option value="INACTIVE">Inactive</option>
             </select>
-            <select id="filtro-categoria-estoque" class="select" onchange="filtrarEstoque()">
-                <option value="">Todas categorias</option>
+            <select id="filtro-categoria-estoque" class="select" onchange="filtrarInventory()">
+                <option value="">All categories</option>
                 {% for c in categorias %}
                 <option value="{{ c.id }}">{{ c.nome }}</option>
                 {% endfor %}
@@ -57,21 +57,21 @@
 <!-- Product inventory list -->
 <div class="section-card">
     <div class="card-header">
-        <h3 class="card-title">Produtos por Situação</h3>
+        <h3 class="card-title">Products by Status</h3>
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <form method="post" action="{% url 'frontend:estoque' %}" style="margin-bottom:12px; padding:10px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">{% csrf_token %}<h4 style="font-size:var(--font-size-sm); margin:0 0 8px;">Ajuste de estoque</h4><div style="display:flex; gap:8px; flex-wrap:wrap;"><select name="product_id" required style="padding:6px;"><option value="">Produto</option>{% for p in produtos_select %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select><input type="number" name="qty" step="1" required placeholder="Qtd (+ / -)" style="padding:6px; width:80px;"><input type="text" name="reason" placeholder="Motivo" style="padding:6px; flex:1; min-width:120px;"><button type="submit" class="btn btn-secondary" style="padding:6px 12px;">Ajustar</button></div></form>
+            <form method="post" action="{% url 'frontend:estoque' %}" style="margin-bottom:12px; padding:10px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">{% csrf_token %}<h4 style="font-size:var(--font-size-sm); margin:0 0 8px;">Stock adjustment</h4><div style="display:flex; gap:8px; flex-wrap:wrap;"><select name="product_id" required style="padding:6px;"><option value="">Product</option>{% for p in produtos_select %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select><input type="number" name="qty" step="1" required placeholder="Qty (+ / -)" style="padding:6px; width:80px;"><input type="text" name="reason" placeholder="Reason" style="padding:6px; flex:1; min-width:120px;"><button type="submit" class="btn btn-secondary" style="padding:6px 12px;">Adjust</button></div></form>
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Produto</th>
-                        <th>Categoria</th>
-                        <th class="numeric">Estoque</th>
-                        <th class="numeric">Mínimo</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th class="numeric">Inventory</th>
+                        <th class="numeric">Minimum</th>
                         <th>Situação</th>
                         <th>Status</th>
-                        <th>Ação</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="produtos-estoque-tabela">
@@ -86,8 +86,8 @@
                         <td>
                             <span class="badge 
                                 {% if p.situacao == 'NORMAL' %}badge-status-normal
-                                {% elif p.situacao == 'BAIXO' %}badge-status-baixo
-                                {% elif p.situacao == 'SEM ESTOQUE' %}badge-status-sem-estoque
+                                {% elif p.situacao == 'LOW' %}badge-status-low
+                                {% elif p.situacao == 'OUT_OF_STOCK' %}badge-status-out-of-stock
                                 {% else %}badge-status-normal{% endif %}">
                                 {{ p.situacao }}
                             </span>
@@ -95,11 +95,11 @@
                         <td>
                             <span class="badge 
                                 {% if p.ativo %}badge-success{% else %}badge-danger{% endif %}">
-                                {% if p.ativo %}Ativo{% else %}Inativo{% endif %}
+                                {% if p.ativo %}Ativo{% else %}Inactive{% endif %}
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-icon btn-ghost" title="Ajustar estoque" aria-label="Ajustar estoque de {{ p.nome }}" onclick="ajustarEstoque({{ p.id }})">
+                            <button class="btn btn-icon btn-ghost" title="Adjust inventory" aria-label="Adjust inventory for {{ p.nome }}" onclick="ajustarInventory({{ p.id }})">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="12" y1="5" x2="12" y2="19"></line>
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -114,8 +114,8 @@
                                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                                 <line x1="12" y1="22.08" x2="12" y2="12"></path>
                             </svg>
-                            <div class="empty-state-title">Nenhum produto encontrado</div>
-                            <div class="empty-state-description">Cadastre produtos na seção Produtos</div>
+                            <div class="empty-state-title">No products found</div>
+                            <div class="empty-state-description">Register products in the Products section</div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -129,7 +129,7 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    window.filtrarEstoque = function() {
+    window.filtrarInventory = function() {
         const situacao = document.getElementById('filtro-situacao').value;
         const categoria = document.getElementById('filtro-categoria-estoque').value;
         
@@ -144,8 +144,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    window.ajustarEstoque = function(id) {
-        Cantina.showToast('Ajustar Estoque', `Funcionalidade de ajuste do produto ${id} (mock)`, 'info');
+    window.ajustarInventory = function(id) {
+        Cantina.showToast('Adjust Inventory', `Adjustment feature for product ${id} (mock)`, 'info');
     };
 });
 </script>

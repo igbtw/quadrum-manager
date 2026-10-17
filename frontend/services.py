@@ -13,12 +13,12 @@ def reduce_stock(product: Product, qty: int, user: User = None, sale: Sale = Non
         # Lock row for update (DB-level) — PostgreSQL compatible
         p = Product.objects.select_for_update().get(pk=product.pk)
         if p.stock_quantity - qty < 0:
-            raise ValueError(f"Estoque negativo para {p.name}: {p.stock_quantity - qty}")
+            raise ValueError(f"Negative stock for {p.name}: {p.stock_quantity - qty}")
         p.stock_quantity -= qty
         p.save(update_fields=['stock_quantity'])
         StockMovement.objects.create(
             product=p, movement_type='SALE', quantity=-qty,
-            sale=sale, user=user, reason='Venda confirmada'
+            sale=sale, user=user, reason='Sale confirmed'
         )
         return p
 
@@ -50,17 +50,17 @@ def cancel_sale(sale: Sale, user: User = None):
         if s.status == 'CANCELLED':
             return s
         if s.status != 'COMPLETED':
-            raise ValueError(' Apenas vendas concluídas podem ser canceladas.')
-        # Rule 1: if A_PRAZO, check payments; reject if any recorded
-        if s.payment_method == 'A_PRAZO' and s.customer:
+            raise ValueError('Only completed sales can be cancelled.')
+        # Rule 1: if ON_ACCOUNT, check payments; reject if any recorded
+        if s.payment_method == 'ON_ACCOUNT' and s.customer:
             rc = AccountReceivable.objects.filter(sale=s).first()
             if rc and rc.payments.exists():
-                raise ValueError('Não é possível cancelar: existem pagamentos registrados na conta a receber.')
+                raise ValueError('Cannot cancel: recorded payments exist on the receivable account.')
         # Update sale
         s.status = 'CANCELLED'
         s.save(update_fields=['status'])
         # Receivable: mark CANCELLED (preserve record; never delete)
-        if s.payment_method == 'A_PRAZO':
+        if s.payment_method == 'ON_ACCOUNT':
             rc = AccountReceivable.objects.filter(sale=s).first()
             if rc:
                 rc.status = 'CANCELLED'
@@ -72,7 +72,7 @@ def cancel_sale(sale: Sale, user: User = None):
             prod.save(update_fields=['stock_quantity'])
             StockMovement.objects.create(
                 product=prod, movement_type='RETURN', quantity=item.quantity,
-                sale=s, user=user, reason='Cancelamento da venda'
+                sale=s, user=user, reason='Sale cancellation'
             )
         return s
 
@@ -86,7 +86,7 @@ def adjust_stock(product: Product, qty: int, reason: str = '', user: User = None
         p.save(update_fields=['stock_quantity'])
         StockMovement.objects.create(
             product=p, movement_type='ADJUSTMENT', quantity=qty,
-            user=user, reason=reason or 'Ajuste manual'
+            user=user, reason=reason or 'Manual adjustment'
         )
         return p
 
@@ -103,7 +103,7 @@ def finalize_sale(sale: Sale, user: User = None):
         s.save(update_fields=['status', 'completed_at', 'responsible'])
         # If items not yet created (e.g. PDV draft), create from existing data if any
         # Receivable on account
-        if s.payment_method == 'A_PRAZO' and s.customer:
+        if s.payment_method == 'ON_ACCOUNT' and s.customer:
             AccountReceivable.objects.get_or_create(
                 sale=s,
                 defaults={

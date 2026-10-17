@@ -1,13 +1,13 @@
 {% extends "frontend/base.html" %}
 {% load static %}
 
-{% block title %}Relatórios{% endblock %}
+{% block title %}Reports{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Relatórios</h1>
-        <p class="page-subtitle">Relatórios da cantina</p>
+        <h1 class="page-title">Reports</h1>
+        <p class="page-subtitle">Reports da cantina</p>
     </div>
 </div>
 
@@ -23,10 +23,11 @@
                 <option value="ano">Este ano</option>
             </select>
             <select id="filtro-tipo-relatorio" class="select" onchange="aplicarFiltro()">
-                <option value="">Tipo</option>
-                <option value="vendas">Vendas</option>
-                <option value="pessoas">Pessoas</option>
-                <option value="produtos">Produtos</option>
+                <option value="">Type</option>
+                <option value="">All</option>
+                <option value="vendas">Sales</option>
+                <option value="pessoas">People</option>
+                <option value="produtos">Products</option>
             </select>
         </div>
     </div>
@@ -45,18 +46,18 @@
                 <line x1="15" y1="9" x2="9" y2="15"></line>
             </svg>
             <div class="empty-state-title">Selecione os filtros</div>
-            <div class="empty-state-description">Escolha período e tipo para gerar o relatório</div>
+            <div class="empty-state-description">Select period and type to generate the report</div>
         </div>
         
         <div id="relatorio-conteudo" style="display: none;">
             <div class="dashboard-stats" style="margin-bottom: var(--space-4);">
                 <div class="stat-card">
                     <div class="stat-value" id="total-geral">R$ 0,00</div>
-                    <div class="stat-label">Total Geral</div>
+                    <div class="stat-label">Total</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="quantidade">0</div>
-                    <div class="stat-label">Quantidade</div>
+                    <div class="stat-label">Quantity</div>
                 </div>
             </div>
             
@@ -91,21 +92,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const itens = [];
             
             if (tipo === 'vendas') {
-                itens.push({ label: 'Vendas do dia', value: 150 });
-                itens.push({ label: 'Ticket médio', value: 25.50 });
-                itens.push({ label: 'Qtd de transações', value: 34 });
+                itens.push({ label: 'Daily sales', value: 150 });
+                itens.push({ label: 'Average ticket', value: 25.50 });
+                itens.push({ label: 'Transaction count', value: 34 });
                 total = 850;
                 qtd = 34;
             } else if (tipo === 'pessoas') {
-                itens.push({ label: 'Alunos cadastrados', value: 245 });
-                itens.push({ label: 'Professores', value: 28 });
-                itens.push({ label: 'Funcionários', value: 15 });
+                itens.push({ label: 'Registered students', value: 245 });
+                itens.push({ label: 'Teachers', value: 28 });
+                itens.push({ label: 'Staff', value: 15 });
                 total = 288;
                 qtd = 288;
             } else if (tipo === 'produtos') {
-                itens.push({ label: 'Total de produtos', value: 18 });
-                itens.push({ label: 'Produtos com estoque baixo', value: 5 });
-                itens.push({ label: 'Produtos mais vendidos', value: 'X-Burger' });
+                itens.push({ label: 'Total products', value: 18 });
+                itens.push({ label: 'Products with low inventory', value: 5 });
+                itens.push({ label: 'Best-selling products', value: 'X-Burger' });
                 total = 18;
                 qtd = 18;
             }

@@ -111,19 +111,19 @@ function initSidebarMobile() {
     }
 }
 
-function initCarrinhos() {
-    // Initialize PDV cart
-    initPdvCarrinho();
+function initCart() {
+    // Initialize POS cart
+    initPosCart();
 }
 
-function initPdvCarrinho() {
+function initPosCart() {
     let carrinho = JSON.parse(localStorage.getItem('cantinaos-carrinho') || '[]');
 
     // Render cart
-    renderizarCarrinhoPV(carrinho);
+    renderCart(carrinho);
 
     // Add product
-    window.adicionarAoCarrinhoPV = function(produtoId, nome, preco) {
+    window.addToCart = function(produtoId, nome, preco) {
         const existente = carrinho.find(i => i.id == produtoId);
         if (existente) {
             existente.qtd += 1;
@@ -136,39 +136,39 @@ function initPdvCarrinho() {
             });
         }
         localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
-        renderizarCarrinhoPV(carrinho);
+        renderCart(carrinho);
     };
 
     // Remove item
-    window.removerItemPV = function(idx) {
+    window.removeCartItem = function(idx) {
         carrinho.splice(idx, 1);
         localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
-        renderizarCarrinhoPV(carrinho);
+        renderCart(carrinho);
     };
 
     // Increment quantity
-    window.incrementarQtdPV = function(idx) {
+    window.increaseQuantity = function(idx) {
         carrinho[idx].qtd += 1;
         localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
-        renderizarCarrinhoPV(carrinho);
+        renderCart(carrinho);
     };
 
     // Decrement quantity
-    window.decrementarQtdPV = function(idx) {
+    window.decreaseQuantity = function(idx) {
         if (carrinho[idx].qtd <= 1) {
-            removerItemPV(idx);
+            removeCartItem(idx);
         } else {
             carrinho[idx].qtd -= 1;
             localStorage.setItem('cantinaos-carrinho', JSON.stringify(carrinho));
-            renderizarCarrinhoPV(carrinho);
+            renderCart(carrinho);
         }
     };
 
-    function renderizarCarrinhoPV(carrinho) {
-        const tabelaBody = document.getElementById('carrinho-tabela-body-pv');
-        const carrinhoVazio = document.getElementById('carrinho-vazio-pv');
-        const tabela = document.getElementById('carrinho-tabela-pv');
-        const resumo = document.getElementById('carrinho-resumo-pv');
+    function renderCart(carrinho) {
+        const tabelaBody = document.getElementById('cart-table-body');
+        const carrinhoVazio = document.getElementById('cart-empty');
+        const tabela = document.getElementById('cart-table');
+        const resumo = document.getElementById('cart-summary');
 
         if (carrinho.length === 0) {
             tabela.style.display = 'none';
@@ -190,17 +190,17 @@ function initPdvCarrinho() {
                 tr.innerHTML = `
                     <td>${item.nome}</td>
                     <td style="display: flex; align-items: center; gap: var(--space-2);">
-                        <button onclick="decrementarQtdPV(${idx})" class="btn btn-icon-sm" aria-label="Diminuir quantidade">−</button>
+                        <button onclick="decreaseQuantity(${idx})" class="btn btn-icon-sm" aria-label="Diminuir quantidade">−</button>
                         <span style="min-width: 24px; text-align: center;">${item.qtd}</span>
-                        <button onclick="incrementarQtdPV(${idx})" class="btn btn-icon-sm" aria-label="Aumentar quantidade">+</button>
+                        <button onclick="increaseQuantity(${idx})" class="btn btn-icon-sm" aria-label="Aumentar quantidade">+</button>
                     </td>
                     <td style="text-align: right;">R$ ${subtotalItem.toFixed(2)}</td>
-                    <td><button class="btn btn-icon-sm btn-danger" onclick="removerItemPV(${idx})" aria-label="Remover item">×</button></td>
+                    <td><button class="btn btn-icon-sm btn-danger" onclick="removeCartItem(${idx})" aria-label="Remover item">×</button></td>
                 `;
                 tabelaBody.appendChild(tr);
             });
 
-            const totalEl = document.getElementById('carrinho-total-pv');
+            const totalEl = document.getElementById('cart-total');
             if (totalEl) totalEl.textContent = 'R$ ' + subtotal.toFixed(2);
         }
     }
@@ -223,7 +223,7 @@ function initFiltros() {
     });
 
     // Filtro por categoria
-    window.filtrarPorCategoria = function(categoriaId) {
+    window.filterByCategory = function(categoriaId) {
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -269,7 +269,7 @@ function initNotificacoes() {
             max-width: 320px;
         `;
         notification.innerHTML = `
-            <strong>${titulo || 'Aviso'}</strong>
+            <strong>${titulo || 'Notice'}</strong>
             <span style="margin-left: var(--space-2);">${mensagem || ''}</span>
         `;
 
@@ -283,7 +283,7 @@ function initNotificacoes() {
     };
 }
 
-function formatarMoeda(valor) {
+function formatCurrency(valor) {
     return 'R$ ' + parseFloat(valor || 0).toFixed(2);
 }
 
@@ -297,7 +297,7 @@ function debounce(func, wait) {
 
 // Export required global functions
 window.Cantina = {
-    formatarMoeda,
+    formatCurrency,
     showNotification: window.showNotification,
     toggleSidebar: window.toggleSidebar,
     toggleTheme: toggleTheme
