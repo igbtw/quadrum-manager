@@ -1,185 +1,107 @@
 # CantinaOS
 
-Sistema de gerenciamento de cantina escolar desenvolvido em Django.
+A Django-based web application for managing a school cafeteria (cantina escolar). It provides product inventory, point-of-sale (PDV) sales, accounts receivable, and basic reporting using Django templates and vanilla CSS/JavaScript.
 
-## Requisitos
+> **Note:** The user interface and model names use Portuguese terminology (e.g., `vendas`, `produtos`, `financeiro`). This reflects the original school-context design.
 
-- Python 3.11+
-- pip
-- virtualenv (recomendado)
+## Current Status
 
-## Instalação
+- **Implemented:** Product and inventory management (categories, products, stock adjustments); point-of-sale with idempotency keys; sales finalization with automatic stock reduction; accounts receivable and payments; basic dashboard, reports, and health endpoint; authentication and access control (`@login_required`).
+- **In progress / planned:** Additional integrations, multi-tenant support, and production hardening are not present in the codebase.
+- **Not implemented:** External APIs, automated backups as application features, mobile apps, or advanced analytics.
 
-### 1. Criar e ativar ambiente virtual
+## Technology Stack
 
-```bash
-# Linux/macOS
-python -m venv .venv
-source .venv/bin/activate
-
-# Windows (PowerShell)
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-
-# Windows (cmd)
-python -m venv .venv
-.venv\Scripts\activate.bat
-```
-
-### 2. Instalar dependências
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Configurar variáveis de ambiente
-
-Copie o arquivo de exemplo e ajuste conforme necessário:
-
-```bash
-cp .env.example .env
-```
-
-Para desenvolvimento local, o arquivo `.env` pode ficar com os valores padrão.
-
-### 4. Run migrations
-
-```bash
-python manage.py migrate
-```
-
-### 5. Start development server
-
-```bash
-python manage.py runserver
-```
-
-Acesse: http://localhost:8000
+- **Framework:** Django 5.2+ (`>=5.2,<5.3`)
+- **Language:** Python 3.11+ (tested on 3.14.7)
+- **WSGI server:** Gunicorn 21+
+- **Static files:** WhiteNoise 6.8+ (required for production; configured in `STORAGES` and middleware)
+- **Database:** SQLite (development); PostgreSQL 14+ (production, optional)
+- **Dependencies:** See `requirements.txt` (includes `whitenoise`, `gunicorn`, `python-dotenv`, `psycopg[binary]`)
+- **Frontend:** Django templates + vanilla CSS/JS (no build step)
+- **License:** MIT (see `LICENSE`)
 
 ## Project Structure
 
 ```
-cantinaos/
-├── config/                 # Configurações do Django
-│   ├── settings.py         # Settings unificado (dev/prod via env vars)
-│   ├── urls.py             # URLs principais
-│   ├── wsgi.py             # WSGI para produção
-│   └── asgi.py             # ASGI para produção
-├── frontend/               # App principal
-│   ├── views.py            # Views (lógica de apresentação)
-│   ├── mock_data.py        # Dados mockados para desenvolvimento
-│   ├── urls.py             # URLs do frontend
-│   ├── models.py           # Modelos (placeholder)
-│   ├── admin.py            # Admin (placeholder)
-│   ├── apps.py             # Configuração do app
-│   ├── tests.py            # Testes
-│   ├── migrations/         # Migrações
-│   └── templates/          # Templates Django
-├── static/                 # Arquivos estáticos
-│   ├── css/
-│   │   ├── reset.css       # Reset CSS
-│   │   ├── variables.css   # Design tokens (cores, espaçamento, tipografia)
-│   │   ├── layout.css      # Layout principal (sidebar, header, main)
-│   │   ├── components.css  # Componentes reutilizáveis
-│   │   └── pages.css       # Estilos específicos por página
-│   ├── js/
-│   │   └── main.js         # JavaScript vanilla
-│   └── favicon.svg         # Favicon
-├── manage.py
-├── requirements.txt        # Dependências base
-├── requirements-prod.txt   # Dependências de produção
-├── .env.example            # Exemplo de variáveis de ambiente
-└── .gitignore
+config/          Django settings, URLs, WSGI/ASGI
+frontend/        Main app: models, views, forms, templates, static files, tests
+static/          Global static assets (CSS, JS, favicon)
+docs/            Additional documentation (architecture, contributing)
+manage.py        Django CLI
 ```
 
-## Variáveis de Ambiente
+See `docs/architecture.md` for request flow and data model details.
 
-| Variável | Descrição | Padrão (Dev) | Obrigatória em Prod |
-|----------|-----------|--------------|---------------------|
-| `DJANGO_DEBUG` | Ativa modo debug | `True` | Não (deve ser `False`) |
-| `DJANGO_SECRET_KEY` | Chave secreta do Django | `django-insecure-...` | **Sim** |
-| `ALLOWED_HOSTS` | Hosts permitidos (CSV) | `localhost,127.0.0.1,0.0.0.0` | **Sim** |
-| `CSRF_TRUSTED_ORIGINS` | Origens confiáveis para CSRF (CSV) | - | **Sim** |
-| `DATABASE_URL` | URL do banco (PostgreSQL) | - | Não* |
-| `DB_ENGINE` | Engine do banco | `django.db.backends.sqlite3` | Não* |
-| `DB_NAME` | Nome do banco | - | Não* |
-| `DB_USER` | Usuário do banco | - | Não* |
-| `DB_PASSWORD` | Senha do banco | - | Não* |
-| `DB_HOST` | Host do banco | - | Não* |
-| `DB_PORT` | Porta do banco | - | Não* |
-| `EMAIL_HOST` | Servidor SMTP | - | Não |
-| `EMAIL_PORT` | Porta SMTP | `587` | Não |
-| `EMAIL_USE_TLS` | Usar TLS | `True` | Não |
-| `EMAIL_HOST_USER` | Usuário SMTP | - | Não |
-| `EMAIL_HOST_PASSWORD` | Senha SMTP | - | Não |
-| `DEFAULT_FROM_EMAIL` | Email remetente padrão | - | Não |
+## Local Development
 
-\* Para PostgreSQL em produção, use `DATABASE_URL` OU as variáveis `DB_*` individuais.
+### Prerequisites
 
-## Desenvolvimento vs Produção
+- Python 3.11+
+- `pip` and `virtualenv` (recommended)
 
-### Desenvolvimento
+### Setup
+
 ```bash
-# Usa SQLite, DEBUG=True, console email
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env       # Adjust if needed
+python manage.py migrate
 python manage.py runserver
 ```
 
-### Produção
-Configure as variáveis de ambiente obrigatórias e use um servidor WSGI:
+Access the app at `http://localhost:8000`.
+
+> **Important:** Django does **not** load `.env` automatically. The `.env` file is convenient for manual setup, but variables must be exported or provided by the hosting environment (e.g., `EnvironmentFile` for systemd) in production. See `.env.example` and `DEPLOYMENT.md`.
+
+## Testing
+
+Run the full test suite (51 verified tests):
 
 ```bash
-# Exemplo com gunicorn
-export DJANGO_DEBUG=False
-export DJANGO_SECRET_KEY="sua-chave-secreta-de-50-chars"
-export ALLOWED_HOSTS="seudominio.com,www.seudominio.com"
-export CSRF_TRUSTED_ORIGINS="https://seudominio.com,https://www.seudominio.com"
-export DATABASE_URL="postgres://user:pass@host:5432/dbname"
-# ... outras variáveis ...
-
-gunicorn config.wsgi:application --bind 0.0.0.0:8000
-```
-
-## Files that must NOT be committed
-
-- `.env` - Contém credenciais e configurações sensíveis
-- `.venv/` - Ambiente virtual Python
-- `__pycache__/` - Arquivos compilados Python
-- `db.sqlite3` - Banco de dados local
-- `*.pyc` - Arquivos compilados Python
-- `media/` - Arquivos enviados pelo usuário
-- `staticfiles/` - Arquivos estáticos coletados
-
-## Useful Commands
-
-```bash
-# Check configuration
-python manage.py check
-python manage.py check --deploy
-
-# Create superuser
-python manage.py createsuperuser
-
-# Coletar estáticos
-python manage.py collectstatic
-
-# Shell Django
-python manage.py shell
-
-# Testes
 python manage.py test
 ```
 
-## Tecnologias
+Other useful checks:
 
-- **Backend**: Django 4.2+
-- **Frontend**: Django Templates + CSS próprio + JavaScript vanilla
-- **Banco Dev**: SQLite
-- **Banco Prod**: PostgreSQL
-- **Servidor Dev**: `runserver`
-- **Servidor Prod**: Gunicorn (WSGI)
+```bash
+python manage.py check
+python manage.py check --deploy   # Review production-style warnings
+python manage.py collectstatic --noinput --dry-run
+```
+
+## Configuration
+
+Key environment variables (see `.env.example`):
+
+| Variable | Purpose | Required in production? |
+|----------|---------|------------------------|
+| `DJANGO_DEBUG` | Development/debug mode (`True`/`False`) | Must be `False` |
+| `DJANGO_SECRET_KEY` | Cryptographic secret | **Yes** (must not use the default dev value) |
+| `ALLOWED_HOSTS` | Allowed hostnames (CSV) | **Yes** |
+| `CSRF_TRUSTED_ORIGINS` | HTTPS origins for CSRF (CSV) | **Yes** |
+| `DATABASE_URL` | PostgreSQL connection string | Only if using PostgreSQL |
+| `DB_ENGINE` / `DB_*` | Alternative database settings | Only when not using `DATABASE_URL` |
+
+Secret-bearing files (`.env`, `.env.*`) are excluded by `.gitignore`.
+
+## Deployment
+
+Deployment instructions, reverse proxy configuration (nginx/Apache), HTTPS setup, service manager files, and backup procedures are documented in `DEPLOYMENT.md`. The deployment guide covers conditional steps for systemd and OpenRC, database creation, static-file collection, and post-deployment verification.
+
+## Features (Verified)
+
+- Product categories and inventory with minimum-stock alerts
+- Point-of-sale (PDV) with item calculation, idempotency keys, and atomic finalization
+- Sales history and stock adjustments with audit trails (`StockMovement`)
+- Accounts receivable (`AccountReceivable`) and payment registration (`Payment`)
+- Basic dashboard statistics and reports
+- Health endpoint (`/health/`) returning `{"status":"ok","service":"cantinaos"}`
+- User authentication (`@login_required` on protected views); no custom user roles implemented
 
 ## License
 
-CantinaOS is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+CantinaOS is licensed under the MIT License. See [LICENSE](LICENSE) for the full text.
 
-Third-party dependencies and assets remain subject to their respective licenses.
+Third-party dependencies (Django, WhiteNoise, Gunicorn, etc.) remain subject to their respective licenses.
