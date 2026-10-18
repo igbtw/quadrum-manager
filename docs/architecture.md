@@ -15,14 +15,14 @@ quadrum is a single Django project (`config/`) with one primary application (`fr
 
 ## Request Flow
 
-A simplified flow for a protected view (e.g., `/sales/nova/`):
+A simplified flow for a protected view (e.g., `/sales/new/`):
 
 ```
 URL (frontend/urls.py) -> View (frontend/views.py) -> Model query/update -> Template render -> HTTP response
 ```
 
 - `config/urls.py` routes `/` to `frontend.urls` and `/admin/` to Django admin.
-- `frontend/urls.py` defines routes for the dashboard, sales, products, inventory, people, finance, reports, login/logout, and two API endpoints (`api_pdv_calcular/`, `api_pdv_finalizar/`).
+- `frontend/urls.py` defines routes for the dashboard, sales, products, inventory, people, finance, reports, login/logout, and two API endpoints (`api/pdv/calcular/`, `api/pdv/finalizar/`).
 - Protected views use `@login_required`. The health endpoint (`/health/`) is public.
 
 ## Data Model (`frontend/models.py`)
@@ -48,17 +48,17 @@ Key design decisions from the code:
 
 Verified view categories:
 
-- Public: `health_check`, `login_view`, `logout_view`
-- Protected (`@login_required`): `dashboard`, `sales_list`, `pdv`, `products`, `inventory`, `people`, `finance`, `reports`
-- API (`@require_http_methods(["POST"])` + `@login_required`): `api_pdv_calcular` (cart total), `api_pdv_finalizar` (atomic sale creation with idempotency)
+- Public: `health_check`, `dashboard`, `sales_list`, `login_view`, `logout_view`
+- Protected (`@login_required`): `point_of_sale`, `product_list`, `inventory`, `people`, `finance`, `reports`
+- API (`@require_http_methods(["POST"])` + `@login_required`): `api_pos_calculate` (cart total), `api_pos_finalize` (atomic sale creation with idempotency)
 
 The dashboard aggregates counts and sums from `Sale`, `AccountReceivable`, and `Product`.
 
 ## Static Files and Templates
 
 - Global static assets: `static/css/`, `static/js/`, `static/favicon.svg`
-- App-level static assets: `frontend/static/`
-- Templates: `frontend/templates/frontend/` (verified by settings `APP_DIRS = True`)
+- Application templates: `frontend/templates/frontend/` (namespaced; verified by settings `APP_DIRS = True`)
+- Custom error templates: `frontend/templates/400.html`, `frontend/templates/403.html`, `frontend/templates/404.html`, `frontend/templates/500.html`
 
 WhiteNoise handles static-file compression and manifest in production (`STORAGES`).
 
@@ -73,11 +73,11 @@ WhiteNoise handles static-file compression and manifest in production (`STORAGES
 
 - Default: SQLite (`db.sqlite3` at project root, excluded by `.gitignore`).
 - Production: configured via `DATABASE_URL` or `DB_ENGINE` + `DB_*` variables. PostgreSQL is the intended production backend.
-- Migrations exist for `frontend` (verified: 4 migrations in `frontend/migrations/`).
+- Migrations exist for `frontend` (verified: 7 migrations in `frontend/migrations/`).
 
 ## Important Design Notes (Verified)
 
-- URL route names (`frontend/urls.py`) use English paths (`sales/`, `inventory/`, etc.) but keep original name identifiers for compatibility.
+- Django view names and URL names (`frontend/urls.py`) use English identifiers. HTTP URL paths were already English and remain unchanged; the two POS API paths retain their original Portuguese segments (`/api/pdv/calcular/`, `/api/pdv/finalizar/`) for compatibility.
 
 - `.env` is **not** loaded automatically by Django or the application. Variables must be exported in the environment or provided by the deployment mechanism (`DEPLOYMENT.md` covers `EnvironmentFile` for systemd).
 - The application uses a single app (`frontend`) for business logic, rather than splitting into multiple Django apps.

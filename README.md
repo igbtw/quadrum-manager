@@ -2,7 +2,7 @@
 
 A Django-based web application for managing a school cafeteria (school cafeteria). It provides product inventory, point-of-sale (PDV) sales, accounts receivable, and basic reporting using Django templates and vanilla CSS/JavaScript.
 
-> **Note:** The user interface, documentation, and most source identifiers are translated to English. Historical database migrations and a few internal URL route names (e.g., `vendas_list`, `produtos`) remain unchanged for compatibility with existing links.
+> **Note:** Django view names and URL names have been standardized in English. Historical database migrations and existing HTTP URL paths remain unchanged — including the two POS API paths — for compatibility with existing links.
 
 ## Current Status
 
