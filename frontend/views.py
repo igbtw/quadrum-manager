@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.db import transaction
 from decimal import Decimal
 from datetime import timedelta
-from .services import reduce_stock, create_sale_items, finalize_sale, cancel_sale
+from .services import reduce_stock, create_sale_items, finalize_sale, cancel_sale, InsufficientStockError
 from .models import Product, Sale, SaleItem, AccountReceivable, StockMovement, Category, Person, Payment
 from .forms import ProductForm, PersonForm
 
@@ -398,6 +398,10 @@ def api_pos_finalize(request):
         except Sale.DoesNotExist:
             logger.exception("IntegrityError without idempotency record for key %s", idempotency_key)
             return JsonResponse({'error': 'Internal error finalizing sale'}, status=500)
+    except InsufficientStockError:
+        # Expected business conflict; the atomic block above has already
+        # rolled back every checkout write before reaching this handler.
+        return JsonResponse({'error': 'Insufficient stock'}, status=409)
     except Exception:
         logger.exception("Unexpected error finalizing sale")
         return JsonResponse({'error': 'Internal error finalizing sale'}, status=500)

@@ -43,7 +43,8 @@ Related documents: [Data model](data-model.md) ·
 **Price handling:** the endpoint never reads a client-supplied price. It sums
 `Product.price` from the database. Client prices sent alongside are ignored.
 
-**Database writes and side effects:** none. The endpoint is read-only.
+**Database writes and side effects:** none. The endpoint is read-only and does
+not reserve or guarantee stock; it only reports an indicative total.
 
 **Validation and error paths:**
 
@@ -138,12 +139,20 @@ This is a confirmed guarantee of the code path, not an assumption.
   responses are produced (`403`/`409`/replay `200`). If no matching record exists,
   the view logs the exception and returns
   `500 {"error": "Internal error finalizing sale"}`.
+- Insufficient stock (`InsufficientStockError` raised by `reduce_stock()` from the
+  locked mutation path) propagates out of the `transaction.atomic()` block and is
+  mapped to `409 {"error": "Insufficient stock"}`. Because it leaves the atomic
+  block first, every checkout write — `Sale`, `SaleItem`, `StockMovement`,
+  conditional `AccountReceivable`, and the stock decrement — is rolled back; stock
+  never goes negative. The response is a stable business-conflict message with no
+  internal detail and is not logged as a server error.
 - Any other exception is logged and returns the same generic `500` body with no
   internal detail.
-- Note: `reduce_stock()` raising `ValueError` for insufficient stock is **not**
-  mapped to a specific status. It falls through to the generic handler and
-  returns `500`, even though the situation is a client-correctable condition.
-  This is a verified behavior gap.
+- Stock is reduced cumulatively per line under the product row lock, so duplicate
+  lines for one product that together exceed inventory fail and roll back rather
+  than passing individual per-line checks.
+- The calculation endpoint (flow A) does not reserve stock, so availability is
+  only guaranteed at finalization.
 
 **Idempotency/ownership/conflict details** are in
 [section C](#c-idempotency-and-retries).

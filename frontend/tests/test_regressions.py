@@ -164,6 +164,12 @@ class PhaseARegressionTests(TestCase):
         data = resp.json()
         self.assertNotIn('internal simulated failure', str(data.get('error', '')))
         self.assertIn('Internal error', data.get('error', ''))
+        # Unexpected failures must also roll back every checkout write.
+        self.assertEqual(Product.objects.get(pk=prod.pk).stock_quantity, 10)
+        self.assertFalse(Sale.objects.filter(idempotency_key='ERR-01').exists())
+        self.assertEqual(SaleItem.objects.count(), 0)
+        self.assertEqual(StockMovement.objects.filter(product=prod).count(), 0)
+        self.assertEqual(AccountReceivable.objects.count(), 0)
 
     def test_missing_fingerprint_returns_409(self):
         """Legacy completed sale with key but no fingerprint must not return success."""
@@ -365,3 +371,79 @@ class PosApiValidationTests(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(Sale.objects.filter(status='COMPLETED').count(), 1)
         self.assertEqual(Product.objects.get(pk=self.prod.pk).stock_quantity, 18)
+
+
+class PosFinalizationStockTests(TestCase):
+    """F4: insufficient stock is a 409 conflict that rolls back every write."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='posstock', password='t')
+        self.client.force_login(self.user)
+        self.cat = Category.objects.create(name='POSStock')
+        self.prod = Product.objects.create(
+            name='StockProd', code='SP1', category=self.cat,
+            price=Decimal('5.00'), stock_quantity=2,
+        )
+
+    def _finalize(self, payload):
+        return self.client.post(
+            reverse('frontend:api_pos_finalize'), data=json.dumps(payload),
+            content_type='application/json', HTTP_X_CSRFTOKEN='fake',
+        )
+
+    def _assert_no_writes(self, before):
+        self.assertEqual(Sale.objects.count(), before['sales'])
+        self.assertEqual(SaleItem.objects.count(), before['items'])
+        self.assertEqual(StockMovement.objects.count(), before['movements'])
+        self.assertEqual(AccountReceivable.objects.count(), before['receivables'])
+        self.assertEqual(Product.objects.get(pk=self.prod.pk).stock_quantity, before['stock'])
+
+    def _db_state(self):
+        return {
+            'sales': Sale.objects.count(),
+            'items': SaleItem.objects.count(),
+            'stock': Product.objects.get(pk=self.prod.pk).stock_quantity,
+            'movements': StockMovement.objects.count(),
+            'receivables': AccountReceivable.objects.count(),
+        }
+
+    def test_finalize_insufficient_stock_returns_409_and_rolls_back(self):
+        before = self._db_state()
+        resp = self._finalize({
+            'items': [{'product_id': self.prod.pk, 'quantity': 3}],
+            'payment_method': 'CASH', 'idempotency_key': 'STOCK-01',
+        })
+        self.assertEqual(resp.status_code, 409)
+        self.assertEqual(resp.json()['error'], 'Insufficient stock')
+        self.assertNotIn('Negative stock', resp.content.decode())
+        self.assertFalse(Sale.objects.filter(idempotency_key='STOCK-01').exists())
+        self._assert_no_writes(before)
+
+    def test_finalize_duplicate_lines_exceeding_stock_rolls_back(self):
+        before = self._db_state()
+        resp = self._finalize({
+            'items': [
+                {'product_id': self.prod.pk, 'quantity': 2},
+                {'product_id': self.prod.pk, 'quantity': 1},
+            ],
+            'payment_method': 'CASH', 'idempotency_key': 'STOCK-02',
+        })
+        self.assertEqual(resp.status_code, 409)
+        self.assertEqual(resp.json()['error'], 'Insufficient stock')
+        self.assertFalse(Sale.objects.filter(idempotency_key='STOCK-02').exists())
+        self._assert_no_writes(before)
+
+    def test_finalize_sufficient_stock_still_succeeds(self):
+        resp = self._finalize({
+            'items': [{'product_id': self.prod.pk, 'quantity': 2}],
+            'payment_method': 'CASH', 'idempotency_key': 'STOCK-03',
+        })
+        self.assertEqual(resp.status_code, 200, msg=resp.content)
+        self.assertTrue(resp.json()['success'])
+        sale = Sale.objects.get(idempotency_key='STOCK-03')
+        self.assertEqual(sale.status, 'COMPLETED')
+        self.assertEqual(SaleItem.objects.get(sale=sale).quantity, 2)
+        self.assertEqual(
+            StockMovement.objects.filter(sale=sale, movement_type='SALE').count(), 1
+        )
+        self.assertEqual(Product.objects.get(pk=self.prod.pk).stock_quantity, 0)

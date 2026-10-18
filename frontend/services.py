@@ -7,13 +7,17 @@ from django.contrib.auth.models import User
 from .models import Product, Sale, SaleItem, StockMovement, AccountReceivable
 
 
+class InsufficientStockError(ValueError):
+    """Raised when a stock reduction cannot be fulfilled by available inventory."""
+
+
 def reduce_stock(product: Product, qty: int, user: User = None, sale: Sale = None):
-    """Atomic stock reduction; raises if negative."""
+    """Atomic stock reduction; raises InsufficientStockError if it would go negative."""
     with transaction.atomic():
         # Lock row for update (DB-level) — PostgreSQL compatible
         p = Product.objects.select_for_update().get(pk=product.pk)
         if p.stock_quantity - qty < 0:
-            raise ValueError(f"Negative stock for {p.name}: {p.stock_quantity - qty}")
+            raise InsufficientStockError(f"Negative stock for {p.name}: {p.stock_quantity - qty}")
         p.stock_quantity -= qty
         p.save(update_fields=['stock_quantity'])
         StockMovement.objects.create(

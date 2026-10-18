@@ -214,14 +214,29 @@ replay (see below).
 | `409` | Key exists, sale is `COMPLETED`, and fingerprint differs | `Key conflict: request data changed` |
 | `409` | Key exists, sale is `COMPLETED`, but stored fingerprint is empty | `Key conflict: existing sale without verification fingerprint` |
 | `409` | Key exists and the sale is not `COMPLETED` | `Checkout attempt already in progress or incomplete` |
+| `409` | Requested quantity exceeds available stock (checked under a product row lock during finalization) | `Insufficient stock` |
 | `500` | Request body is not valid JSON, is not valid UTF-8, or decodes to a non-object (see note) | `Internal error finalizing sale` |
-| `500` | Unexpected error or insufficient stock (`ValueError` not specially handled) | `Internal error finalizing sale` |
+| `500` | Unexpected error | `Internal error finalizing sale` |
 | `302` | Unauthenticated | Redirect to `/login/` |
 | `405` | Authenticated non-POST | Django method-not-allowed |
 
-Note: insufficient stock surfaces as `500` because `reduce_stock()` raises
-`ValueError`, which the view does not map to a client error. This is a verified
-behavior gap, not an intended contract.
+Insufficient stock is a **business conflict, not a server failure**. The
+authoritative check lives in `reduce_stock()` (`frontend/services.py`), inside
+the `select_for_update()` product lock on the mutation path; it raises the
+dedicated `InsufficientStockError`. The exception propagates out of the
+finalization `transaction.atomic()` block, so **all** checkout writes roll back
+before the view translates it to `409 {"error": "Insufficient stock"}`. The
+stable body never exposes the underlying exception text (e.g. the product name
+or the negative result). Multiple lines for the same product are cumulative:
+stock is reduced line by line under the lock, so a combined request that exceeds
+inventory fails and rolls back. This path is not logged as a server error;
+genuinely unexpected exceptions still log via `logger.exception` and return the
+generic `500`.
+
+The calculation endpoint (`POST /api/pdv/calcular/`) performs **no** stock
+check and does **not** reserve or guarantee inventory; it only reports an
+indicative total. Availability is decided solely by the locked check above,
+which is why stock can change between calculation and finalization.
 
 **Malformed-JSON behavior (current, verified):** `api_pos_finalize` does **not**
 catch `json.JSONDecodeError`/`UnicodeDecodeError` separately (unlike
