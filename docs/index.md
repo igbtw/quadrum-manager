@@ -17,6 +17,17 @@ for.
   routing contract. Intended for contributors and reviewers who need to
   understand how the pieces fit together.
 
+## Developer references
+
+- [Data model](data-model.md) — the database schema: entities, relationships,
+  constraints, invariants, transactions, and safe migration practices.
+- [Business flows](business-flows.md) — how the point-of-sale, inventory,
+  payment, receivable, dashboard, and reporting workflows actually run through
+  the views, services, and models.
+- [API reference](api-reference.md) — the two POS JSON endpoints
+  (`/api/pdv/calcular/`, `/api/pdv/finalizar/`), including request/response
+  schemas, idempotency, and error codes.
+
 ## Development and contributions
 
 - [Contributing](../CONTRIBUTING.md) — development setup, the checks to run
@@ -30,6 +41,5 @@ for.
   WSGI server, reverse proxy, HTTPS, service managers, backups, and rollback.
   Intended for operators deploying or maintaining a quadrum instance.
 
-> More detailed developer documentation (data models, business flows, API
-> reference, security, frontend, testing, and configuration) will be added
-> incrementally.
+> Additional developer documentation (security, frontend, testing, and
+> configuration) will be added incrementally.
