@@ -28,6 +28,9 @@ def create_sale_items(sale: Sale, items_data: list, user: User = None):
     with transaction.atomic():
         sale_items = []
         for d in items_data:
+            quantity = d.get('quantity')
+            if isinstance(quantity, bool) or not isinstance(quantity, int) or quantity < 1:
+                raise ValueError('Quantity must be a positive integer.')
             prod = Product.objects.select_for_update().get(pk=d['product_id'])
             unit_price = Decimal(str(d.get('unit_price', prod.price)))
             # Server-side price enforcement: never trust client price

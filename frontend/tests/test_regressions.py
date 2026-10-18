@@ -1,3 +1,5 @@
+import json
+from unittest.mock import patch
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -178,3 +180,188 @@ class PhaseARegressionTests(TestCase):
             data='{"items":[{"product_id":%d,"quantity":1}],"payment_method":"CASH","idempotency_key":"LEGACY-01"}' % prod.pk,
             content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 409)
+
+
+class PosApiValidationTests(TestCase):
+    """F1/F2/F10: strict POS input validation and safe calculation errors."""
+
+    def setUp(self):
+        self.user = User.objects.create_user(username='posval', password='t')
+        self.client.force_login(self.user)
+        self.cat = Category.objects.create(name='POSVal')
+        self.prod = Product.objects.create(
+            name='POSValProd', code='PV1', category=self.cat,
+            price=Decimal('7.50'), stock_quantity=20,
+        )
+        self.person = Person.objects.create(name='Cust', doc_id='C1', person_type='STUDENT')
+
+    def _calc(self, payload):
+        return self.client.post(
+            reverse('frontend:api_pos_calculate'), data=json.dumps(payload),
+            content_type='application/json', HTTP_X_CSRFTOKEN='fake',
+        )
+
+    def _finalize(self, payload):
+        return self.client.post(
+            reverse('frontend:api_pos_finalize'), data=json.dumps(payload),
+            content_type='application/json', HTTP_X_CSRFTOKEN='fake',
+        )
+
+    def _db_state(self):
+        return {
+            'sales': Sale.objects.count(),
+            'items': SaleItem.objects.count(),
+            'stock': Product.objects.get(pk=self.prod.pk).stock_quantity,
+            'movements': StockMovement.objects.count(),
+            'receivables': AccountReceivable.objects.count(),
+        }
+
+    # --- Calculation endpoint (F1/F10) ---
+
+    def test_calculate_valid_total(self):
+        resp = self._calc({'items': [{'product_id': self.prod.pk, 'quantity': 3}]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()['total'], '22.50')
+
+    def test_calculate_ignores_client_price(self):
+        resp = self._calc({'items': [{'product_id': self.prod.pk, 'quantity': 3, 'unit_price': '0.01'}]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()['total'], '22.50')
+
+    def test_calculate_rejects_invalid_quantities(self):
+        for bad in [-5, 0, 2.5, 2.0, True, '2', '2.5', None]:
+            with self.subTest(quantity=bad):
+                resp = self._calc({'items': [{'product_id': self.prod.pk, 'quantity': bad}]})
+                self.assertEqual(resp.status_code, 400)
+
+    def test_calculate_rejects_missing_quantity(self):
+        resp = self._calc({'items': [{'product_id': self.prod.pk}]})
+        self.assertEqual(resp.status_code, 400)
+
+    def test_calculate_rejects_invalid_product_ids(self):
+        for bad in ['1', 2.5, True, None, 0, -3]:
+            with self.subTest(product_id=bad):
+                resp = self._calc({'items': [{'product_id': bad, 'quantity': 1}]})
+                self.assertEqual(resp.status_code, 400)
+
+    def test_calculate_rejects_malformed_items(self):
+        for items in [[5], 'not-a-list', [{'product_id': self.prod.pk, 'quantity': 1}, 7]]:
+            with self.subTest(items=items):
+                resp = self._calc({'items': items})
+                self.assertEqual(resp.status_code, 400)
+
+    def test_calculate_missing_product_returns_404(self):
+        resp = self._calc({'items': [{'product_id': 999999, 'quantity': 1}]})
+        self.assertEqual(resp.status_code, 404)
+        self.assertIn('not found', resp.json()['error'])
+
+    def test_calculate_unexpected_error_hides_internal_details(self):
+        with patch('frontend.views.Product.objects.get', side_effect=RuntimeError('db secret 42')):
+            resp = self._calc({'items': [{'product_id': self.prod.pk, 'quantity': 1}]})
+        self.assertEqual(resp.status_code, 400)
+        body = json.dumps(resp.json())
+        self.assertNotIn('db secret', body)
+        self.assertEqual(resp.json()['error'], 'Calculation error')
+
+    def test_calculate_malformed_json_returns_controlled_error(self):
+        resp = self.client.post(
+            reverse('frontend:api_pos_calculate'), data='{not json',
+            content_type='application/json', HTTP_X_CSRFTOKEN='fake',
+        )
+        self.assertEqual(resp.status_code, 400)
+        self.assertNotIn('not json', json.dumps(resp.json()))
+
+    # --- Finalization endpoint (F1/F2) ---
+
+    def _assert_no_writes(self, before):
+        self.assertEqual(self._db_state(), before)
+
+    def test_finalize_rejects_invalid_quantities_without_writes(self):
+        before = self._db_state()
+        for idx, bad in enumerate([-5, 0, 2.5, 2.0, True, '2', '2.5', None]):
+            with self.subTest(quantity=bad):
+                resp = self._finalize({
+                    'items': [{'product_id': self.prod.pk, 'quantity': bad}],
+                    'payment_method': 'CASH', 'idempotency_key': f'BADQ-{idx}',
+                })
+                self.assertEqual(resp.status_code, 400)
+        self._assert_no_writes(before)
+
+    def test_finalize_rejects_missing_quantity_without_writes(self):
+        before = self._db_state()
+        resp = self._finalize({
+            'items': [{'product_id': self.prod.pk}],
+            'payment_method': 'CASH', 'idempotency_key': 'MISSQ-01',
+        })
+        self.assertEqual(resp.status_code, 400)
+        self._assert_no_writes(before)
+
+    def test_finalize_rejects_invalid_product_ids_without_writes(self):
+        before = self._db_state()
+        for idx, bad in enumerate(['1', 2.5, True, None, 0, -3]):
+            with self.subTest(product_id=bad):
+                resp = self._finalize({
+                    'items': [{'product_id': bad, 'quantity': 1}],
+                    'payment_method': 'CASH', 'idempotency_key': f'BADPID-{idx}',
+                })
+                self.assertEqual(resp.status_code, 400)
+        self._assert_no_writes(before)
+
+    def test_finalize_rejects_invalid_payment_methods_without_writes(self):
+        before = self._db_state()
+        for idx, bad in enumerate(['cash', 'CASH ', ' ON_ACCOUNT', 'CASH\t', 'BOGUS', '', None, 123, [], {}]):
+            with self.subTest(payment_method=bad):
+                resp = self._finalize({
+                    'items': [{'product_id': self.prod.pk, 'quantity': 1}],
+                    'customer_id': self.person.pk,
+                    'payment_method': bad, 'idempotency_key': f'BADPM-{idx}',
+                })
+                self.assertEqual(resp.status_code, 400)
+                self.assertEqual(resp.json()['error'], 'Invalid payment method')
+        self._assert_no_writes(before)
+
+    def test_finalize_accepts_all_declared_payment_methods(self):
+        codes = [code for code, _ in Sale.PAYMENT_METHODS]
+        self.assertEqual(codes, ['CASH', 'DEBIT', 'CREDIT', 'PIX', 'ON_ACCOUNT'])
+        for idx, code in enumerate(codes):
+            payload = {
+                'items': [{'product_id': self.prod.pk, 'quantity': 1}],
+                'payment_method': code, 'idempotency_key': f'OKPM-{idx}',
+            }
+            if code == 'ON_ACCOUNT':
+                payload['customer_id'] = self.person.pk
+            resp = self._finalize(payload)
+            self.assertEqual(resp.status_code, 200, msg=f'{code}: {resp.content!r}')
+            sale = Sale.objects.get(idempotency_key=f'OKPM-{idx}')
+            self.assertEqual(sale.payment_method, code)
+            self.assertEqual(sale.status, 'COMPLETED')
+            if code == 'ON_ACCOUNT':
+                self.assertTrue(AccountReceivable.objects.filter(sale=sale).exists())
+
+    def test_finalize_fingerprint_not_truncated(self):
+        # A fractional quantity must not be truncated to 2 and persisted as 2.
+        before = self._db_state()
+        resp = self._finalize({
+            'items': [{'product_id': self.prod.pk, 'quantity': 2.5}],
+            'payment_method': 'CASH', 'idempotency_key': 'TRUNC-01',
+        })
+        self.assertEqual(resp.status_code, 400)
+        self.assertFalse(Sale.objects.filter(idempotency_key='TRUNC-01').exists())
+        self._assert_no_writes(before)
+
+    def test_finalize_float_replay_not_treated_as_equivalent(self):
+        # Persisted value (int 2) and a float 2.0 must not be treated as the
+        # same request: the float is rejected before fingerprinting.
+        resp = self._finalize({
+            'items': [{'product_id': self.prod.pk, 'quantity': 2}],
+            'payment_method': 'CASH', 'idempotency_key': 'FP-01',
+        })
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(SaleItem.objects.get(sale__idempotency_key='FP-01').quantity, 2)
+        resp = self._finalize({
+            'items': [{'product_id': self.prod.pk, 'quantity': 2.0}],
+            'payment_method': 'CASH', 'idempotency_key': 'FP-01',
+        })
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(Sale.objects.filter(status='COMPLETED').count(), 1)
+        self.assertEqual(Product.objects.get(pk=self.prod.pk).stock_quantity, 18)

@@ -247,6 +247,32 @@ def logout_view(request):
 
 
 # PDV interaction endpoints — persist to DB with integrity
+def _validate_pos_items(items):
+    """Validate POS line items for both calculation and finalization.
+
+    Returns ``(normalized_items, error_message)``. On success ``error_message``
+    is ``None`` and each normalized item has an ``int`` ``product_id`` and
+    ``int`` ``quantity``, both strictly positive. ``bool`` is rejected even
+    though it is a subclass of ``int``; floats (including whole values like
+    ``2.0``), numeric strings, ``None``, and other types are rejected rather
+    than coerced. A missing ``quantity`` is invalid.
+    """
+    if not isinstance(items, list):
+        return None, 'Invalid items'
+    normalized = []
+    for item in items:
+        if not isinstance(item, dict):
+            return None, 'Invalid item'
+        product_id = item.get('product_id')
+        if isinstance(product_id, bool) or not isinstance(product_id, int) or product_id <= 0:
+            return None, 'Invalid product_id'
+        quantity = item.get('quantity')
+        if isinstance(quantity, bool) or not isinstance(quantity, int) or quantity <= 0:
+            return None, 'Invalid quantity'
+        normalized.append({'product_id': product_id, 'quantity': quantity})
+    return normalized, None
+
+
 @login_required
 @require_http_methods(["POST"])
 def api_pos_calculate(request):
@@ -254,19 +280,24 @@ def api_pos_calculate(request):
     import json
     try:
         data = json.loads(request.body)
-        items = data.get('items', [])
+        if not isinstance(data, dict):
+            return JsonResponse({'error': 'Invalid request body'}, status=400)
+        normalized_items, validation_error = _validate_pos_items(data.get('items', []))
+        if validation_error is not None:
+            return JsonResponse({'error': validation_error}, status=400)
         total = Decimal('0')
-        for item in items:
-            product_id = item.get('product_id')
-            quantity = item.get('quantity', 1)
+        for item in normalized_items:
             try:
-                product = Product.objects.get(pk=product_id, active=True)
+                product = Product.objects.get(pk=item['product_id'], active=True)
             except Product.DoesNotExist:
-                return JsonResponse({'error': f'Product {product_id} not found'}, status=404)
-            total += product.price * Decimal(str(quantity))
+                return JsonResponse({'error': f"Product {item['product_id']} not found"}, status=404)
+            total += product.price * Decimal(item['quantity'])
         return JsonResponse({'total': str(total)})
-    except Exception as e:
-        return JsonResponse({'error': f'Calculation error: {str(e)}'}, status=400)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+    except Exception:
+        logger.exception("Unexpected error calculating POS total")
+        return JsonResponse({'error': 'Calculation error'}, status=400)
 
 
 @login_required
@@ -284,14 +315,20 @@ def api_pos_finalize(request):
         idempotency_key = str(data.get('idempotency_key', '')).strip()
         if not items:
             return JsonResponse({'error': 'Empty cart'}, status=400)
+        normalized_items, validation_error = _validate_pos_items(items)
+        if validation_error is not None:
+            return JsonResponse({'error': validation_error}, status=400)
+        valid_payment_methods = {code for code, _ in Sale.PAYMENT_METHODS}
+        if not isinstance(payment_method, str) or payment_method not in valid_payment_methods:
+            return JsonResponse({'error': 'Invalid payment method'}, status=400)
         if not idempotency_key or len(idempotency_key) > 255 or not re.match(r'^[A-Za-z0-9_-]+$', idempotency_key):
             return JsonResponse({'error': 'Invalid idempotency key'}, status=400)
         import hashlib
         def _fingerprint():
             norm = {
-                'items': sorted([(int(i.get('product_id', 0)), int(i.get('quantity', 0))) for i in items]),
+                'items': sorted((i['product_id'], i['quantity']) for i in normalized_items),
                 'customer_id': int(customer_id) if customer_id is not None else None,
-                'payment_method': str(payment_method),
+                'payment_method': payment_method,
             }
             return hashlib.sha256(json.dumps(norm, sort_keys=True).encode()).hexdigest()
         fingerprint = _fingerprint()
@@ -333,8 +370,7 @@ def api_pos_finalize(request):
                 idempotency_key=idempotency_key,
                 request_fingerprint=fingerprint,
             )
-            items_data = [{'product_id': it['product_id'], 'quantity': it['quantity']} for it in items]
-            create_sale_items(sale, items_data, user=request.user if request.user.is_authenticated else None)
+            create_sale_items(sale, normalized_items, user=request.user if request.user.is_authenticated else None)
             subtotal = sum(i.subtotal for i in sale.items.all())
             sale.subtotal = subtotal
             sale.total = subtotal

@@ -21,16 +21,21 @@ Related documents: [Data model](data-model.md) ·
 **Ordered processing steps:**
 
 1. `@login_required` and `@require_http_methods(["POST"])` gate the request.
-2. `json.loads(request.body)` parses the body. Any parse failure is caught by the
-   broad handler.
+2. `json.loads(request.body)` parses the body; a JSON decoding failure returns
+   `400 {"error": "Invalid JSON body"}`.
 3. `items = data.get('items', [])` is read.
-4. For each item: `product_id = item.get('product_id')` and
-   `quantity = item.get('quantity', 1)`. The product is looked up with
-   `Product.objects.get(pk=product_id, active=True)`.
-5. If the product does not exist (or is inactive), the loop returns
+4. Validate the payload with `_validate_pos_items` (`frontend/views.py`):
+   `items` must be an array of objects; each `product_id` and `quantity` must be
+   a positive JSON integer (booleans, floats such as `2.0`/`2.5`, numeric
+   strings, `null`, zero, and negatives are rejected; a missing `quantity` is
+   rejected). Invalid input returns `400` before any product lookup.
+5. For each validated item, the product is looked up with
+   `Product.objects.get(pk=item['product_id'], active=True)`.
+6. If the product does not exist (or is inactive), the loop returns
    `404 {"error": "Product <id> not found"}`.
-6. Otherwise the running total is increased by `product.price * Decimal(str(quantity))`.
-7. The view returns `200 {"total": "<decimal>"}` — the total is a **string**.
+7. Otherwise the running total is increased by
+   `product.price * Decimal(quantity)`.
+8. The view returns `200 {"total": "<decimal>"}` — the total is a **string**.
 
 **Functions and files:** `api_pos_calculate` in `frontend/views.py`; reads
 `Product` from `frontend/models.py`.
@@ -42,17 +47,28 @@ Related documents: [Data model](data-model.md) ·
 
 **Validation and error paths:**
 
-- Unknown/inactive product → `404` with `Product <id> not found`.
-- Malformed JSON or any other exception → `400` with
-  `Calculation error: <message>` (the raw exception string is included).
-- Quantity is **not** validated: a missing quantity defaults to `1`, and
-  zero/negative or non-numeric quantities are not rejected before use
-  (a negative quantity simply reduces the total). This is an unverified edge
-  case with no dedicated test.
+- Invalid input → `400` with a controlled message: malformed JSON →
+  `Invalid JSON body`; non-object body → `Invalid request body`; non-array
+  `items` → `Invalid items`; non-object item → `Invalid item`; bad `product_id`
+  → `Invalid product_id`; missing or bad `quantity` → `Invalid quantity`.
+- Unknown/inactive product (valid positive id) → `404` with
+  `Product <id> not found`.
+- Unexpected server-side exception → logged via `logger.exception` and returned
+  as `400 {"error": "Calculation error"}` with no exception text. (This path
+  returns `400` in the current code; that status for an unexpected failure may
+  merit a future API-contract review.)
 
 **Tests:** `test_api_pdv_calcular_real_product` and `test_api_pdv_calcular_bad_id`
 in `frontend/tests/test_regressions.py`; `test_invalid_product_id_in_api` in
-`frontend/tests/test_auth_security.py`.
+`frontend/tests/test_auth_security.py`; and the `PosApiValidationTests` cases
+(`test_calculate_valid_total`, `test_calculate_ignores_client_price`,
+`test_calculate_rejects_invalid_quantities`,
+`test_calculate_rejects_missing_quantity`,
+`test_calculate_rejects_invalid_product_ids`,
+`test_calculate_rejects_malformed_items`,
+`test_calculate_missing_product_returns_404`,
+`test_calculate_unexpected_error_hides_internal_details`,
+`test_calculate_malformed_json_returns_controlled_error`).
 
 ## B. Sale finalization
 
@@ -66,12 +82,21 @@ in `frontend/tests/test_regressions.py`; `test_invalid_product_id_in_api` in
    `payment_method` (default `"CASH"`), and `idempotency_key` (coerced to string
    and stripped).
 3. Reject an empty cart: `400 {"error": "Empty cart"}`.
-4. Validate the idempotency key (non-empty, `<= 255` chars, matching
+4. Validate items with `_validate_pos_items`: every `product_id` and `quantity`
+   must be a positive JSON integer (booleans, floats, strings, `null`, zero,
+   negatives, and missing quantities rejected) → `400` with a controlled
+   message.
+5. Validate `payment_method` against the five declared codes (`CASH`, `DEBIT`,
+   `CREDIT`, `PIX`, `ON_ACCOUNT`); unknown values, casing variants, and
+   whitespace are rejected → `400 {"error": "Invalid payment method"}`.
+6. Validate the idempotency key (non-empty, `<= 255` chars, matching
    `^[A-Za-z0-9_-]+$`): otherwise `400 {"error": "Invalid idempotency key"}`.
-5. Compute the request fingerprint (see [section C](#c-idempotency-and-retries)).
-6. If `customer_id` is provided, resolve `Person.objects.get(pk=..., active=True)`;
+7. Compute the request fingerprint from the **validated** items and payment
+   method (see [section C](#c-idempotency-and-retries)); the fingerprinted
+   quantities are the values that will be persisted.
+8. If `customer_id` is provided, resolve `Person.objects.get(pk=..., active=True)`;
    if not found, `404 {"error": "Customer not found"}`.
-7. Open `transaction.atomic()` and look up an existing `Sale` by
+9. Open `transaction.atomic()` and look up an existing `Sale` by
    `idempotency_key`:
    - **Found, different owner** → `403 {"error": "Idempotency key not authorized"}`.
    - **Found, `COMPLETED`, fingerprint mismatch** → `409 {"error": "Key conflict: request data changed"}`.
@@ -80,29 +105,29 @@ in `frontend/tests/test_regressions.py`; `test_invalid_product_id_in_api` in
      `code` (no writes).
    - **Found, any other status** → `409 {"error": "Checkout attempt already in progress or incomplete"}`.
    - **Not found** → continue.
-8. Create the `Sale` with `status='PENDING'`, `payment_method`, zero
-   `subtotal`/`total`, the `idempotency_key`, and the `request_fingerprint`.
-   `responsible` is the authenticated user.
-9. Build `items_data` containing only `product_id` and `quantity` — any client
-   `unit_price` is discarded here.
-10. `create_sale_items(sale, items_data, user=...)`: for each item, lock the
-    product, use `Product.price` as `unit_price`, create the `SaleItem`
-    (subtotal computed in `SaleItem.save()`), and call `reduce_stock()` (which
-    decrements stock and writes a `SALE` `StockMovement`).
-11. Sum the item subtotals into `sale.subtotal` and `sale.total` and save
+10. Create the `Sale` with `status='PENDING'`, `payment_method`, zero
+    `subtotal`/`total`, the `idempotency_key`, and the `request_fingerprint`.
+    `responsible` is the authenticated user.
+11. Pass the validated items to `create_sale_items(sale, items, user=...)`: for
+    each item, guard that `quantity` is a positive integer (service-level
+    defense in depth), lock the product, use `Product.price` as `unit_price`,
+    create the `SaleItem` (subtotal computed in `SaleItem.save()`), and call
+    `reduce_stock()` (which decrements stock and writes a `SALE`
+    `StockMovement`). Any client `unit_price` is discarded.
+12. Sum the item subtotals into `sale.subtotal` and `sale.total` and save
     (`update_fields=['subtotal', 'total', 'request_fingerprint']`).
-12. `finalize_sale(sale, user=...)`: lock the sale, return early if already
+13. `finalize_sale(sale, user=...)`: lock the sale, return early if already
     `COMPLETED`, otherwise set `status='COMPLETED'`, `completed_at=now`,
     `responsible`, save, and — for `ON_ACCOUNT` sales with a customer — create an
     `AccountReceivable` via `get_or_create` (`person`, `original_amount=total`,
     `due_date=completed_at.date()`, `status='PENDING'`).
-13. Return `200 {"success": true, "codigo": sale.code, "message": "Sale completed"}`.
+14. Return `200 {"success": true, "codigo": sale.code, "message": "Sale completed"}`.
 
 **Database writes and side effects:** one `Sale`, one `SaleItem` per line,
 `Product.stock_quantity` decrements, one `SALE` `StockMovement` per line, and
 (conditionally) one `AccountReceivable`. No `Payment` is created by this flow.
 
-**Transactional guarantee:** the view wraps steps 7–13 in a single
+**Transactional guarantee:** the view wraps steps 9–14 in a single
 `transaction.atomic()`, so on failure all of those writes roll back together.
 This is a confirmed guarantee of the code path, not an assumption.
 
@@ -141,10 +166,11 @@ This is a confirmed guarantee of the code path, not an assumption.
 **Request fingerprint:** computed by the inner `_fingerprint()` helper over a
 normalized structure:
 
-- `items`: `sorted([ (int(product_id), int(quantity)) , ... ])` — item order is
-  irrelevant and `unit_price` is excluded;
+- `items`: `sorted((product_id, quantity) ...)` built from the validated items —
+  item order is irrelevant, values are already positive integers, and
+  `unit_price` is excluded;
 - `customer_id`: `int(customer_id)` or `None`;
-- `payment_method`: the raw string.
+- `payment_method`: the validated code.
 
 The normalized dict is serialized with `json.dumps(..., sort_keys=True)` and
 hashed with SHA-256. It is stored in `Sale.request_fingerprint`.
@@ -170,6 +196,8 @@ by `test_idempotency_ownership_and_conflict`.
 | Situation | Status | Body `error` |
 |---|---|---|
 | Empty cart | 400 | `Empty cart` |
+| Invalid item, product id, or quantity | 400 | `Invalid items` / `Invalid item` / `Invalid product_id` / `Invalid quantity` |
+| Invalid payment method | 400 | `Invalid payment method` |
 | Invalid key | 400 | `Invalid idempotency key` |
 | Customer not found | 404 | `Customer not found` |
 | Different owner | 403 | `Idempotency key not authorized` |
@@ -183,8 +211,9 @@ commits rely on the unique index and the `IntegrityError` handler; the handler i
 unit-tested by mocking `Sale.objects.create` to raise
 (`test_integrityerror_without_matching_record_returns_500`) but is not exercised
 under real concurrent load. Fingerprint collisions across differing requests are
-not tested. `payment_method` is not validated against the model choices, so an
-arbitrary string is accepted and stored.
+not tested. Item and `payment_method` validation now happen before
+fingerprinting, but that validation is verified only by `PosApiValidationTests`,
+not under concurrency.
 
 ## D. Inventory
 

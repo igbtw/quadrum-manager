@@ -140,9 +140,19 @@ model but no code path in the current views/services sets it to a non-zero value
 | `Payment.method` | `CASH`, `DEBIT`, `CREDIT`, `PIX`, `TRANSFER` | `CASH` |
 
 Choice values are stored as their short codes (for example `CASH`). Django does
-not enforce choices at the database level; it validates them in forms and
-`full_clean`. `Sale.payment_method` in particular is not validated by the
-finalization view (see [API reference](api-reference.md)).
+not add a database constraint for `choices`, and nothing in migrations
+`0001`–`0007` creates one, so the database accepts any string that fits the
+column. Enforcement is application-level and varies by path:
+
+- Forms validate choices via `full_clean`/`ModelForm` (for example
+  `ProductForm`, `PersonForm`, `PaymentForm`).
+- The two POS API views validate `payment_method` explicitly against
+  `Sale.PAYMENT_METHODS`; unknown values, casing variants (`cash`), and
+  leading/trailing whitespace (`"CASH "`) are rejected with `400` rather than
+  normalized (see [API reference](api-reference.md)).
+- Direct ORM writes (Django admin, services, management commands) are not
+  choice-validated unless `full_clean` is invoked, so there is no
+  path-independent guarantee.
 
 ### Computed and transaction-time values
 
