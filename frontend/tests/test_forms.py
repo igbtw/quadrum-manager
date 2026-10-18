@@ -31,3 +31,24 @@ class FormTests(TestCase):
         rc = AccountReceivable.objects.create(person=pers, original_amount=Decimal('100'), due_date='2030-01-01', status='PENDING')
         form = PaymentForm(data={'account_receivable': rc.pk, 'amount': '30', 'method': 'CASH'})
         self.assertTrue(form.is_valid())
+
+    def test_payment_form_excludes_cancelled_receivables(self):
+        pers = Person.objects.create(name='Jo', doc_id='D2', person_type='STUDENT')
+        cancelled = AccountReceivable.objects.create(
+            person=pers, original_amount=Decimal('50'), due_date='2030-01-01',
+            status='CANCELLED',
+        )
+        open_rc = AccountReceivable.objects.create(
+            person=pers, original_amount=Decimal('50'), due_date='2030-01-01',
+            status='PENDING',
+        )
+        queryset = PaymentForm().fields['account_receivable'].queryset
+        self.assertNotIn(cancelled, queryset)
+        self.assertIn(open_rc, queryset)
+
+        form = PaymentForm(data={'account_receivable': cancelled.pk, 'amount': '10', 'method': 'CASH'})
+        self.assertFalse(form.is_valid())
+        self.assertIn('account_receivable', form.errors)
+
+        form = PaymentForm(data={'account_receivable': open_rc.pk, 'amount': '10', 'method': 'CASH'})
+        self.assertTrue(form.is_valid())

@@ -284,9 +284,15 @@ history cannot be deleted.
 **Entry point (UI):** `POST /finance/` → `frontend.views.finance`.
 
 1. Binds `PaymentForm(request.POST)` (`fields = ['account_receivable', 'amount', 'method', 'notes']`).
+   The `account_receivable` field queryset excludes records whose status is
+   `CANCELLED`, so cancelling a receivable removes it from the selectable options
+   and a POST of a cancelled key fails with Django's invalid-choice error.
 2. On valid input, calls
    `register_payment(rc, amount, method=..., user=request.user, notes=...)`.
 3. Success shows `Payment registered.`; failure shows `Please verify the payment.`.
+
+The form restriction is a UI safeguard only; the model/service guard below is
+**authoritative**, since a caller can bypass the form.
 
 **`register_payment(account_receivable, amount, method='CASH', user=None, notes='')`**
 (`frontend/models.py`):
@@ -294,10 +300,13 @@ history cannot be deleted.
 1. Opens `transaction.atomic()`.
 2. Reloads and locks the receivable:
    `AccountReceivable.objects.select_for_update().get(pk=account_receivable.pk)`.
-3. If `amount > rc.remaining_balance`, raises
+3. If the locked status is `CANCELLED`, raises
+   `ValueError('Cannot register payment for a cancelled receivable.')` — before
+   the balance check and before creating a `Payment`.
+4. If `amount > rc.remaining_balance`, raises
    `ValueError('Payment exceeds remaining balance.')`.
-4. Creates the `Payment` (which triggers `Payment.save()`'s status recalculation).
-5. Calls `rc.update_status()` and saves `status`.
+5. Creates the `Payment` (which triggers `Payment.save()`'s status recalculation).
+6. Calls `rc.update_status()` and saves `status`.
 
 **Outstanding balance:** `remaining_balance` is `original_amount` minus the sum of
 all payments, floored at zero. `amount_paid` aggregates payments with
@@ -329,11 +338,20 @@ completion date.
 
 **Status transitions (from `AccountReceivable.update_status()`):**
 
-- `remaining_balance <= 0` → `PAID` (this check runs first, so a fully paid
+- If `status == 'CANCELLED'`, it returns immediately and the status is left
+  unchanged — cancellation is **terminal** in recalculation.
+- Otherwise: `remaining_balance <= 0` → `PAID` (this check runs first, so a fully paid
   receivable is `PAID` even if past due).
 - `due_date < today` and `remaining_balance > 0` → `OVERDUE`.
 - `amount_paid > 0` (with a remaining balance, not past due) → `PARTIAL`.
 - otherwise → `PENDING`.
+
+A cancelled receivable may legitimately carry a positive `remaining_balance`
+because its sale was cancelled; that balance must not reopen it as
+`PENDING`/`PARTIAL`/`PAID`/`OVERDUE`. Since both `register_payment()` and
+`Payment.save()` recalculate through `update_status()`, the guard protects both
+paths. Verified by `test_update_status_preserves_cancelled_with_balance` and
+`test_update_status_recalculates_non_cancelled`.
 
 The code supports a subset of possible transitions and recomputes status only
 when a payment write occurs. There is no automatic job that periodically moves
@@ -346,7 +364,9 @@ dashboard and finance views filter on the stored `status` values
 `ON_ACCOUNT` sale whose receivable already has payments cannot be cancelled
 (`ValueError`). Cancellation is idempotent for already-cancelled sales. On
 cancellation the receivable is marked `CANCELLED` (never deleted) and stock is
-restored with `RETURN` movements. Verified by
+restored with `RETURN` movements. Once `CANCELLED`, the receivable is closed:
+`register_payment()` refuses further payments (`ValueError`), even for a
+remaining balance, and `update_status()` never reopens it. Verified by
 `test_cancel_rejected_if_payments_exist` and
 `test_cancel_idempotent_and_rejected_with_payments`.
 

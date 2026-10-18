@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from decimal import Decimal
-from frontend.models import Category, Product, Person, Sale, SaleItem, StockMovement, AccountReceivable, Payment
+from frontend.models import Category, Product, Person, Sale, SaleItem, StockMovement, AccountReceivable, Payment, register_payment
 
 
 class ModelTests(TestCase):
@@ -72,3 +72,41 @@ class ModelTests(TestCase):
         p = Payment(account_receivable=rc, amount=Decimal('0.01'), method='CASH')
         p.full_clean()
         self.assertTrue(True)
+
+    def test_register_payment_rejects_cancelled_receivable(self):
+        pers = Person.objects.create(name='Jo', doc_id='CXL1', person_type='STUDENT')
+        rc = AccountReceivable.objects.create(
+            person=pers, original_amount=Decimal('20'), due_date='2030-01-01',
+            status='CANCELLED',
+        )
+        with self.assertRaises(ValueError) as ctx:
+            register_payment(rc, Decimal('10'))
+        self.assertEqual(str(ctx.exception), 'Cannot register payment for a cancelled receivable.')
+        rc.refresh_from_db()
+        self.assertEqual(rc.status, 'CANCELLED')
+        self.assertEqual(rc.remaining_balance, Decimal('20'))
+        self.assertEqual(Payment.objects.filter(account_receivable=rc).count(), 0)
+
+    def test_update_status_preserves_cancelled_with_balance(self):
+        pers = Person.objects.create(name='Jo', doc_id='CXL2', person_type='STUDENT')
+        rc = AccountReceivable.objects.create(
+            person=pers, original_amount=Decimal('20'), due_date='2000-01-01',
+            status='CANCELLED',
+        )
+        self.assertGreater(rc.remaining_balance, Decimal('0'))
+        rc.update_status()
+        self.assertEqual(rc.status, 'CANCELLED')
+        rc.save(update_fields=['status'])
+        rc.refresh_from_db()
+        self.assertEqual(rc.status, 'CANCELLED')
+
+    def test_update_status_recalculates_non_cancelled(self):
+        pers = Person.objects.create(name='Jo', doc_id='CXL3', person_type='STUDENT')
+        rc = AccountReceivable.objects.create(
+            person=pers, original_amount=Decimal('100'), due_date='2030-01-01',
+            status='PENDING',
+        )
+        Payment.objects.create(account_receivable=rc, amount=Decimal('30'))
+        rc.refresh_from_db()
+        rc.update_status()
+        self.assertEqual(rc.status, 'PARTIAL')

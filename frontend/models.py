@@ -214,6 +214,8 @@ class AccountReceivable(models.Model):
 
     def update_status(self):
         from django.utils import timezone
+        if self.status == 'CANCELLED':
+            return
         if self.remaining_balance <= 0:
             self.status = 'PAID'
         elif self.due_date < timezone.now().date() and self.remaining_balance > 0:
@@ -228,6 +230,8 @@ def register_payment(account_receivable: AccountReceivable, amount: Decimal, met
     """Transactional payment registration; recalculates receivable afterwards."""
     with transaction.atomic():
         rc = AccountReceivable.objects.select_for_update().get(pk=account_receivable.pk)
+        if rc.status == 'CANCELLED':
+            raise ValueError('Cannot register payment for a cancelled receivable.')
         if amount > rc.remaining_balance:
             raise ValueError('Payment exceeds remaining balance.')
         p = Payment.objects.create(

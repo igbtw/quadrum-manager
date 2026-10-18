@@ -1,7 +1,7 @@
 from django import forms
 from django.core.validators import MinValueValidator
 from decimal import Decimal
-from .models import Product, Person, Payment
+from .models import Product, Person, Payment, AccountReceivable
 
 
 class ProductForm(forms.ModelForm):
@@ -40,6 +40,9 @@ class PersonForm(forms.ModelForm):
 
 
 class PaymentForm(forms.ModelForm):
+    account_receivable = forms.ModelChoiceField(
+        queryset=AccountReceivable.objects.exclude(status='CANCELLED'))
+
     class Meta:
         model = Payment
         fields = ['account_receivable', 'amount', 'method', 'notes']

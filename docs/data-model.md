@@ -114,6 +114,9 @@ deleted. Database-level deletes of sale history are not intended.
 | `Payment.amount <= remaining_balance` | `Payment.clean()` | Python (model `full_clean`) |
 | `Payment.amount <= remaining_balance` | `PaymentForm.clean_amount()` | Python (form) |
 | `Payment.amount <= remaining_balance` | `register_payment()` | Python (service, raises `ValueError`) |
+| No payment on a `CANCELLED` receivable | `register_payment()` (locked row) | Python (service, raises `ValueError`) |
+| `CANCELLED` is terminal in status recalculation | `AccountReceivable.update_status()` | Python (model) |
+| `CANCELLED` receivables not selectable | `PaymentForm.account_receivable` queryset | Python (form) |
 
 The only stock rule that exists at the database layer is the
 `stock_non_negative` check constraint. The monetary and balance rules are
@@ -210,6 +213,10 @@ There is no database-level monetary check.
 
 - A payment may not exceed the receivable's remaining balance. Enforced by
   `Payment.clean()`, `PaymentForm.clean_amount()`, and `register_payment()`.
+- A payment may not target a `CANCELLED` receivable. Enforced by
+  `register_payment()` (authoritative, checked on the locked row) and by the
+  `PaymentForm.account_receivable` queryset, which excludes `CANCELLED` records so
+  a submitted cancelled key fails with Django's invalid-choice error.
 - A payment must be at least `0.01`. Enforced by the field validator and
   `PaymentForm`, but **not** by `register_payment()` itself (it does not call
   `full_clean()`), so calling the service directly with `0` is not rejected by
@@ -226,6 +233,21 @@ negative. Status transitions are described in
 `status` field is only recomputed when `register_payment()` or `Payment.save()`
 runs; there is no scheduled overdue sweep, so an overdue receivable stays
 `PENDING`/`PARTIAL` until a write triggers recalculation.
+
+`CANCELLED` is terminal: `update_status()` returns immediately when the status is
+already `CANCELLED`, so a cancelled receivable stays cancelled even though it may
+carry a positive `remaining_balance` (its sale was cancelled). Because
+`Payment.save()` recomputes via `update_status()`, that recalculation cannot
+reopen a cancelled receivable either. Verified by
+`test_update_status_preserves_cancelled_with_balance` and
+`test_update_status_recalculates_non_cancelled`.
+
+**Known limitation:** this phase guards `register_payment()` and the form. A
+direct `Payment.objects.create(account_receivable=<cancelled>, ...)` that bypasses
+`register_payment()` is **not** blocked and can still insert a payment row; the
+`update_status()` guard only prevents that insert from reopening the cancelled
+status. There is no database-level or `Payment.clean()`/`Payment.save()` guard for
+this case (deliberate scope decision).
 
 ### 6. Stock movement recording
 
@@ -268,19 +290,25 @@ synchronously.
 
 ### `AccountReceivable.update_status()`
 
-Pure computation plus an in-memory field assignment; it does **not** save. The
-caller is responsible for persisting (`register_payment()` and `Payment.save()`
-both do).
+Pure computation plus an in-memory field assignment; it does **not** save. If the
+current status is `CANCELLED` it returns immediately, leaving the status
+untouched (terminal cancellation). Otherwise it recomputes `PAID`/`OVERDUE`/
+`PARTIAL`/`PENDING` from the balance and due date. The caller is responsible for
+persisting (`register_payment()` and `Payment.save()` both do).
 
 ### `register_payment(account_receivable, amount, method='CASH', user=None, notes='')`
 
 Module-level function in `frontend/models.py`. Runs inside
 `transaction.atomic()`, locks the receivable with
-`AccountReceivable.objects.select_for_update().get(...)`, raises `ValueError` if
+`AccountReceivable.objects.select_for_update().get(...)`, then raises `ValueError`
+if the locked receivable's status is `CANCELLED`
+(`'Cannot register payment for a cancelled receivable.'`), raises `ValueError` if
 `amount > remaining_balance`, creates the `Payment`, then recalculates and saves
-the status. Concurrency safety depends on the backend honoring `select_for_update`
-(PostgreSQL does; SQLite effectively serializes writes). Verified by
-`test_payment_service_recalculates`.
+the status. The cancelled-status check runs before any write, so a rejected
+attempt leaves the payment set, status, and balance unchanged. Concurrency safety
+depends on the backend honoring `select_for_update` (PostgreSQL does; SQLite
+effectively serializes writes). Verified by `test_payment_service_recalculates`
+and `test_register_payment_rejects_cancelled_receivable`.
 
 ### Service operations (`frontend/services.py`)
 
