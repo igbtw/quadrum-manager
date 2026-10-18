@@ -38,9 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize modals
     initModals();
     
-    // Initialize carts
-    initCarrinhos();
-    
     // Initialize filters
     initFiltros();
     
@@ -93,116 +90,22 @@ function initModals() {
     });
 }
 
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.toggle('open');
+    if (overlay) overlay.classList.toggle('visible');
+}
+
 function initSidebarMobile() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
-    const toggleBtn = document.querySelector('.mobile-menu-btn');
-
-    window.toggleSidebar = function() {
-        if (sidebar) sidebar.classList.toggle('open');
-        if (overlay) overlay.classList.toggle('visible');
-    };
 
     if (overlay) {
         overlay.addEventListener('click', function() {
             if (sidebar) sidebar.classList.remove('open');
             this.classList.remove('visible');
         });
-    }
-}
-
-function initCart() {
-    // Initialize POS cart
-    initPosCart();
-}
-
-function initPosCart() {
-    let carrinho = JSON.parse(localStorage.getItem('quadrum-carrinho') || '[]');
-
-    // Render cart
-    renderCart(carrinho);
-
-    // Add product
-    window.addToCart = function(produtoId, nome, preco) {
-        const existente = carrinho.find(i => i.id == produtoId);
-        if (existente) {
-            existente.qtd += 1;
-        } else {
-            carrinho.push({
-                id: produtoId,
-                nome: nome,
-                preco: preco,
-                qtd: 1
-            });
-        }
-        localStorage.setItem('quadrum-carrinho', JSON.stringify(carrinho));
-        renderCart(carrinho);
-    };
-
-    // Remove item
-    window.removeCartItem = function(idx) {
-        carrinho.splice(idx, 1);
-        localStorage.setItem('quadrum-carrinho', JSON.stringify(carrinho));
-        renderCart(carrinho);
-    };
-
-    // Increment quantity
-    window.increaseQuantity = function(idx) {
-        carrinho[idx].qtd += 1;
-        localStorage.setItem('quadrum-carrinho', JSON.stringify(carrinho));
-        renderCart(carrinho);
-    };
-
-    // Decrement quantity
-    window.decreaseQuantity = function(idx) {
-        if (carrinho[idx].qtd <= 1) {
-            removeCartItem(idx);
-        } else {
-            carrinho[idx].qtd -= 1;
-            localStorage.setItem('quadrum-carrinho', JSON.stringify(carrinho));
-            renderCart(carrinho);
-        }
-    };
-
-    function renderCart(carrinho) {
-        const tabelaBody = document.getElementById('cart-table-body');
-        const carrinhoVazio = document.getElementById('cart-empty');
-        const tabela = document.getElementById('cart-table');
-        const resumo = document.getElementById('cart-summary');
-
-        if (carrinho.length === 0) {
-            tabela.style.display = 'none';
-            carrinhoVazio.style.display = 'block';
-            resumo.style.display = 'none';
-        } else {
-            tabela.style.display = 'table';
-            carrinhoVazio.style.display = 'none';
-            resumo.style.display = 'block';
-            
-            let subtotal = 0;
-            tabelaBody.innerHTML = '';
-
-            carrinho.forEach((item, idx) => {
-                const subtotalItem = item.preco * item.qtd;
-                subtotal += subtotalItem;
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.nome}</td>
-                    <td style="display: flex; align-items: center; gap: var(--space-2);">
-                        <button onclick="decreaseQuantity(${idx})" class="btn btn-icon-sm" aria-label="Diminuir quantidade">−</button>
-                        <span style="min-width: 24px; text-align: center;">${item.qtd}</span>
-                        <button onclick="increaseQuantity(${idx})" class="btn btn-icon-sm" aria-label="Aumentar quantidade">+</button>
-                    </td>
-                    <td style="text-align: right;">R$ ${subtotalItem.toFixed(2)}</td>
-                    <td><button class="btn btn-icon-sm btn-danger" onclick="removeCartItem(${idx})" aria-label="Remover item">×</button></td>
-                `;
-                tabelaBody.appendChild(tr);
-            });
-
-            const totalEl = document.getElementById('cart-total');
-            if (totalEl) totalEl.textContent = 'R$ ' + subtotal.toFixed(2);
-        }
     }
 }
 
@@ -241,50 +144,99 @@ function initFiltros() {
     };
 }
 
-function initNotificacoes() {
-    window.showNotification = function(titulo, mensagem, tipo = 'info') {
-        const tipos = {
-            success: { bg: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'var(--color-success-border)' },
-            warning: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: 'var(--color-warning-border)' },
-            danger: { bg: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'var(--color-danger-border)' },
-            info: { bg: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'var(--color-info-border)' }
-        };
-
-        const config = tipos[tipo] || tipos.info;
-        const notification = document.createElement('div');
-        notification.className = 'toast toast-' + tipo;
-        notification.style.cssText = `
-            position: fixed;
-            bottom: var(--space-4);
-            right: var(--space-4);
-            padding: var(--space-3) var(--space-4);
-            border-radius: var(--radius-md);
-            font-size: var(--font-size-sm);
-            font-weight: var(--font-weight-medium);
-            z-index: var(--z-toast);
-            box-shadow: var(--shadow-lg);
-            background: ${config.bg};
-            color: ${config.color};
-            border: var(--border-width) solid ${config.border};
-            max-width: 320px;
-        `;
-        notification.innerHTML = `
-            <strong>${titulo || 'Notice'}</strong>
-            <span style="margin-left: var(--space-2);">${mensagem || ''}</span>
-        `;
-
-        document.body.appendChild(notification);
-
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            notification.classList.add('removing');
-            setTimeout(() => notification.remove(), 300);
-        }, 5000);
+function showNotification(titulo, mensagem, tipo = 'info', duracao = 5000) {
+    const tipos = {
+        success: { bg: 'var(--color-success-bg)', color: 'var(--color-success)', border: 'var(--color-success-border)' },
+        warning: { bg: 'var(--color-warning-bg)', color: 'var(--color-warning)', border: 'var(--color-warning-border)' },
+        danger: { bg: 'var(--color-danger-bg)', color: 'var(--color-danger)', border: 'var(--color-danger-border)' },
+        info: { bg: 'var(--color-info-bg)', color: 'var(--color-info)', border: 'var(--color-info-border)' }
     };
+
+    const config = tipos[tipo] || tipos.info;
+    const notification = document.createElement('div');
+    notification.className = 'toast toast-' + tipo;
+    notification.style.cssText = `
+        position: fixed;
+        bottom: var(--space-4);
+        right: var(--space-4);
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-medium);
+        z-index: var(--z-toast);
+        box-shadow: var(--shadow-lg);
+        background: ${config.bg};
+        color: ${config.color};
+        border: var(--border-width) solid ${config.border};
+        max-width: 320px;
+    `;
+    notification.innerHTML = `
+        <strong>${titulo || 'Notice'}</strong>
+        <span style="margin-left: var(--space-2);">${mensagem || ''}</span>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Auto-remove after the given duration (5 seconds by default)
+    setTimeout(() => {
+        notification.classList.add('removing');
+        setTimeout(() => notification.remove(), 300);
+    }, duracao);
+
+    return notification;
+}
+
+function showToast(titulo, mensagem, tipo = 'info', duracao = 5000) {
+    // Template call sites use 'error'; the styling map defines 'danger'.
+    const tipoSeguro = tipo === 'error' ? 'danger' : tipo;
+    return showNotification(titulo, mensagem, tipoSeguro, duracao);
+}
+
+function initNotificacoes() {
+    window.showNotification = showNotification;
+    window.showToast = showToast;
 }
 
 function formatCurrency(valor) {
     return 'R$ ' + parseFloat(valor || 0).toFixed(2);
+}
+
+function copyToClipboard(texto, mensagem = 'Copied') {
+    const valor = String(texto == null ? '' : texto);
+
+    function copyFallback() {
+        const area = document.createElement('textarea');
+        area.value = valor;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        let copiado = false;
+        try {
+            area.select();
+            copiado = document.execCommand('copy');
+        } catch (e) {
+            copiado = false;
+        }
+        area.remove();
+        return copiado;
+    }
+
+    function feedback(ok) {
+        if (ok) {
+            showToast('Copied', mensagem, 'success');
+        } else {
+            showToast('Copy failed', 'Unable to copy to clipboard', 'error');
+        }
+        return ok;
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(valor)
+            .then(() => feedback(true))
+            .catch(() => feedback(copyFallback()));
+    }
+    return Promise.resolve(feedback(copyFallback()));
 }
 
 function debounce(func, wait) {
@@ -295,12 +247,14 @@ function debounce(func, wait) {
     };
 }
 
-// Export required global functions
+// Export required global functions (direct references, available at load time)
 window.quadrum = {
     formatCurrency,
-    showNotification: window.showNotification,
-    toggleSidebar: window.toggleSidebar,
-    toggleTheme: toggleTheme
+    showNotification,
+    showToast,
+    copyToClipboard,
+    toggleSidebar,
+    toggleTheme
 };
 
 function toggleSidebarCollapse() {
