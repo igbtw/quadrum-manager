@@ -1,6 +1,6 @@
 # quadrum
 
-A Django-based web application for managing a school cafeteria (school cafeteria). It provides product inventory, point-of-sale (PDV) sales, accounts receivable, and basic reporting using Django templates and vanilla CSS/JavaScript.
+A Django-based web application for managing a school cafeteria. It provides product inventory, point-of-sale (PDV) sales, accounts receivable, and basic reporting using Django templates and vanilla CSS/JavaScript.
 
 > **Note:** Django view names and URL names have been standardized in English. Historical database migrations and existing HTTP URL paths remain unchanged — including the two POS API paths — for compatibility with existing links.
 
@@ -25,13 +25,18 @@ A Django-based web application for managing a school cafeteria (school cafeteria
 
 ```
 config/          Django settings, URLs, WSGI/ASGI
-frontend/        Main app: models, views, forms, templates, static files, tests
+frontend/        Main app: models, views, forms, templates, tests
 static/          Global static assets (CSS, JS, favicon)
-docs/            Additional documentation (architecture, contributing)
+docs/            Architecture documentation and the documentation index
 manage.py        Django CLI
 ```
 
-See `docs/architecture.md` for request flow and data model details.
+## Documentation
+
+- [Documentation index](docs/index.md) — starting point for all quadrum documentation
+- [Architecture](docs/architecture.md) — project layout, request flow, and data model details
+- [Contributing](CONTRIBUTING.md) — development setup, checks, and guidelines
+- [Deployment](DEPLOYMENT.md) — the canonical deployment and operations guide
 
 ## Local Development
 
@@ -57,7 +62,7 @@ Access the app at `http://localhost:8000`.
 
 ## Testing
 
-Run the full test suite (51 verified tests):
+Run the full test suite (56 verified tests):
 
 ```bash
 python manage.py test
