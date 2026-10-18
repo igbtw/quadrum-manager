@@ -59,6 +59,26 @@ class PhaseARegressionTests(TestCase):
         self.assertIsNotNone(rc)
         self.assertTrue(Payment.objects.filter(account_receivable=rc).exists())
 
+    def test_cancel_rejected_after_payment_leaves_no_partial_writes(self):
+        """A rejected ON_ACCOUNT cancellation must not write any cancellation state."""
+        pers = Person.objects.create(name='Jo', doc_id='D2', person_type='STUDENT')
+        cat = Category.objects.create(name='C2')
+        prod = Product.objects.create(name='P', code='P2', category=cat, price=Decimal('10'), stock_quantity=10)
+        sale = Sale.objects.create(customer=pers, responsible=self.user, status='COMPLETED', payment_method='ON_ACCOUNT', total=Decimal('20'))
+        SaleItem.objects.create(sale=sale, product=prod, quantity=1, unit_price=Decimal('20'))
+        reduce_stock(prod, 1, user=self.user, sale=sale)
+        rc = AccountReceivable.objects.create(person=pers, sale=sale, original_amount=Decimal('20'), due_date='2030-01-01', status='PENDING')
+        register_payment(rc, Decimal('10'))
+        stock_after_sale = Product.objects.get(pk=prod.pk).stock_quantity
+        with self.assertRaises(ValueError):
+            cancel_sale(sale)
+        self.assertEqual(Sale.objects.get(pk=sale.pk).status, 'COMPLETED')
+        rc.refresh_from_db()
+        self.assertEqual(rc.status, 'PARTIAL')
+        self.assertEqual(rc.remaining_balance, Decimal('10'))
+        self.assertEqual(Product.objects.get(pk=prod.pk).stock_quantity, stock_after_sale)
+        self.assertFalse(StockMovement.objects.filter(sale=sale, movement_type='RETURN').exists())
+
     def test_api_pdv_calcular_real_product(self):
         from frontend.models import Product
         prod = Product.objects.create(name='APIProd', code='AP', category=Category.objects.create(name='API'), price=Decimal('5'), stock_quantity=10)

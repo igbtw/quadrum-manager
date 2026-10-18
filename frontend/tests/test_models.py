@@ -110,3 +110,55 @@ class ModelTests(TestCase):
         rc.refresh_from_db()
         rc.update_status()
         self.assertEqual(rc.status, 'PARTIAL')
+
+    def test_direct_create_rejected_for_cancelled_receivable(self):
+        pers = Person.objects.create(name='Jo', doc_id='CXL4', person_type='STUDENT')
+        rc = AccountReceivable.objects.create(
+            person=pers, original_amount=Decimal('20'), due_date='2030-01-01',
+            status='CANCELLED',
+        )
+        with self.assertRaises(ValidationError) as ctx:
+            Payment.objects.create(account_receivable=rc, amount=Decimal('10'))
+        self.assertIn('cancelled receivable', str(ctx.exception))
+        rc.refresh_from_db()
+        self.assertEqual(rc.status, 'CANCELLED')
+        self.assertEqual(rc.remaining_balance, Decimal('20'))
+        self.assertEqual(Payment.objects.filter(account_receivable=rc).count(), 0)
+
+    def test_direct_instance_save_rejected_for_cancelled_receivable(self):
+        pers = Person.objects.create(name='Jo', doc_id='CXL5', person_type='STUDENT')
+        rc = AccountReceivable.objects.create(
+            person=pers, original_amount=Decimal('20'), due_date='2030-01-01',
+            status='CANCELLED',
+        )
+        p = Payment(account_receivable=rc, amount=Decimal('10'), method='CASH')
+        with self.assertRaises(ValidationError):
+            p.save()
+        self.assertFalse(Payment.objects.filter(account_receivable=rc).exists())
+
+    def test_full_clean_rejects_new_payment_on_cancelled_receivable(self):
+        pers = Person.objects.create(name='Jo', doc_id='CXL6', person_type='STUDENT')
+        rc = AccountReceivable.objects.create(
+            person=pers, original_amount=Decimal('20'), due_date='2030-01-01',
+            status='CANCELLED',
+        )
+        p = Payment(account_receivable=rc, amount=Decimal('10'), method='CASH')
+        with self.assertRaises(ValidationError):
+            p.full_clean()
+
+    def test_historical_payment_metadata_edit_allowed_after_cancellation(self):
+        pers = Person.objects.create(name='Jo', doc_id='CXL7', person_type='STUDENT')
+        rc = AccountReceivable.objects.create(
+            person=pers, original_amount=Decimal('20'), due_date='2030-01-01',
+            status='PENDING',
+        )
+        p = Payment.objects.create(account_receivable=rc, amount=Decimal('10'))
+        rc.status = 'CANCELLED'
+        rc.save(update_fields=['status'])
+        p.refresh_from_db()
+        p.notes = 'adjusted note'
+        p.full_clean()
+        p.save()
+        p.refresh_from_db()
+        self.assertEqual(p.notes, 'adjusted note')
+        self.assertEqual(AccountReceivable.objects.get(pk=rc.pk).status, 'CANCELLED')

@@ -58,20 +58,26 @@ def cancel_sale(sale: Sale, user: User = None):
             return s
         if s.status != 'COMPLETED':
             raise ValueError('Only completed sales can be cancelled.')
-        # Rule 1: if ON_ACCOUNT, check payments; reject if any recorded
-        if s.payment_method == 'ON_ACCOUNT' and s.customer:
-            rc = AccountReceivable.objects.filter(sale=s).first()
-            if rc and rc.payments.exists():
-                raise ValueError('Cannot cancel: recorded payments exist on the receivable account.')
+        # Lock the associated receivable (if any) before checking payments and
+        # before marking it cancelled, so cancellation serializes with
+        # register_payment()/Payment.save() on the same row.
+        rc = None
+        if s.payment_method == 'ON_ACCOUNT':
+            rc = (
+                AccountReceivable.objects.select_for_update()
+                .filter(sale=s)
+                .first()
+            )
+        # Rule 1: if a receivable exists, reject when payments are recorded
+        if rc and rc.payments.exists():
+            raise ValueError('Cannot cancel: recorded payments exist on the receivable account.')
         # Update sale
         s.status = 'CANCELLED'
         s.save(update_fields=['status'])
         # Receivable: mark CANCELLED (preserve record; never delete)
-        if s.payment_method == 'ON_ACCOUNT':
-            rc = AccountReceivable.objects.filter(sale=s).first()
-            if rc:
-                rc.status = 'CANCELLED'
-                rc.save(update_fields=['status'])
+        if rc:
+            rc.status = 'CANCELLED'
+            rc.save(update_fields=['status'])
         # Stock reversal: restore each item and create RETURN movement
         for item in s.items.select_related('product').all():
             prod = Product.objects.select_for_update().get(pk=item.product.pk)

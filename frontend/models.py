@@ -256,27 +256,61 @@ class Payment(models.Model):
         verbose_name = 'Payment'
         verbose_name_plural = 'Payments'
 
+    def _is_new_or_reassigned(self):
+        """True when this row would be inserted or moved to another receivable."""
+        if self._state.adding:
+            return True
+        if not self.pk:
+            return False
+        old_rc_id = (
+            Payment.objects.filter(pk=self.pk)
+            .values_list('account_receivable_id', flat=True)
+            .first()
+        )
+        return old_rc_id is not None and old_rc_id != self.account_receivable_id
+
     def clean(self):
+        from django.core.exceptions import ValidationError
         try:
-            if self.account_receivable_id and isinstance(self.amount, Decimal):
+            if self.account_receivable_id:
                 rc = AccountReceivable.objects.get(pk=self.account_receivable_id)
-                bal = rc.remaining_balance
-                if bal is not None and self.amount > bal:
-                    from django.core.exceptions import ValidationError
-                    raise ValidationError('Payment cannot exceed remaining balance.')
+                if self._is_new_or_reassigned() and rc.status == 'CANCELLED':
+                    raise ValidationError('Cannot register payment for a cancelled receivable.')
+                if isinstance(self.amount, Decimal):
+                    bal = rc.remaining_balance
+                    if bal is not None and self.amount > bal:
+                        raise ValidationError('Payment cannot exceed remaining balance.')
         except TypeError:
             pass  # form clean handles validation; avoid crash during instance init
 
     def save(self, *args, **kwargs):
+        from django.core.exceptions import ValidationError
         is_new = self._state.adding
-        old_amount = None
+        old = None
         if not is_new and self.pk:
             try:
                 old = Payment.objects.get(pk=self.pk)
-                old_amount = old.amount
             except Payment.DoesNotExist:
-                old_amount = None
-        super().save(*args, **kwargs)
+                old = None
+        old_amount = old.amount if old is not None else None
+        reassigned = old is not None and old.account_receivable_id != self.account_receivable_id
+        # Model-save guard: ordinary create()/save() bypasses clean()/full_clean().
+        # Re-read the persisted receivable under a row lock and insert the payment
+        # inside the same atomic block so the lock is held until the write commits
+        # (when no outer transaction exists).
+        if (is_new or reassigned) and self.account_receivable_id:
+            with transaction.atomic():
+                status = (
+                    AccountReceivable.objects.select_for_update()
+                    .filter(pk=self.account_receivable_id)
+                    .values_list('status', flat=True)
+                    .first()
+                )
+                if status == 'CANCELLED':
+                    raise ValidationError('Cannot register payment for a cancelled receivable.')
+                super().save(*args, **kwargs)
+        else:
+            super().save(*args, **kwargs)
         # Guarded hook: only recalc when amount actually changed or new record
         if is_new or old_amount != self.amount:
             self.account_receivable.refresh_from_db()

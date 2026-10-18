@@ -115,6 +115,8 @@ deleted. Database-level deletes of sale history are not intended.
 | `Payment.amount <= remaining_balance` | `PaymentForm.clean_amount()` | Python (form) |
 | `Payment.amount <= remaining_balance` | `register_payment()` | Python (service, raises `ValueError`) |
 | No payment on a `CANCELLED` receivable | `register_payment()` (locked row) | Python (service, raises `ValueError`) |
+| New/reassigned payment on a `CANCELLED` receivable | `Payment.save()` (locked row) | Python (model, raises `ValidationError`) |
+| New/reassigned payment on a `CANCELLED` receivable | `Payment.clean()` | Python (model `full_clean`) |
 | `CANCELLED` is terminal in status recalculation | `AccountReceivable.update_status()` | Python (model) |
 | `CANCELLED` receivables not selectable | `PaymentForm.account_receivable` queryset | Python (form) |
 
@@ -242,12 +244,28 @@ reopen a cancelled receivable either. Verified by
 `test_update_status_preserves_cancelled_with_balance` and
 `test_update_status_recalculates_non_cancelled`.
 
-**Known limitation:** this phase guards `register_payment()` and the form. A
-direct `Payment.objects.create(account_receivable=<cancelled>, ...)` that bypasses
-`register_payment()` is **not** blocked and can still insert a payment row; the
-`update_status()` guard only prevents that insert from reopening the cancelled
-status. There is no database-level or `Payment.clean()`/`Payment.save()` guard for
-this case (deliberate scope decision).
+**Protection boundaries for the no-payment-on-cancelled-receivable rule:**
+
+- `PaymentForm.account_receivable` excludes `CANCELLED` records (UI).
+- `register_payment()` raises `ValueError` after locking the receivable (finance
+  service path; authoritative for that flow).
+- `Payment.clean()` raises `ValidationError` when the payment is new or reassigned
+  to a different receivable that is `CANCELLED` (model `full_clean`).
+- `Payment.save()` raises `ValidationError` for the same condition, re-reading the
+  persisted receivable under `select_for_update()` inside a transaction, so
+  ordinary `Payment.objects.create()`/`instance.save()` cannot bypass the rule.
+- Unrelated metadata edits to an existing payment (e.g. changing `notes`) are
+  allowed even if its receivable later became `CANCELLED`; only new rows and
+  receivable re-assignments are rejected. Verified by
+  `test_direct_create_rejected_for_cancelled_receivable`,
+  `test_direct_instance_save_rejected_for_cancelled_receivable`,
+  `test_full_clean_rejects_new_payment_on_cancelled_receivable`, and
+  `test_historical_payment_metadata_edit_allowed_after_cancellation`.
+
+**Remaining limitation:** `Payment.objects.bulk_create()` and raw SQL bypass both
+`Model.save()` and `Model.clean()`, so they can still insert a payment for a
+cancelled receivable. No database trigger or constraint enforces this rule; it is
+Python-level only. No such path exists in the current codebase.
 
 ### 6. Stock movement recording
 
@@ -281,12 +299,26 @@ Recomputes `subtotal` before calling `super().save()`. No transaction of its own
 
 ### `Payment.save()`
 
-After the base save, if the row is new or the `amount` changed, it refreshes the
-related `AccountReceivable`, calls `update_status()`, and saves the receivable's
-`status` (`update_fields=['status']`). This is a secondary write that is only
-atomic if the caller wraps it. `register_payment()` wraps it; a bare
-`Payment.objects.create(...)` does not, though the sequence still runs
-synchronously.
+Before the base save, when the row is new or its `account_receivable` changes, it
+re-reads the target receivable under `select_for_update()` inside a
+`transaction.atomic()` block, raises `ValidationError` if that receivable is
+`CANCELLED`, and otherwise calls `super().save()` **inside that same block**, so
+the row lock is held until the payment insert commits when no outer transaction
+exists. A direct `Payment.objects.create(...)`/`instance.save()` therefore cannot
+insert a payment for a cancelled receivable. After the base save, if the row is
+new or the `amount` changed, it refreshes the related `AccountReceivable`, calls
+`update_status()`, and saves the receivable's `status`
+(`update_fields=['status']`). That secondary write is only atomic if the caller
+wraps it; `register_payment()` wraps it, a bare `Payment.objects.create(...)` does
+not, though the sequence still runs synchronously.
+
+### `Payment.clean()`
+
+Beyond the amount/balance check, it raises `ValidationError` when the payment is
+new or reassigned to a different receivable whose status is `CANCELLED`. It uses
+an unlocked read (form/`full_clean` context); `Payment.save()` performs the locked
+re-check on the write path. Unrelated metadata edits to an existing payment are
+not blocked when only its receivable was later cancelled.
 
 ### `AccountReceivable.update_status()`
 
@@ -317,7 +349,12 @@ Each of `reduce_stock`, `create_sale_items`, `cancel_sale`, `adjust_stock`, and
 rows with `select_for_update()`. `create_sale_items()` calls `reduce_stock()`,
 which opens a nested atomic block (a savepoint). `finalize_sale()` creates the
 `AccountReceivable` (`get_or_create`) for `ON_ACCOUNT` sales that have a
-customer.
+customer. `cancel_sale()` locks the sale, then its `ON_ACCOUNT` receivable (before
+the payment-existence check and before marking it `CANCELLED`), then the product
+rows — the same receivable lock used by `register_payment()`/`Payment.save()`, so
+payment and cancellation serialize on that row (lock order sale → receivable →
+products; the payment path locks only the receivable, so there is no cycle). If the
+sale has no receivable, no receivable lock or payment check is performed.
 
 ### `api_pos_finalize` (`frontend/views.py`)
 

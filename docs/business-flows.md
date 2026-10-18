@@ -257,14 +257,31 @@ decrements and saves `stock_quantity`; writes a `SALE` `StockMovement` with
 2. If already `CANCELLED`, returns immediately (idempotent).
 3. If not `COMPLETED`, raises `ValueError('Only completed sales can be
    cancelled.')`.
-4. If the sale is `ON_ACCOUNT` with a customer and its receivable already has
-   payments, raises `ValueError('Cannot cancel: recorded payments exist on the
+4. For `ON_ACCOUNT` sales, locks the associated receivable with
+   `select_for_update()` **before** any payment check, so cancellation serializes
+   with `register_payment()`/`Payment.save()` on the same row.
+5. If a locked receivable already has payments, raises
+   `ValueError('Cannot cancel: recorded payments exist on the
    receivable account.')`.
-5. Sets `status='CANCELLED'` and saves.
-6. For `ON_ACCOUNT` sales, marks the receivable `CANCELLED` (the record is never
+6. Sets `status='CANCELLED'` and saves.
+7. If a receivable was locked, marks it `CANCELLED` (the record is never
    deleted).
-7. For each item, locks the product, restores `stock_quantity += quantity`, and
+8. For each item, locks the product, restores `stock_quantity += quantity`, and
    writes a `RETURN` `StockMovement`.
+
+Lock order is sale → receivable → products. The payment path locks the receivable
+only, so there is no lock cycle. If no receivable is associated (e.g. a non
+`ON_ACCOUNT` sale, or an `ON_ACCOUNT` sale without a customer), cancellation
+proceeds without a receivable lock and performs no payment check, preserving the
+prior behavior.
+
+**Tests:** `test_cancel_sale_idempotent_and_reversal`,
+`test_cancel_rejected_if_payments_exist`,
+`test_cancel_rejected_after_payment_leaves_no_partial_writes` in
+`frontend/tests/test_regressions.py`;
+`test_inventory_adjustment_and_history`, `test_cancel_idempotent_and_rejected_with_payments`,
+`test_failed_inventory_does_not_partial_update` in
+`frontend/tests/test_integration.py`.
 
 **Stock movement semantics:** movements are an append-only audit trail with a
 signed `quantity`. They preserve the ability to reconstruct how a product's stock
@@ -291,8 +308,10 @@ history cannot be deleted.
    `register_payment(rc, amount, method=..., user=request.user, notes=...)`.
 3. Success shows `Payment registered.`; failure shows `Please verify the payment.`.
 
-The form restriction is a UI safeguard only; the model/service guard below is
-**authoritative**, since a caller can bypass the form.
+The form restriction is a UI safeguard only. The pattern is enforced at three
+other layers so a caller that bypasses the form is still blocked: the
+`register_payment()` service guard, `Payment.clean()` (model `full_clean`), and the
+ordinary `Payment.save()`/`objects.create()` write path.
 
 **`register_payment(account_receivable, amount, method='CASH', user=None, notes='')`**
 (`frontend/models.py`):
@@ -305,8 +324,20 @@ The form restriction is a UI safeguard only; the model/service guard below is
    the balance check and before creating a `Payment`.
 4. If `amount > rc.remaining_balance`, raises
    `ValueError('Payment exceeds remaining balance.')`.
-5. Creates the `Payment` (which triggers `Payment.save()`'s status recalculation).
+5. Creates the `Payment` (which triggers `Payment.save()`'s cancelled-receivable
+   guard and status recalculation).
 6. Calls `rc.update_status()` and saves `status`.
+
+**Model-save guard (defense in depth):** `Payment.save()` and `Payment.clean()`
+reject a payment that is new or reassigned to a receivable whose status is
+`CANCELLED`. `Payment.save()` locks the persisted receivable with
+`select_for_update()`, checks its status, and performs the payment insert within
+the same `transaction.atomic()` block, raising `ValidationError` before any write
+if the receivable is cancelled. A direct
+`Payment.objects.create(account_receivable=<cancelled>, ...)` therefore cannot
+insert a row. Unrelated metadata edits to an existing payment remain allowed even
+if its receivable later became `CANCELLED`. The checks run only for new rows or a
+changed receivable association.
 
 **Outstanding balance:** `remaining_balance` is `original_amount` minus the sum of
 all payments, floored at zero. `amount_paid` aggregates payments with
@@ -314,8 +345,16 @@ all payments, floored at zero. `amount_paid` aggregates payments with
 
 **Concurrency:** the receivable row is locked with `select_for_update()`, so
 concurrent payments against the same receivable serialize on backends that
-support row locking (PostgreSQL). On SQLite the lock is effectively ignored.
-There is no application-level lock or retry loop.
+support row locking (PostgreSQL). `cancel_sale()` locks the same receivable row
+before checking for payments and before marking it `CANCELLED`, so a payment and
+a cancellation of the same receivable serialize: whichever commits first is
+observed by the other (a committed payment blocks cancellation; a committed
+cancellation blocks the later payment). Lock order is sale → receivable →
+products; the payment path locks only the receivable, so there is no cycle. On
+SQLite the lock is effectively ignored, so this ordering is **not** demonstrated
+by the test suite (no PostgreSQL concurrency test is run). There is no
+application-level lock or retry loop, and `bulk_create()`/raw SQL bypass these
+guards.
 
 **Overpayment / invalid amounts:**
 
@@ -365,8 +404,9 @@ dashboard and finance views filter on the stored `status` values
 (`ValueError`). Cancellation is idempotent for already-cancelled sales. On
 cancellation the receivable is marked `CANCELLED` (never deleted) and stock is
 restored with `RETURN` movements. Once `CANCELLED`, the receivable is closed:
-`register_payment()` refuses further payments (`ValueError`), even for a
-remaining balance, and `update_status()` never reopens it. Verified by
+`register_payment()` refuses further payments (`ValueError`), `Payment.clean()`/
+`Payment.save()` refuse new or reassigned payments (`ValidationError`), and
+`update_status()` never reopens it. Verified by
 `test_cancel_rejected_if_payments_exist` and
 `test_cancel_idempotent_and_rejected_with_payments`.
 
