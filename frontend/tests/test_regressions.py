@@ -61,12 +61,12 @@ class PhaseARegressionTests(TestCase):
         from frontend.models import Product
         prod = Product.objects.create(name='APIProd', code='AP', category=Category.objects.create(name='API'), price=Decimal('5'), stock_quantity=10)
         self.client.force_login(self.user)
-        resp = self.client.post(reverse('frontend:api_pdv_calcular'), data='{"items":[{"product_id":%d,"quantity":2}]}' % prod.pk, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp = self.client.post(reverse('frontend:api_pos_calculate'), data='{"items":[{"product_id":%d,"quantity":2}]}' % prod.pk, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 200)
 
     def test_api_pdv_calcular_bad_id(self):
         self.client.force_login(self.user)
-        resp = self.client.post(reverse('frontend:api_pdv_calcular'), data='{"items":[{"product_id":99999,"quantity":1}]}', content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp = self.client.post(reverse('frontend:api_pos_calculate'), data='{"items":[{"product_id":99999,"quantity":1}]}', content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertIn(resp.status_code, [400, 404])
 
     def test_payment_service_recalculates(self):
@@ -82,13 +82,13 @@ class PhaseARegressionTests(TestCase):
         cat = Category.objects.create(name='RegC')
         prod = Product.objects.create(name='RegP', code='RP', category=cat, price=Decimal('99.99'), stock_quantity=50)
         # Anonymous access must be denied
-        resp = self.client.post(reverse('frontend:api_pdv_finalizar'),
+        resp = self.client.post(reverse('frontend:api_pos_finalize'),
             data='{"items":[{"product_id":%d,"quantity":1,"unit_price":"0.01"}],"payment_method":"CASH","idempotency_key":"ANON-01"}' % prod.pk,
             content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 302)  # redirect to login
         # Authenticated user cannot under-price item
         self.client.force_login(self.user)
-        resp = self.client.post(reverse('frontend:api_pdv_finalizar'),
+        resp = self.client.post(reverse('frontend:api_pos_finalize'),
             data='{"items":[{"product_id":%d,"quantity":2,"unit_price":"1.00"}],"payment_method":"CASH","idempotency_key":"PRICE-01"}' % prod.pk,
             content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 200)
@@ -103,11 +103,11 @@ class PhaseARegressionTests(TestCase):
         prod = Product.objects.create(name='DupP', code='DP', category=cat, price=Decimal('5'), stock_quantity=10)
         self.client.force_login(self.user)
         payload = '{"items":[{"product_id":%d,"quantity":1}],"payment_method":"CASH","idempotency_key":"KEY-001"}' % prod.pk
-        resp1 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp1 = self.client.post(reverse('frontend:api_pos_finalize'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp1.status_code, 200)
         sale1 = Sale.objects.filter(status='COMPLETED').latest('id')
         # Repeat with same session
-        resp2 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp2 = self.client.post(reverse('frontend:api_pos_finalize'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp2.status_code, 200)
         # Must not create second completed sale
         self.assertEqual(Sale.objects.filter(status='COMPLETED').count(), 1)
@@ -123,16 +123,16 @@ class PhaseARegressionTests(TestCase):
         u2 = User.objects.create_user('ow2', password='t')
         self.client.force_login(u1)
         payload = '{"items":[{"product_id":%d,"quantity":1}],"payment_method":"CASH","idempotency_key":"OWN-01"}' % prod.pk
-        resp1 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp1 = self.client.post(reverse('frontend:api_pos_finalize'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp1.status_code, 200)
         self.client.force_login(u2)
-        resp2 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp2 = self.client.post(reverse('frontend:api_pos_finalize'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp2.status_code, 403)
         self.client.force_login(u1)
-        resp3 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp3 = self.client.post(reverse('frontend:api_pos_finalize'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp3.status_code, 200)
         payload_bad = '{"items":[{"product_id":%d,"quantity":99}],"payment_method":"CASH","idempotency_key":"OWN-01"}' % prod.pk
-        resp4 = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload_bad, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp4 = self.client.post(reverse('frontend:api_pos_finalize'), data=payload_bad, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp4.status_code, 409)
         self.assertEqual(Sale.objects.filter(idempotency_key='OWN-01', status='COMPLETED').count(), 1)
 
@@ -144,7 +144,7 @@ class PhaseARegressionTests(TestCase):
         self.client.force_login(self.user)
         payload = '{"items":[{"product_id":%d,"quantity":1}],"payment_method":"CASH","idempotency_key":"IE-01"}' % prod.pk
         with patch('frontend.views.Sale.objects.create', side_effect=IntegrityError('simulated')):
-            resp = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+            resp = self.client.post(reverse('frontend:api_pos_finalize'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 500)
         data = resp.json()
         self.assertNotIn('simulated', str(data.get('error', '')))
@@ -157,7 +157,7 @@ class PhaseARegressionTests(TestCase):
         self.client.force_login(self.user)
         payload = '{"items":[{"product_id":%d,"quantity":1}],"payment_method":"CASH","idempotency_key":"ERR-01"}' % prod.pk
         with patch('frontend.views.Sale.objects.create', side_effect=RuntimeError('internal simulated failure')):
-            resp = self.client.post(reverse('frontend:api_pdv_finalizar'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+            resp = self.client.post(reverse('frontend:api_pos_finalize'), data=payload, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 500)
         data = resp.json()
         self.assertNotIn('internal simulated failure', str(data.get('error', '')))
@@ -174,7 +174,7 @@ class PhaseARegressionTests(TestCase):
             idempotency_key='LEGACY-01', request_fingerprint=None,
         )
         self.client.force_login(self.user)
-        resp = self.client.post(reverse('frontend:api_pdv_finalizar'),
+        resp = self.client.post(reverse('frontend:api_pos_finalize'),
             data='{"items":[{"product_id":%d,"quantity":1}],"payment_method":"CASH","idempotency_key":"LEGACY-01"}' % prod.pk,
             content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 409)

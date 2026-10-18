@@ -61,7 +61,7 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <form method="post" action="{% url 'frontend:estoque' %}" style="margin-bottom:12px; padding:10px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">{% csrf_token %}<h4 style="font-size:var(--font-size-sm); margin:0 0 8px;">Stock adjustment</h4><div style="display:flex; gap:8px; flex-wrap:wrap;"><select name="product_id" required style="padding:6px;"><option value="">Product</option>{% for p in produtos_select %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select><input type="number" name="qty" step="1" required placeholder="Qty (+ / -)" style="padding:6px; width:80px;"><input type="text" name="reason" placeholder="Reason" style="padding:6px; flex:1; min-width:120px;"><button type="submit" class="btn btn-secondary" style="padding:6px 12px;">Adjust</button></div></form>
+            <form method="post" action="{% url 'frontend:inventory' %}" style="margin-bottom:12px; padding:10px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">{% csrf_token %}<h4 style="font-size:var(--font-size-sm); margin:0 0 8px;">Stock adjustment</h4><div style="display:flex; gap:8px; flex-wrap:wrap;"><select name="product_id" required style="padding:6px;"><option value="">Product</option>{% for p in produtos_select %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select><input type="number" name="qty" step="1" required placeholder="Qty (+ / -)" style="padding:6px; width:80px;"><input type="text" name="reason" placeholder="Reason" style="padding:6px; flex:1; min-width:120px;"><button type="submit" class="btn btn-secondary" style="padding:6px 12px;">Adjust</button></div></form>
             <table class="table">
                 <thead>
                     <tr>
@@ -84,7 +84,7 @@
                         <td class="numeric">{{ p.estoque }}</td>
                         <td class="numeric">{{ p.estoque_minimo }}</td>
                         <td>
-                            <span class="badge 
+                            <span class="badge
                                 {% if p.situacao == 'NORMAL' %}badge-status-normal
                                 {% elif p.situacao == 'LOW' %}badge-status-low
                                 {% elif p.situacao == 'OUT_OF_STOCK' %}badge-status-out-of-stock
@@ -93,7 +93,7 @@
                             </span>
                         </td>
                         <td>
-                            <span class="badge 
+                            <span class="badge
                                 {% if p.ativo %}badge-success{% else %}badge-danger{% endif %}">
                                 {% if p.ativo %}Ativo{% else %}Inactive{% endif %}
                             </span>
@@ -132,14 +132,14 @@ document.addEventListener('DOMContentLoaded', function() {
     window.filtrarInventory = function() {
         const situacao = document.getElementById('filtro-situacao').value;
         const categoria = document.getElementById('filtro-categoria-estoque').value;
-        
+
         document.querySelectorAll('#produtos-estoque-tabela tr').forEach(row => {
             if (row.classList.contains('empty-state')) return;
-            
+
             let show = true;
             if (situacao && row.dataset.situacao !== situacao) show = false;
             if (categoria && row.dataset.categoria !== categoria) show = false;
-            
+
             row.style.display = show ? '' : 'none';
         });
     };

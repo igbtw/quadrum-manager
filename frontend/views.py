@@ -50,17 +50,17 @@ def dashboard(request):
     return render(request, 'frontend/dashboard.html', context)
 
 
-def vendas_list(request):
+def sales_list(request):
     """Sales history"""
     context = {
         'vendas': Sale.objects.select_related('customer').order_by('-created_at')[:50],
         'page_title': 'Sales',
     }
-    return render(request, 'frontend/vendas_list.html', context)
+    return render(request, 'frontend/sales_list.html', context)
 
 
 @login_required
-def pdv(request):
+def point_of_sale(request):
     """Point of Sale (POS) / New Sale — main screen"""
     context = {
         'produtos': Product.objects.filter(active=True).select_related('category'),
@@ -69,18 +69,18 @@ def pdv(request):
         'formas_pagamento': ['CASH','DEBIT','CREDIT','PIX','ON_ACCOUNT'],
         'page_title': 'New Sale',
     }
-    return render(request, 'frontend/pdv.html', context)
+    return render(request, 'frontend/point_of_sale.html', context)
 
 
 @login_required
-def produtos(request):
+def product_list(request):
     """Product list"""
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, 'Product saved.')
-            return redirect('frontend:produtos')
+            return redirect('frontend:products')
         else:
             messages.error(request, 'Please check the fields.')
     else:
@@ -91,11 +91,11 @@ def produtos(request):
         'form': form,
         'page_title': 'Products',
     }
-    return render(request, 'frontend/produtos.html', context)
+    return render(request, 'frontend/products.html', context)
 
 
 @login_required
-def estoque(request):
+def inventory(request):
     """Inventory control"""
     if request.method == 'POST':
         product_id = request.POST.get('product_id')
@@ -111,7 +111,7 @@ def estoque(request):
             messages.success(request, 'Inventory adjusted.')
         except Exception as e:
             messages.error(request, f'Adjustment error: {e}')
-        return redirect('frontend:estoque')
+        return redirect('frontend:inventory')
     # Calculate each product inventory status
     produtos_estoque = []
     total_items = 0
@@ -142,18 +142,18 @@ def estoque(request):
         'baixo_estoque': baixo_estoque,
         'sem_estoque': sem_estoque,
     }
-    return render(request, 'frontend/estoque.html', context)
+    return render(request, 'frontend/inventory.html', context)
 
 
 @login_required
-def pessoas(request):
+def people(request):
     """People registry"""
     if request.method == 'POST':
         form = PersonForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Person saved.')
-            return redirect('frontend:pessoas')
+            return redirect('frontend:people')
         else:
             messages.error(request, 'Please check the fields.')
     else:
@@ -164,11 +164,11 @@ def pessoas(request):
         'form': form,
         'page_title': 'People',
     }
-    return render(request, 'frontend/pessoas.html', context)
+    return render(request, 'frontend/people.html', context)
 
 
 @login_required
-def financeiro(request):
+def finance(request):
     from django.db.models import Sum
     total_aberto = AccountReceivable.objects.filter(status__in=['PENDING','PARTIAL','OVERDUE']).aggregate(s=Sum('original_amount'))['s'] or Decimal('0.00')
     overdue = AccountReceivable.objects.filter(status='OVERDUE')
@@ -181,7 +181,7 @@ def financeiro(request):
             rc = form.cleaned_data['account_receivable']
             register_payment(rc, form.cleaned_data['amount'], method=form.cleaned_data['method'], user=request.user if request.user.is_authenticated else None, notes=form.cleaned_data['notes'])
             messages.success(request, 'Payment registered.')
-            return redirect('frontend:financeiro')
+            return redirect('frontend:finance')
         else:
             messages.error(request, 'Please verify the payment.')
     else:
@@ -197,11 +197,11 @@ def financeiro(request):
         'form': form,
         'page_title': 'Finance',
     }
-    return render(request, 'frontend/financeiro.html', context)
+    return render(request, 'frontend/finance.html', context)
 
 
 @login_required
-def relatorios(request):
+def reports(request):
     from django.db.models import Sum, Count, Q, F
     from django.utils import timezone
     today = timezone.now().date()
@@ -224,7 +224,7 @@ def relatorios(request):
         'receivable_total': receb,
         'vendas_hoje': Sale.objects.filter(status='COMPLETED', created_at__date=today).count(),
     }
-    return render(request, 'frontend/relatorios.html', contexto)
+    return render(request, 'frontend/reports.html', contexto)
 
 
 def login_view(request):
@@ -249,7 +249,7 @@ def logout_view(request):
 # PDV interaction endpoints — persist to DB with integrity
 @login_required
 @require_http_methods(["POST"])
-def api_pdv_calcular(request):
+def api_pos_calculate(request):
     """Calculate total from cart data"""
     import json
     try:
@@ -271,7 +271,7 @@ def api_pdv_calcular(request):
 
 @login_required
 @require_http_methods(["POST"])
-def api_pdv_finalizar(request):
+def api_pos_finalize(request):
     """Finalize sale — idempotent, atomic, DB-enforced."""
     import json, re
     from django.db import IntegrityError, transaction

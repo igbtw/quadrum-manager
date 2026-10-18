@@ -10,7 +10,7 @@
         <p class="page-subtitle">Operation overview</p>
     </div>
     <div class="page-actions">
-        <a href="{% url 'frontend:pdv' %}" class="btn btn-primary">
+        <a href="{% url 'frontend:point_of_sale' %}" class="btn btn-primary">
             <i data-lucide="plus" style="width:16px;height:16px;stroke-width:2;"></i>
             New Sale
         </a>
@@ -59,7 +59,7 @@
     <section class="panel" aria-labelledby="estoque-heading">
         <div class="panel-header">
             <h2 id="estoque-heading" class="panel-title">Inventory</h2>
-            <a href="{% url 'frontend:estoque' %}" class="btn btn-ghost btn-sm">View inventory <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <a href="{% url 'frontend:inventory' %}" class="btn btn-ghost btn-sm">View inventory <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             {% if stats.produtos_baixo_estoque %}

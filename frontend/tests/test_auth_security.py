@@ -26,47 +26,47 @@ class AuthSecurityTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_anonymous_pdv_blocked(self):
-        resp = self.client.get(reverse('frontend:pdv'))
+        resp = self.client.get(reverse('frontend:point_of_sale'))
         self.assertEqual(resp.status_code, 302)
 
     def test_anonymous_finance_post_blocked(self):
-        resp = self.client.post(reverse('frontend:financeiro'), {'account_receivable': 1, 'amount': 10, 'method': 'CASH'})
+        resp = self.client.post(reverse('frontend:finance'), {'account_receivable': 1, 'amount': 10, 'method': 'CASH'})
         self.assertEqual(resp.status_code, 302)
 
     def test_authenticated_pdv_access(self):
         self.client.force_login(self.user)
-        resp = self.client.get(reverse('frontend:pdv'))
+        resp = self.client.get(reverse('frontend:point_of_sale'))
         self.assertEqual(resp.status_code, 200)
 
     def test_csrf_missing_on_form_post(self):
         from django.test import Client
         client = Client(enforce_csrf_checks=True)
         client.force_login(self.user)
-        resp = client.post(reverse('frontend:produtos'), {'name': 'X', 'category': self.cat.pk, 'price': '1', 'stock_quantity': '1'})
+        resp = client.post(reverse('frontend:products'), {'name': 'X', 'category': self.cat.pk, 'price': '1', 'stock_quantity': '1'})
         self.assertEqual(resp.status_code, 403)
 
     def test_invalid_product_id_in_api(self):
         self.client.force_login(self.user)
-        resp = self.client.post(reverse('frontend:api_pdv_calcular'), data='{"items":[{"product_id":99999,"quantity":1}]}', content_type='application/json', HTTP_X_CSRFTOKEN='fake')
+        resp = self.client.post(reverse('frontend:api_pos_calculate'), data='{"items":[{"product_id":99999,"quantity":1}]}', content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertIn(resp.status_code, [400, 404])
 
     def test_anonymous_produtos_post_blocked(self):
-        resp = self.client.post(reverse('frontend:produtos'), {'name': 'AnonP', 'category': self.cat.pk, 'price': '1', 'stock_quantity': '1'})
+        resp = self.client.post(reverse('frontend:products'), {'name': 'AnonP', 'category': self.cat.pk, 'price': '1', 'stock_quantity': '1'})
         self.assertEqual(resp.status_code, 302)
 
     def test_auth_produtos_post_allowed(self):
         self.client.force_login(self.user)
-        resp = self.client.post(reverse('frontend:produtos'), {'name': 'AuthP', 'code': '', 'category': self.cat.pk, 'price': '2', 'stock_quantity': '5', 'minimum_stock': '5'})
+        resp = self.client.post(reverse('frontend:products'), {'name': 'AuthP', 'code': '', 'category': self.cat.pk, 'price': '2', 'stock_quantity': '5', 'minimum_stock': '5'})
         self.assertEqual(resp.status_code, 302)
         self.assertTrue(Product.objects.filter(name='AuthP').exists())
 
     def test_anonymous_pessoas_post_blocked(self):
-        resp = self.client.post(reverse('frontend:pessoas'), {'name': 'AnonPers', 'doc_id': '1', 'person_type': 'STUDENT'})
+        resp = self.client.post(reverse('frontend:people'), {'name': 'AnonPers', 'doc_id': '1', 'person_type': 'STUDENT'})
         self.assertEqual(resp.status_code, 302)
 
     def test_auth_pessoas_post_allowed(self):
         self.client.force_login(self.user)
-        resp = self.client.post(reverse('frontend:pessoas'), {'name': 'AuthPers', 'doc_id': '2', 'person_type': 'TEACHER'})
+        resp = self.client.post(reverse('frontend:people'), {'name': 'AuthPers', 'doc_id': '2', 'person_type': 'TEACHER'})
         self.assertEqual(resp.status_code, 302)
         self.assertTrue(Person.objects.filter(name='AuthPers').exists())
 

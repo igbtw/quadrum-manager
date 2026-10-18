@@ -99,7 +99,7 @@
                     </td>
                     <td><code>{{ p.matricula }}</code></td>
                     <td class="numeric">
-                        <span style="font-weight: var(--font-weight-medium); 
+                        <span style="font-weight: var(--font-weight-medium);
                             {% if p.saldo < 0 %}color: var(--color-danger);
                             {% elif p.saldo > 0 %}color: var(--color-success);
                             {% else %}color: var(--color-text-muted);{% endif %}">
@@ -107,7 +107,7 @@
                         </span>
                     </td>
                     <td>
-                        <span class="badge 
+                        <span class="badge
                             {% if p.status == 'ACTIVE' %}badge-success{% else %}badge-neutral{% endif %}"
                             style="font-size: var(--font-size-xs);">
                             {{ p.status }}
@@ -148,14 +148,14 @@ document.addEventListener('DOMContentLoaded', function() {
     window.filtrarPeople = function() {
         const tipo = document.getElementById('filtro-tipo').value;
         const status = document.getElementById('filtro-status-pessoa').value;
-        
+
         document.querySelectorAll('#pessoas-tabela tr').forEach(row => {
             if (row.classList.contains('empty-state')) return;
-            
+
             let show = true;
             if (tipo && row.dataset.tipo !== tipo) show = false;
             if (status && row.dataset.status !== status) show = false;
-            
+
             row.style.display = show ? '' : 'none';
         });
     };

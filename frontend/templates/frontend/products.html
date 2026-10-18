@@ -66,7 +66,7 @@
                     <td class="numeric" style="font-weight: var(--font-weight-medium); color: var(--color-primary);">R$ {{ produto.preco }}</td>
                     <td class="numeric">{{ produto.estoque }}</td>
                     <td>
-                        <span class="badge 
+                        <span class="badge
                             {% if produto.situacao == 'NORMAL' %}badge-status-normal
                             {% elif produto.situacao == 'LOW' %}badge-status-baixo
                             {% elif produto.situacao == 'OUT_OF_STOCK' %}badge-status-out-of-stock
@@ -199,14 +199,14 @@ document.addEventListener('DOMContentLoaded', function() {
     window.filtrarProducts = function() {
         const categoria = document.getElementById('filtro-categoria').value;
         const status = document.getElementById('filtro-status').value;
-        
+
         document.querySelectorAll('#produtos-tabela tr').forEach(row => {
             if (row.classList.contains('empty-state')) return;
-            
+
             let show = true;
             if (categoria && row.dataset.categoria !== categoria) show = false;
             if (status && row.dataset.ativo !== status) show = false;
-            
+
             row.style.display = show ? '' : 'none';
         });
     };

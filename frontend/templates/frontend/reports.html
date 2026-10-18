@@ -48,7 +48,7 @@
             <div class="empty-state-title">Selecione os filtros</div>
             <div class="empty-state-description">Select period and type to generate the report</div>
         </div>
-        
+
         <div id="relatorio-conteudo" style="display: none;">
             <div class="dashboard-stats" style="margin-bottom: var(--space-4);">
                 <div class="stat-card">
@@ -60,7 +60,7 @@
                     <div class="stat-label">Quantity</div>
                 </div>
             </div>
-            
+
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3);" id="relatorio-detalhes">
                 <!-- Details inserted by JS -->
             </div>
@@ -75,22 +75,22 @@ document.addEventListener('DOMContentLoaded', function() {
     window.aplicarFiltro = function() {
         const periodo = document.getElementById('filtro-periodo').value;
         const tipo = document.getElementById('filtro-tipo-relatorio').value;
-        
+
         // Simulate data loading
         const vazia = document.getElementById('relatorio-vazio');
         const conteudo = document.getElementById('relatorio-conteudo');
         const detalhes = document.getElementById('relatorio-detalhes');
-        
+
         // Show/hide states
         if (periodo && tipo) {
             vazia.style.display = 'none';
             conteudo.style.display = 'block';
-            
+
             // Mock data based on period and type
             let total = 0;
             let qtd = 0;
             const itens = [];
-            
+
             if (tipo === 'vendas') {
                 itens.push({ label: 'Daily sales', value: 150 });
                 itens.push({ label: 'Average ticket', value: 25.50 });
@@ -110,10 +110,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 total = 18;
                 qtd = 18;
             }
-            
+
             document.getElementById('total-geral').textContent = 'R$ ' + total.toFixed(2);
             document.getElementById('quantidade').textContent = qtd;
-            
+
             detalhes.innerHTML = '';
             itens.forEach(item => {
                 const div = document.createElement('div');
@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
             conteudo.style.display = 'none';
         }
     };
-    
+
     // Inicializar ao carregar
     aplicarFiltro();
 });

@@ -10,7 +10,7 @@
         <p class="page-subtitle">Completed sales history</p>
     </div>
     <div class="page-actions">
-        <a href="{% url 'frontend:pdv' %}" class="btn btn-primary">
+        <a href="{% url 'frontend:point_of_sale' %}" class="btn btn-primary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -48,7 +48,7 @@
                         <td class="numeric" style="font-weight: var(--font-weight-semibold); color: var(--color-primary);">R$ {{ venda.total }}</td>
                         <td>{{ venda.forma_pagamento }}</td>
                         <td>
-                            <span class="badge 
+                            <span class="badge
                                 {% if venda.status == 'COMPLETED' %}badge-success
                                 {% elif venda.status == 'CANCELLED' %}badge-danger
                                 {% elif venda.status == 'PENDING' %}badge-warning

@@ -57,7 +57,7 @@
                         <td class="numeric">R$ {{ c.valor }}</td>
                         <td>{{ c.vencimento|date:"d/m/Y" }}</td>
                         <td>
-                            <span class="badge 
+                            <span class="badge
                                 {% if c.status == 'PENDING' %}badge-warning
                                 {% elif c.status == 'OVERDUE' %}badge-danger
                                 {% else %}badge-info{% endif %}">
@@ -137,7 +137,7 @@
         </div>
     </div>
 </div>
-    <form method="post" action="{% url 'frontend:financeiro' %}" style="margin-top:12px; padding:12px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">
+    <form method="post" action="{% url 'frontend:finance' %}" style="margin-top:12px; padding:12px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">
         {% csrf_token %}
         <h3 style="font-size:var(--font-size-base); margin-bottom:8px;">Register Payment</h3>
         <div style="display:grid; gap:8px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));">
