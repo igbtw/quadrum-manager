@@ -164,6 +164,8 @@
     </section>
 </div>
 
+{% endblock %}
+
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -173,6 +175,7 @@
     (function initSalesChart() {
         const canvas = document.getElementById('salesChart');
         if (!canvas || typeof Chart === 'undefined') return;
+        if (Chart.getChart(canvas)) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         try {
@@ -228,5 +231,4 @@
         } catch (e) { console.warn('Chart init skipped:', e); }
     })();
 </script>
-{% endblock %}
 {% endblock %}
