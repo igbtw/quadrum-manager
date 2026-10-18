@@ -19,7 +19,7 @@ A Django-based web application for managing a school cafeteria (school cafeteria
 - **Database:** SQLite (development); PostgreSQL 14+ (production, optional)
 - **Dependencies:** See `requirements.txt` (includes `whitenoise`, `gunicorn`, `python-dotenv`, `psycopg[binary]`)
 - **Frontend:** Django templates + vanilla CSS/JS (no build step)
-- **License:** MIT (see `LICENSE`)
+- **License:** 0BSD (see `LICENSE`)
 
 ## Project Structure
 
@@ -102,6 +102,6 @@ Deployment instructions, reverse proxy configuration (nginx/Apache), HTTPS setup
 
 ## License
 
-quadrum is licensed under the MIT License. See [LICENSE](LICENSE) for the full text.
+quadrum is licensed under the 0BSD (BSD Zero Clause) License. See [LICENSE](LICENSE) for the full text.
 
 Third-party dependencies (Django, WhiteNoise, Gunicorn, etc.) remain subject to their respective licenses.

@@ -42,7 +42,7 @@ The clean-environment installation (`pip install -r requirements.txt`) has been 
 - Do not invent new user roles, integrations, or major architecture changes unless verified against the project design.
 - Do not commit secrets, `.env` files, real school/student data, or database files (`db.sqlite3`, `media/`, `staticfiles/`).
 - Verify commands and feature claims against the actual repository before documenting them.
-- Preserve the MIT license and existing documentation structure (`DEPLOYMENT.md`, `README.md`).
+- Preserve the 0BSD license and existing documentation structure (`DEPLOYMENT.md`, `README.md`).
 
 ## Reporting Issues
 
