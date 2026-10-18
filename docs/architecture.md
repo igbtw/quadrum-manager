@@ -81,7 +81,6 @@ WhiteNoise handles static-file compression and manifest in production (`STORAGES
 
 - `.env` is **not** loaded automatically by Django or the application. Variables must be exported in the environment or provided by the deployment mechanism (`DEPLOYMENT.md` covers `EnvironmentFile` for systemd).
 - The application uses a single app (`frontend`) for business logic, rather than splitting into multiple Django apps.
-- Mock data (`frontend/mock_data.py`) exists but is not automatically loaded into the database unless explicitly invoked.
 
 ## Unverified / Planned
 

@@ -1,7 +1,7 @@
 from django import forms
 from django.core.validators import MinValueValidator
 from decimal import Decimal
-from .models import Category, Product, Person, Sale, SaleItem, Payment, AccountReceivable
+from .models import Product, Person, Payment
 
 
 class ProductForm(forms.ModelForm):
@@ -37,22 +37,6 @@ class PersonForm(forms.ModelForm):
     def clean_doc_id(self):
         doc = self.cleaned_data.get('doc_id', '').strip()
         return doc
-
-
-class SaleForm(forms.ModelForm):
-    class Meta:
-        model = Sale
-        fields = ['customer', 'responsible', 'status', 'payment_method', 'notes', 'subtotal', 'discount', 'total']
-        widgets = {
-            'notes': forms.Textarea(attrs={'rows': 2}),
-            'customer': forms.Select(),
-        }
-
-    def clean_total(self):
-        total = self.cleaned_data.get('total')
-        if total is not None and total < Decimal('0.00'):
-            raise forms.ValidationError('Total cannot be negative.')
-        return total
 
 
 class PaymentForm(forms.ModelForm):
