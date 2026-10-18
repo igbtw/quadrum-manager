@@ -17,9 +17,9 @@ A Django-based web application for managing a school cafeteria (school cafeteria
 - **WSGI server:** Gunicorn 21+
 - **Static files:** WhiteNoise 6.8+ (required for production; configured in `STORAGES` and middleware)
 - **Database:** SQLite (development); PostgreSQL 14+ (production, optional)
-- **Dependencies:** See `requirements.txt` (includes `whitenoise`, `gunicorn`, `python-dotenv`, `psycopg[binary]`)
+- **Dependencies:** See `[requirements.txt](requirements.txt)` (includes `whitenoise`, `gunicorn`, `python-dotenv`, `psycopg[binary]`)
 - **Frontend:** Django templates + vanilla CSS/JS (no build step)
-- **License:** 0BSD (see `LICENSE`)
+- **License:** 0BSD (see `[LICENSE](LICENSE)`)
 
 ## Project Structure
 
