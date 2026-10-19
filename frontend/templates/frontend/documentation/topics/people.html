@@ -1,0 +1,43 @@
+{% extends "frontend/documentation/topic_base.html" %}
+
+{% block topic_content %}
+<p>People are the customer records used by sales and finance: students, teachers, staff, and visitors. The <a href="{% url 'frontend:people' %}">People</a> page lists and filters them.</p>
+
+<h3>Record types</h3>
+<ul>
+    <li><strong>Student</strong>, <strong>Teacher</strong>, <strong>Staff</strong>, and <strong>Visitor</strong> — the record type is shown as a badge in the listing and in payment details.</li>
+</ul>
+
+<h3>Record fields</h3>
+<div class="doc-table-wrap">
+    <table class="doc-table">
+        <thead>
+            <tr><th>Field</th><th>Shown as</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Name</td><td>Name</td><td>Used for matching in listings and search.</td></tr>
+            <tr><td>Type</td><td>Type badge</td><td>Student, Teacher, Staff, or Visitor.</td></tr>
+            <tr><td>Record / Doc</td><td>Registration</td><td>A short identifier (for example, a student number) usable for lookup.</td></tr>
+            <tr><td>Status</td><td>Active / Inactive badge</td><td>Inactive records stay in history but are excluded from the active listing.</td></tr>
+            <tr><td>Balance</td><td>Balance column</td><td>Outstanding amount from open receivables. Negative values (red) mean the person owes money.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h3>Filtering and lookup</h3>
+<ul>
+    <li>The listing header has a search box that filters by name or registration; the URL parameter is preserved, so links can open a filtered listing directly.</li>
+    <li><strong>All types</strong> and <strong>All statuses</strong> selects narrow the visible rows by person type and active status.</li>
+    <li>Each row has a copy action that puts the registration value on the clipboard.</li>
+</ul>
+
+<h3>Searching for people from anywhere</h3>
+<ul>
+    <li>Press <code>Ctrl+K</code> and type a name or registration number — matching people appear under the People category.</li>
+    <li>Use the <code>person:</code> prefix to search people only (for example, <code>person:maria</code> or <code>person:123456</code>), or switch to the <strong>People</strong> tab.</li>
+    <li>Selecting a person opens the People listing already filtered to that name.</li>
+    <li>Search results show only the name and record details — email and phone numbers are never returned by search.</li>
+</ul>
+
+<p class="doc-note">See <a href="{% url 'frontend:documentation_topic' 'search' %}">Search and Advanced Queries</a> for the full search syntax.</p>
+{% endblock %}

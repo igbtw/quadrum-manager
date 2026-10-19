@@ -1,0 +1,74 @@
+{% comment %}Pre-paint preference bootstrap shared by base.html and auth_base.html. Keep in sync with static/js/main.js.{% endcomment %}
+<script>
+    // Apply stored preferences before first paint to avoid a theme flash.
+    (function() {
+        var KEY = 'quadrum.preferences.v1';
+        var THEMES = ['system', 'light', 'dark'];
+        var DENSITIES = ['comfortable', 'compact'];
+        var MOTIONS = ['system', 'reduced'];
+        var TEXT_SIZES = ['small', 'default', 'large'];
+        var ACCENTS = ['default', 'blue', 'violet', 'emerald'];
+        var CONTRASTS = ['disabled', 'enabled'];
+        var CONFIRMS = ['enabled', 'disabled'];
+        var CORNERS = ['square', 'rounded'];
+        var prefs = {
+            theme: 'system',
+            density: 'comfortable',
+            motion: 'system',
+            textSize: 'default',
+            accent: 'default',
+            highContrast: 'disabled',
+            confirmDestructive: 'enabled',
+            cornerStyle: 'square'
+        };
+        var stored = null;
+        try {
+            var raw = window.localStorage.getItem(KEY);
+            if (raw) stored = JSON.parse(raw);
+        } catch (e) {
+            stored = null;
+        }
+        var storedHasTheme = !!(stored && typeof stored === 'object' &&
+            THEMES.indexOf(stored.theme) !== -1);
+        if (stored && typeof stored === 'object' && !Array.isArray(stored)) {
+            if (storedHasTheme) prefs.theme = stored.theme;
+            if (DENSITIES.indexOf(stored.density) !== -1) prefs.density = stored.density;
+            if (MOTIONS.indexOf(stored.motion) !== -1) prefs.motion = stored.motion;
+            if (TEXT_SIZES.indexOf(stored.textSize) !== -1) prefs.textSize = stored.textSize;
+            if (ACCENTS.indexOf(stored.accent) !== -1) prefs.accent = stored.accent;
+            if (CONTRASTS.indexOf(stored.highContrast) !== -1) {
+                prefs.highContrast = stored.highContrast;
+            }
+            if (CONFIRMS.indexOf(stored.confirmDestructive) !== -1) {
+                prefs.confirmDestructive = stored.confirmDestructive;
+            }
+            if (CORNERS.indexOf(stored.cornerStyle) !== -1) {
+                prefs.cornerStyle = stored.cornerStyle;
+            }
+        }
+        try {
+            var legacy = window.localStorage.getItem('theme');
+            if (legacy === 'light' || legacy === 'dark') {
+                if (!storedHasTheme) {
+                    prefs.theme = legacy;
+                    window.localStorage.setItem(KEY, JSON.stringify(prefs));
+                }
+                window.localStorage.removeItem('theme');
+            }
+        } catch (e) {}
+        var dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute(
+            'data-theme',
+            prefs.theme === 'system' ? (dark ? 'dark' : 'light') : prefs.theme
+        );
+        document.documentElement.setAttribute('data-density', prefs.density);
+        document.documentElement.setAttribute('data-motion', prefs.motion);
+        document.documentElement.setAttribute('data-text-size', prefs.textSize);
+        document.documentElement.setAttribute('data-accent', prefs.accent);
+        document.documentElement.setAttribute(
+            'data-contrast',
+            prefs.highContrast === 'enabled' ? 'high' : 'default'
+        );
+        document.documentElement.setAttribute('data-corners', prefs.cornerStyle);
+    })();
+</script>

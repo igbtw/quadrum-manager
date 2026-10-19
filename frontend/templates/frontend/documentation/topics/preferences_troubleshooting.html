@@ -1,0 +1,40 @@
+{% extends "frontend/documentation/topic_base.html" %}
+
+{% block topic_content %}
+<p>Interface preferences are stored in this browser only (localStorage key <code>quadrum.preferences.v1</code>) and apply immediately. They never sync across devices or accounts.</p>
+
+<h3>Available preferences</h3>
+<div class="doc-table-wrap">
+    <table class="doc-table">
+        <thead>
+            <tr><th>Preference</th><th>Options</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>Theme</td><td>System, Light, Dark.</td></tr>
+            <tr><td>Accent color</td><td>Default, Blue, Violet, Emerald — tints buttons, links, focus rings, and selected items.</td></tr>
+            <tr><td>Interface density</td><td>Comfortable or Compact spacing in panels, tables, and forms.</td></tr>
+            <tr><td>Corner style</td><td>Square (default) or Rounded.</td></tr>
+            <tr><td>Desktop sidebar</td><td>Expanded or Icon-only.</td></tr>
+            <tr><td>Text size</td><td>Small, Default, Large.</td></tr>
+            <tr><td>Motion</td><td>System or Reduced animation.</td></tr>
+            <tr><td>High contrast</td><td>Strengthen text, borders, and focus indicators.</td></tr>
+            <tr><td>Confirm destructive actions</td><td>Ask before deletes or removals that cannot be undone.</td></tr>
+        </tbody>
+    </table>
+</div>
+<p>Open the Preferences dialog from the header or search inside it; clearing the search shows all settings again. There is no “save” button — changes apply immediately. A stored preference is not the cause of data disappearing; clearing browser storage resets the interface to defaults.</p>
+
+<h3>Troubleshooting</h3>
+<ul>
+    <li><strong>Signed out unexpectedly?</strong> Sessions expire after a period of inactivity. Sign in again; saved data is not affected.</li>
+    <li><strong>Stock adjustment rejected?</strong> Stock cannot go negative. Reduce the quantity to remove or restock first.</li>
+    <li><strong>Payment rejected?</strong> The amount exceeds the remaining balance, or the receivable is cancelled. Overpayment is blocked at the form and service layers.</li>
+    <li><strong>Can't cancel a sale?</strong> A sale whose receivable already has registered payments cannot be cancelled, and only Completed sales can be cancelled.</li>
+    <li><strong>Product missing from the sale picker?</strong> Inactive products are hidden from selection but remain in history.</li>
+    <li><strong>Person missing from the listing?</strong> The listing shows active records; a record that was deactivated stays in history but is not listed.</li>
+    <li><strong>Want the tour again?</strong> Use <strong>Show getting started guide</strong> on the <a href="{% url 'frontend:documentation' %}">Documentation index</a>.</li>
+    <li><strong>Something else?</strong> The Help control in the header always returns to the documentation index.</li>
+</ul>
+
+<p class="doc-note">Guides for the areas involved: <a href="{% url 'frontend:documentation_topic' 'products-inventory' %}">Products and Inventory</a> · <a href="{% url 'frontend:documentation_topic' 'finance' %}">Finance and Receivables</a> · <a href="{% url 'frontend:documentation_topic' 'people' %}">People and Customers</a>.</p>
+{% endblock %}

@@ -7,61 +7,89 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Inventory</h1>
-        <p class="page-subtitle">Cafeteria inventory control</p>
+        <p class="page-subtitle">Inventory control</p>
     </div>
 </div>
 
-<!-- Resumo -->
+<!-- Summary -->
 <div class="dashboard-stats" style="margin-bottom: var(--space-6);">
     <div class="stat-card">
-        <div class="stat-value" id="total-itens">{{ total_itens }}</div>
-        <div class="stat-label">Total Itens</div>
+        <div class="stat-value" id="total-items">{{ total_items }}</div>
+        <div class="stat-label">Total Items</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value" id="valor-total">
-            R$ {{ valor_total }}
+        <div class="stat-value" id="total-value">
+            R$ {{ total_value|floatformat:2 }}
         </div>
-        <div class="stat-label">Valor Total</div>
+        <div class="stat-label">Total Value</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value" id="low-estoque">{{ low_estoque }}</div>
+        <div class="stat-value" id="low-stock">{{ low_stock }}</div>
         <div class="stat-label">Low Inventory</div>
     </div>
     <div class="stat-card">
-        <div class="stat-value" id="sem-estoque">{{ sem_estoque }}</div>
+        <div class="stat-value" id="out-of-stock">{{ out_of_stock }}</div>
         <div class="stat-label">Out of Stock</div>
-    </div>
-</div>
-
-<!-- Filtros -->
-<div class="section-card" style="margin-bottom: var(--space-4);">
-    <div class="card-body" style="padding: var(--space-3) var(--space-4);">
-        <div class="estoque-filters">
-            <select id="filtro-situacao" class="select" onchange="filtrarInventory()">
-                <option value="">All statuses</option>
-                <option value="NORMAL">Normal</option>
-                <option value="LOW">Low</option>
-                <option value="OUT OF STOCK">Out of Stock</option>
-                <option value="INACTIVE">Inactive</option>
-            </select>
-            <select id="filtro-categoria-estoque" class="select" onchange="filtrarInventory()">
-                <option value="">All categories</option>
-                {% for c in categorias %}
-                <option value="{{ c.id }}">{{ c.nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
     </div>
 </div>
 
 <!-- Product inventory list -->
 <div class="section-card">
-    <div class="card-header">
+    <div class="card-header list-header">
         <h3 class="card-title">Products by Status</h3>
+        <div class="list-toolbar">
+            <form method="get" action="{% url 'frontend:inventory' %}" role="search" class="list-toolbar-form">
+                <div class="toolbar-field toolbar-search">
+                    <label class="toolbar-label" for="inventory-search">Search</label>
+                    <input type="search" id="inventory-search" name="q" value="{{ query }}" class="input" placeholder="Name or code" autocomplete="off">
+                </div>
+                <div class="toolbar-field">
+                    <label class="toolbar-label" for="filter-status">Status</label>
+                    <select id="filter-status" name="status" class="select js-auto-submit">
+                        <option value="">All statuses</option>
+                        {% for value, label in status_options %}
+                        <option value="{{ value }}"{% if stock_status == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="toolbar-field">
+                    <label class="toolbar-label" for="filter-category">Category</label>
+                    <select id="filter-category" name="category" class="select js-auto-submit">
+                        <option value="">All categories</option>
+                        {% for c in all_categories %}
+                        <option value="{{ c.id }}"{% if category_id == c.id|stringformat:"s" %} selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="toolbar-actions">
+                    <button type="submit" class="btn btn-secondary">Search</button>
+                    {% if filters_active %}
+                    <a class="btn btn-ghost" href="{% url 'frontend:inventory' %}">Clear filters</a>
+                    {% endif %}
+                </div>
+            </form>
+            <p class="list-count" role="status">
+                {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}
+            </p>
+        </div>
     </div>
     <div class="card-body">
+        <form method="post" action="{% url 'frontend:inventory' %}" class="stock-adjust-form" id="stockAdjustForm">
+            {% csrf_token %}
+            <h4 class="stock-adjust-title">Stock adjustment</h4>
+            <div class="stock-adjust-grid">
+                <select name="product_id" id="stockProductSelect" class="select" required aria-label="Product">
+                    <option value="">Product</option>
+                    {% for p in product_options %}
+                    <option value="{{ p.id }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="qty" id="stockQtyInput" class="input" step="1" required placeholder="Qty (+ / -)" aria-label="Quantity change">
+                <input type="text" name="reason" class="input stock-adjust-reason" placeholder="Reason" aria-label="Adjustment reason">
+                <button type="submit" class="btn btn-secondary">Adjust</button>
+            </div>
+        </form>
         <div class="table-responsive">
-            <form method="post" action="{% url 'frontend:inventory' %}" style="margin-bottom:12px; padding:10px; border:1px solid var(--color-border); border-radius:8px; background:var(--color-surface);">{% csrf_token %}<h4 style="font-size:var(--font-size-sm); margin:0 0 8px;">Stock adjustment</h4><div style="display:flex; gap:8px; flex-wrap:wrap;"><select name="product_id" required style="padding:6px;"><option value="">Product</option>{% for p in produtos_select %}<option value="{{ p.id }}">{{ p.name }}</option>{% endfor %}</select><input type="number" name="qty" step="1" required placeholder="Qty (+ / -)" style="padding:6px; width:80px;"><input type="text" name="reason" placeholder="Reason" style="padding:6px; flex:1; min-width:120px;"><button type="submit" class="btn btn-secondary" style="padding:6px 12px;">Adjust</button></div></form>
             <table class="table">
                 <thead>
                     <tr>
@@ -70,58 +98,60 @@
                         <th class="numeric">Inventory</th>
                         <th class="numeric">Minimum</th>
                         <th>Status</th>
-                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="produtos-estoque-tabela">
-                    {% for p in produtos_select %}
-                    <tr class="product-row" data-situacao="{{ p.situacao }}" data-categoria="{{ p.categoria_id }}" data-ativo="{{ p.ativo }}">
+                <tbody id="inventory-table">
+                    {% for p in products %}
+                    <tr class="product-row" data-status="{{ p.stock_status }}" data-category="{{ p.category_id }}" data-active="{% if p.active %}true{% else %}false{% endif %}">
                         <td class="product-name">
-                            <strong>{{ p.nome }}</strong>
+                            <strong>{{ p.name }}</strong>
                         </td>
-                        <td>{{ p.categoria }}</td>
-                        <td class="numeric">{{ p.estoque }}</td>
-                        <td class="numeric">{{ p.estoque_minimo }}</td>
+                        <td>{{ p.category|default:"—" }}</td>
+                        <td class="numeric">{{ p.stock }}</td>
+                        <td class="numeric">{{ p.minimum_stock }}</td>
                         <td>
-                            <span class="badge
-                                {% if p.situacao == 'NORMAL' %}badge-status-normal
-                                {% elif p.situacao == 'LOW' %}badge-status-low
-                                {% elif p.situacao == 'OUT_OF_STOCK' %}badge-status-out-of-stock
-                                {% else %}badge-status-normal{% endif %}">
-                                {{ p.situacao }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge
-                                {% if p.ativo %}badge-success{% else %}badge-danger{% endif %}">
-                                {% if p.ativo %}Ativo{% else %}Inactive{% endif %}
-                            </span>
+                            {% if p.stock_status == 'NORMAL' %}
+                            <span class="badge badge-status-normal">Normal</span>
+                            {% elif p.stock_status == 'LOW' %}
+                            <span class="badge badge-status-low">Low</span>
+                            {% elif p.stock_status == 'OUT_OF_STOCK' %}
+                            <span class="badge badge-status-out-of-stock">Out of Stock</span>
+                            {% else %}
+                            <span class="badge badge-status-inactive">Inactive</span>
+                            {% endif %}
                         </td>
                         <td>
-                            <button class="btn btn-icon btn-ghost" title="Adjust inventory" aria-label="Adjust inventory for {{ p.nome }}" onclick="ajustarInventory({{ p.id }})">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
+                            {% if p.active %}
+                            <button type="button" class="btn btn-icon btn-ghost" title="Adjust inventory for {{ p.name }}" aria-label="Adjust inventory for {{ p.name }}" onclick="adjustInventory({{ p.id }})">
+                                <i data-lucide="plus" aria-hidden="true"></i>
                             </button>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="empty-state">
+                        <td colspan="6" class="empty-state">
                             <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                                <line x1="12" y1="22.08" x2="12" y2="12"></path>
+                                <line x1="12" y1="22.08" x2="12" y2="12"></line>
                             </svg>
+                            {% if filters_active %}
+                            <div class="empty-state-title">No inventory items match your filters</div>
+                            <div class="empty-state-description">Try another product name, code, status, or category. <a href="{% url 'frontend:inventory' %}">Clear filters</a> to see everything.</div>
+                            {% else %}
                             <div class="empty-state-title">No products found</div>
                             <div class="empty-state-description">Register products in the Products section</div>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=list_qs page_param="page" aria_label="Inventory pagination" %}
     </div>
 </div>
 {% endblock %}
@@ -129,23 +159,17 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    window.filtrarInventory = function() {
-        const situacao = document.getElementById('filtro-situacao').value;
-        const categoria = document.getElementById('filtro-categoria-estoque').value;
+    window.adjustInventory = function(id) {
+        const form = document.getElementById('stockAdjustForm');
+        const select = document.getElementById('stockProductSelect');
+        const quantity = document.getElementById('stockQtyInput');
+        if (!form || !select) return;
 
-        document.querySelectorAll('#produtos-estoque-tabela tr').forEach(row => {
-            if (row.classList.contains('empty-state')) return;
+        select.value = String(id);
+        if (select.value !== String(id)) return;
 
-            let show = true;
-            if (situacao && row.dataset.situacao !== situacao) show = false;
-            if (categoria && row.dataset.categoria !== categoria) show = false;
-
-            row.style.display = show ? '' : 'none';
-        });
-    };
-
-    window.ajustarInventory = function(id) {
-        quadrum.showToast('Adjust Inventory', `Adjustment feature for product ${id} (mock)`, 'info');
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (quantity) quantity.focus({ preventScroll: true });
     };
 });
 </script>

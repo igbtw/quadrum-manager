@@ -39,6 +39,15 @@ _csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()] if _csrf_origins else []
 
 
+# DEMO DATA (local development only)
+# The seed_demo_data / clear_demo_data management commands refuse to run
+# unless ALLOW_DEMO_DATA_COMMANDS is true. Defaults to DEBUG so production
+# (DEBUG=False) is always protected. The manifest records exactly which rows
+# the seeder created so cleanup can remove them again.
+ALLOW_DEMO_DATA_COMMANDS = DEBUG
+DEMO_DATA_MANIFEST_PATH = BASE_DIR / 'demo_data_manifest.json'
+
+
 # APPLICATION DEFINITION
 
 INSTALLED_APPS = [
@@ -75,6 +84,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'frontend.context_processors.onboarding',
+                'frontend.context_processors.documentation',
+                'frontend.context_processors.preferences',
             ],
         },
     },
@@ -159,7 +171,7 @@ if DEBUG:
 
 # INTERNATIONALIZATION
 
-LANGUAGE_CODE = 'pt-br'
+LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True

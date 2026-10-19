@@ -7,20 +7,20 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">New Sale</h1>
-        <p class="page-subtitle">Record sale in cafeteria</p>
+        <p class="page-subtitle">Record a sale</p>
     </div>
 </div>
 
-<div class="pdv-layout">
+<div class="pos-layout">
     <!-- Left panel: Products -->
-    <div class="pdv-products">
+    <div class="pos-products">
         <div class="card" style="margin-bottom: 0; border-radius: 0;">
             <div class="card-header">
                 <h3 class="card-title">Search Products</h3>
             </div>
             <div class="card-body" style="padding: var(--space-3);">
                 <div class="search-input-wrapper">
-                    <input type="search" id="buscarProduct" class="search-input" placeholder="Search product name..." aria-label="Search product">
+                    <input type="search" id="productSearch" class="search-input" placeholder="Search product name..." aria-label="Search product">
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -29,22 +29,22 @@
             </div>
         </div>
 
-        <div class="pdv-categories">
-            {% for categoria in categorias %}
-            <button class="category-btn" onclick="filtrarPorCategory({{ categoria.id }})">
-                {{ categoria.nome }}
+        <div class="pos-categories">
+            {% for category in categories %}
+            <button class="category-btn" onclick="filterByCategory({{ category.id }})">
+                {{ category.name }}
             </button>
             {% endfor %}
         </div>
 
-        <div class="pdv-products-list" id="resultados-produtos">
-            {% for produto in produtos %}
-            <div class="product-card {% if not produto.ativo %}inactive{% endif %}" data-categoria="{{ produto.categoria_id }}" data-nome="{{ produto.nome|lower }}" data-id="{{ produto.id }}">
+        <div class="pos-products-list" id="product-results">
+            {% for product in products %}
+            <div class="product-card {% if not product.active %}inactive{% endif %}" data-category="{{ product.category_id }}" data-name="{{ product.name|lower }}" data-id="{{ product.id }}">
                 <div class="product-card-header">
-                    <span class="product-card-name">{{ produto.nome }}</span>
-                    <span class="product-card-price">R$ {{ produto.preco }}</span>
+                    <span class="product-card-name">{{ product.name }}</span>
+                    <span class="product-card-price">R$ {{ product.price|floatformat:2 }}</span>
                 </div>
-                <div class="product-card-stock">Inventory: {{ produto.estoque }} | Min: {{ produto.estoque_minimo }}</div>
+                <div class="product-card-stock">Inventory: {{ product.stock_quantity }} | Min: {{ product.minimum_stock }}</div>
             </div>
             {% empty %}
             <div style="text-align: center; color: var(--color-text-muted); padding: var(--space-4);">
@@ -55,35 +55,35 @@
     </div>
 
     <!-- Right panel: Cart -->
-    <div class="pdv-cart">
+    <div class="pos-cart">
         <div class="cart-header">
             <h3 class="cart-title">Cart</h3>
         </div>
-        <div class="cart-items" id="carrinho-itens">
-            <div id="carrinho-itens-vazio" class="empty-state" style="padding: var(--space-8);">
+        <div class="cart-items" id="cart-items">
+            <div id="cart-empty" class="empty-state" style="padding: var(--space-8);">
                 <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <path d="M16 10a4 4 0 0 1-8 0"></path>
                 </svg>
-                <div class="empty-state-title">Cart vazio</div>
+                <div class="empty-state-title">Cart is empty</div>
                 <div class="empty-state-description">Add products by clicking on them</div>
             </div>
-            <table id="carrinho-tabela" class="table" style="display: none;">
+            <table id="cart-table" class="table" style="display: none;">
                 <thead>
                     <tr>
                         <th>Product</th>
                         <th>Quantity</th>
                         <th class="numeric">Subtotal</th>
-                        <th>Ação</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="carrinho-tabela-body">
+                <tbody id="cart-table-body">
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="3" style="text-align: right; font-weight: var(--font-weight-semibold);">Subtotal</td>
-                        <td id="carrinho-subtotal" style="font-weight: var(--font-weight-bold); color: var(--color-primary);">R$ 0,00</td>
+                        <td id="cart-subtotal" style="font-weight: var(--font-weight-bold); color: var(--color-primary);">R$ 0.00</td>
                     </tr>
                 </tfoot>
             </table>
@@ -91,19 +91,19 @@
         <div class="cart-footer">
             <div class="cart-summary">
                 <span class="cart-total-label">Total</span>
-                <span class="cart-total" id="carrinho-total">R$ 0,00</span>
+                <span class="cart-total" id="cart-total">R$ 0.00</span>
             </div>
             <div class="cart-payment">
-                {% for fp in formas_pagamento %}
+                {% for code, label in payment_methods %}
                 <label class="payment-option">
-                    <input type="radio" name="forma_pagamento" value="{{ fp.id }}">
-                    <span class="payment-option-label">{{ fp.nome }}</span>
+                    <input type="radio" name="payment_method" value="{{ code }}">
+                    <span class="payment-option-label">{{ label }}</span>
                 </label>
                 {% endfor %}
             </div>
             <div class="cart-actions">
-                <button class="btn btn-secondary" onclick="limparCart()">Clear</button>
-                <button class="btn btn-primary" onclick="finalizarSale()">Finalizar Sale</button>
+                <button class="btn btn-secondary" onclick="clearCart()">Clear</button>
+                <button class="btn btn-primary" onclick="finalizeSale()">Finalize Sale</button>
             </div>
         </div>
     </div>
@@ -114,24 +114,24 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        const saved = sessionStorage.getItem('pdv_checkout');
+        const saved = sessionStorage.getItem('pos_checkout');
         if (saved) {
-            const d = JSON.parse(saved);
-            if (d && d.idempotency_key) window._pdv_key = d.idempotency_key;
+            const data = JSON.parse(saved);
+            if (data && data.idempotency_key) window._checkoutKey = data.idempotency_key;
         }
     } catch (e) {}
-    let carrinho = [];
+    let cart = [];
 
-    const searchInput = document.getElementById('buscarProduct');
+    const searchInput = document.getElementById('productSearch');
     let searchTerm = '';
 
     searchInput.addEventListener('input', function(e) {
         searchTerm = e.target.value.toLowerCase();
-        filtrarProducts();
+        filterProducts();
     });
 
-    window.filtrarPorCategory = function(categoriaId) {
-        // Atualizar botões ativos
+    window.filterByCategory = function(categoryId) {
+        // Update active buttons
         document.querySelectorAll('.category-btn').forEach(btn => {
             btn.classList.remove('active');
         });
@@ -139,8 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Filter products
         document.querySelectorAll('.product-card').forEach(card => {
-            const cat = card.dataset.categoria;
-            if (!categoriaId || cat == categoriaId) {
+            const category = card.dataset.category;
+            if (!categoryId || category == categoryId) {
                 card.style.display = '';
             } else {
                 card.style.display = 'none';
@@ -148,11 +148,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    window.filtrarProducts = function() {
+    window.filterProducts = function() {
         document.querySelectorAll('.product-card').forEach(card => {
-            const nome = card.dataset.nome;
-            const catMatch = card.style.display !== 'none';
-            if (nome.includes(searchTerm) && catMatch) {
+            const name = card.dataset.name;
+            const categoryMatches = card.style.display !== 'none';
+            if (name.includes(searchTerm) && categoryMatches) {
                 card.style.display = '';
             } else {
                 card.style.display = 'none';
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // Keyboard navigation for product list
-    const productList = document.getElementById('resultados-produtos');
+    const productList = document.getElementById('product-results');
     let highlightedIndex = -1;
     const productCards = () => Array.from(productList.querySelectorAll('.product-card:not(.inactive):not([style*="display: none"])'));
 
@@ -180,12 +180,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = cards[highlightedIndex];
             if (card) {
                 const id = parseInt(card.dataset.id);
-                const nome = card.querySelector('.product-card-name').textContent;
-                const preco = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
-                adicionarAoCart(id, nome, preco);
+                const name = card.querySelector('.product-card-name').textContent;
+                const price = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
+                addToCart(id, name, price);
                 searchInput.value = '';
                 searchTerm = '';
-                filtrarProducts();
+                filterProducts();
                 highlightedIndex = -1;
                 updateHighlight(cards);
             }
@@ -207,136 +207,134 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Event delegation to add to cart
-    document.getElementById('resultados-produtos').addEventListener('click', function(e) {
+    document.getElementById('product-results').addEventListener('click', function(e) {
         const card = e.target.closest('.product-card');
         if (card && !card.classList.contains('inactive')) {
             const id = parseInt(card.dataset.id);
-            const nome = card.querySelector('.product-card-name').textContent;
-            const preco = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
-            adicionarAoCart(id, nome, preco);
+            const name = card.querySelector('.product-card-name').textContent;
+            const price = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
+            addToCart(id, name, price);
         }
     });
 
     // Add to cart
-    window.adicionarAoCart = function(produtoId, nome, preco) {
-        const existente = carrinho.find(i => i.id == produtoId);
-        if (existente) {
-            existente.qtd += 1;
+    window.addToCart = function(productId, name, price) {
+        const existing = cart.find(i => i.id == productId);
+        if (existing) {
+            existing.quantity += 1;
         } else {
-            carrinho.push({
-                id: produtoId,
-                nome: nome,
-                preco: parseFloat(preco),
-                qtd: 1
+            cart.push({
+                id: productId,
+                name: name,
+                price: parseFloat(price),
+                quantity: 1
             });
         }
-        renderizarCart();
-        quadrum.showToast('Added', `${nome} adicionado ao carrinho`, 'success', 2000);
+        renderCart();
+        quadrum.showToast('Added', `${name} added to cart`, 'success', 2000);
     };
 
-    window.removerItemCart = function(idx) {
-        carrinho.splice(idx, 1);
-        renderizarCart();
+    window.removeCartItem = function(idx) {
+        cart.splice(idx, 1);
+        renderCart();
     };
 
-    window.incrementarQtd = function(idx) {
-        carrinho[idx].qtd += 1;
-        renderizarCart();
+    window.incrementQuantity = function(idx) {
+        cart[idx].quantity += 1;
+        renderCart();
     };
 
-    window.decrementarQtd = function(idx) {
-        if (carrinho[idx].qtd <= 1) {
-            removerItemCart(idx);
+    window.decrementQuantity = function(idx) {
+        if (cart[idx].quantity <= 1) {
+            removeCartItem(idx);
         } else {
-            carrinho[idx].qtd -= 1;
-            renderizarCart();
+            cart[idx].quantity -= 1;
+            renderCart();
         }
     };
 
-    function renderizarCart() {
-        const tabelaBody = document.getElementById('carrinho-tabela-body');
-        const carrinhoVazio = document.getElementById('carrinho-itens-vazio');
-        const tabela = document.getElementById('carrinho-tabela');
+    function renderCart() {
+        const tableBody = document.getElementById('cart-table-body');
+        const cartEmpty = document.getElementById('cart-empty');
+        const table = document.getElementById('cart-table');
 
-        if (carrinho.length === 0) {
-            tabela.style.display = 'none';
-            carrinhoVazio.style.display = 'block';
+        if (cart.length === 0) {
+            table.style.display = 'none';
+            cartEmpty.style.display = 'block';
         } else {
-            tabela.style.display = 'table';
-            carrinhoVazio.style.display = 'none';
+            table.style.display = 'table';
+            cartEmpty.style.display = 'none';
             let subtotal = 0;
-            tabelaBody.innerHTML = '';
+            tableBody.innerHTML = '';
 
-            carrinho.forEach((item, idx) => {
-                const subtotalItem = item.preco * item.qtd;
-                subtotal += subtotalItem;
+            cart.forEach((item, idx) => {
+                const itemSubtotal = item.price * item.quantity;
+                subtotal += itemSubtotal;
 
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${item.nome}</td>
+                    <td>${item.name}</td>
                     <td style="display: flex; align-items: center; gap: var(--space-2);">
-                        <button onclick="decrementarQtd(${idx})" class="btn btn-icon-sm" aria-label="Decrease quantity">−</button>
-                        <span style="min-width: 24px; text-align: center;">${item.qtd}</span>
-                        <button onclick="incrementarQtd(${idx})" class="btn btn-icon-sm" aria-label="Increase quantity">+</button>
+                        <button onclick="decrementQuantity(${idx})" class="btn btn-icon-sm" aria-label="Decrease quantity">−</button>
+                        <span style="min-width: 24px; text-align: center;">${item.quantity}</span>
+                        <button onclick="incrementQuantity(${idx})" class="btn btn-icon-sm" aria-label="Increase quantity">+</button>
                     </td>
-                    <td class="numeric">R$ ${subtotalItem.toFixed(2)}</td>
-                    <td><button class="btn btn-icon-sm btn-danger" onclick="removerItemCart(${idx})" aria-label="Remover item">×</button></td>
+                    <td class="numeric">R$ ${itemSubtotal.toFixed(2)}</td>
+                    <td><button class="btn btn-icon-sm btn-danger" onclick="removeCartItem(${idx})" aria-label="Remove item">×</button></td>
                 `;
-                tabelaBody.appendChild(tr);
+                tableBody.appendChild(tr);
             });
 
-            document.getElementById('carrinho-subtotal').textContent = 'R$ ' + subtotal.toFixed(2);
-            document.getElementById('carrinho-total').textContent = 'R$ ' + subtotal.toFixed(2);
+            document.getElementById('cart-subtotal').textContent = 'R$ ' + subtotal.toFixed(2);
+            document.getElementById('cart-total').textContent = 'R$ ' + subtotal.toFixed(2);
         }
     }
 
-    window.limparCart = function() {
-        if (carrinho.length === 0) return;
-        carrinho = [];
-        renderizarCart();
+    window.clearCart = function() {
+        if (cart.length === 0) return;
+        cart = [];
+        renderCart();
         quadrum.showToast('Cart cleared', 'All items removed', 'info');
     };
 
-    window.finalizarSale = function() {
-        if (window._finalizarEmCurso) return;
+    window.finalizeSale = function() {
+        if (window._checkoutInProgress) return;
         let payload = null;
-        let formaPayment = null;
+        let paymentOption = null;
         try {
-            const saved = sessionStorage.getItem('pdv_checkout');
-            if (saved && window._pdv_key) {
-                const d = JSON.parse(saved);
-                if (d && d.idempotency_key === window._pdv_key && d.payload) {
-                    payload = d.payload;
+            const saved = sessionStorage.getItem('pos_checkout');
+            if (saved && window._checkoutKey) {
+                const data = JSON.parse(saved);
+                if (data && data.idempotency_key === window._checkoutKey && data.payload) {
+                    payload = data.payload;
                 }
             }
         } catch (e) {}
         if (!payload) {
-            if (carrinho.length === 0) {
+            if (cart.length === 0) {
                 quadrum.showToast('Cart empty', 'Add products before finalizing', 'warning');
                 return;
             }
-            formaPayment = document.querySelector('input[name="forma_pagamento"]:checked');
-            if (!formaPayment) {
+            paymentOption = document.querySelector('input[name="payment_method"]:checked');
+            if (!paymentOption) {
                 quadrum.showToast('Payment method', 'Select a payment method', 'warning');
                 return;
             }
         }
-        window._finalizarEmCurso = true;
-        const clienteSelect = document.querySelector('#cliente_seleccionado');
-        const clienteId = clienteSelect ? (clienteSelect.value || null) : null;
+        window._checkoutInProgress = true;
+        const customerSelect = document.querySelector('#selected-customer');
+        const customerId = customerSelect ? (customerSelect.value || null) : null;
         if (!payload) {
-            if (!window._pdv_key) window._pdv_key = crypto?.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2));
-            const clienteSelect = document.querySelector('#cliente_selecionado');
-            const clienteId = clienteSelect ? (clienteSelect.value || null) : null;
+            if (!window._checkoutKey) window._checkoutKey = crypto?.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2));
             payload = {
-                itens: carrinho.map(i => ({produto_id: i.id, quantidade: i.qtd, preco_unitario: i.preco})),
-                cliente_id: clienteId,
-                forma_pagamento: formaPayment.value,
-                idempotency_key: window._pdv_key
+                items: cart.map(i => ({product_id: i.id, quantity: i.quantity, unit_price: i.price})),
+                customer_id: customerId,
+                payment_method: paymentOption.value,
+                idempotency_key: window._checkoutKey
             };
-            try { sessionStorage.setItem('pdv_checkout', JSON.stringify({idempotency_key: window._pdv_key, payload: payload})); } catch (e) {}
+            try { sessionStorage.setItem('pos_checkout', JSON.stringify({idempotency_key: window._checkoutKey, payload: payload})); } catch (e) {}
         }
-        fetch('/api/pdv/finalizar/', {
+        fetch('{% url "frontend:api_pos_finalize" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -346,17 +344,17 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(r => r.json())
         .then(data => {
-            window._finalizarEmCurso = false;
+            window._checkoutInProgress = false;
             if (data.success) {
-                window._pdv_key = null;
-                try { sessionStorage.removeItem('pdv_checkout'); } catch (e) {}
-                quadrum.showToast('Sale finalized', 'Code: ' + data.codigo, 'success');
-                limparCart();
+                window._checkoutKey = null;
+                try { sessionStorage.removeItem('pos_checkout'); } catch (e) {}
+                quadrum.showToast('Sale finalized', 'Code: ' + data.code, 'success');
+                clearCart();
             } else {
                 quadrum.showToast('Error', data.error || 'Failed to finalize', 'error');
             }
         })
-        .catch(err => { window._finalizarEmCurso = false; quadrum.showToast('Error', 'Failed to finalize sale.', 'error'); try { sessionStorage.setItem('pdv_checkout', JSON.stringify({idempotency_key: window._pdv_key || null, payload: payload || null})); } catch (e) {} });
+        .catch(err => { window._checkoutInProgress = false; quadrum.showToast('Error', 'Failed to finalize sale.', 'error'); try { sessionStorage.setItem('pos_checkout', JSON.stringify({idempotency_key: window._checkoutKey || null, payload: payload || null})); } catch (e) {} });
     };
 });
 </script>

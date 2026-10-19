@@ -16,38 +16,10 @@
         <h3 class="card-title">New Registration</h3>
     </div>
     <div class="card-body">
-        <form id="form-pessoa" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-3);">
-            <div class="form-group">
-                <label class="form-label">Name</label>
-                <input type="text" class="input" placeholder="Full name" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Type</label>
-                <select class="select" required>
-                    <option value="STUDENT">STUDENT</option>
-                    <option value="TEACHER">TEACHER</option>
-                    <option value="STAFF">STAFF</option>
-                    <option value="VISITOR">VISITOR</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Registration</label>
-                <input type="text" class="input" placeholder="Registration" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Status</label>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2);">
-                    <label style="display: flex; align-items: center; gap: var(--space-2);">
-                        <input type="radio" name="status" value="ACTIVE" checked>
-                        <span style="font-size: var(--font-size-sm);">Active</span>
-                    </label>
-                    <label style="display: flex; align-items: center; gap: var(--space-2);">
-                        <input type="radio" name="status" value="INACTIVE">
-                        <span style="font-size: var(--font-size-sm);">Inactive</span>
-                    </label>
-                </div>
-            </div>
-            <div style="grid-column: 1 / -1; display: flex; gap: var(--space-2);">
+        <form id="person-form" method="post" action="{% url 'frontend:people' %}">
+            {% csrf_token %}
+            {% include "frontend/partials/person_form_fields.html" with form=form %}
+            <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Save</button>
                 <button type="reset" class="btn btn-secondary">Clear</button>
             </div>
@@ -56,23 +28,41 @@
 </div>
 
 <div class="section-card">
-    <div class="card-header">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-3);">
-            <h3 class="card-title" style="margin: 0;">People List</h3>
-            <div class="pessoas-filters" style="display: flex; gap: var(--space-2);">
-                <select id="filtro-tipo" class="select" onchange="filtrarPeople()">
-                    <option value="">All types</option>
-                    <option value="STUDENT">STUDENT</option>
-                    <option value="TEACHER">TEACHER</option>
-                    <option value="STAFF">STAFF</option>
-                    <option value="VISITOR">VISITOR</option>
-                </select>
-                <select id="filtro-status-pessoa" class="select" onchange="filtrarPeople()">
-                    <option value="">All statuses</option>
-                    <option value="ACTIVE">Active</option>
-                    <option value="INACTIVE">Inactive</option>
-                </select>
-            </div>
+    <div class="card-header list-header">
+        <h3 class="card-title">People List</h3>
+        <div class="list-toolbar">
+            <form method="get" action="{% url 'frontend:people' %}" role="search" class="list-toolbar-form">
+                <div class="toolbar-field toolbar-search">
+                    <label class="toolbar-label" for="people-search">Search</label>
+                    <input type="search" id="people-search" name="q" value="{{ query }}" class="input" placeholder="Name or registration" aria-label="Search people by name or registration" autocomplete="off">
+                </div>
+                <div class="toolbar-field">
+                    <label class="toolbar-label" for="filter-type">Type</label>
+                    <select id="filter-type" name="type" class="select js-auto-submit">
+                        <option value="">All types</option>
+                        {% for value, label in person_types %}
+                        <option value="{{ value }}"{% if person_type == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="toolbar-field">
+                    <label class="toolbar-label" for="filter-status">Status</label>
+                    <select id="filter-status" name="state" class="select js-auto-submit">
+                        {% for value, label in state_options %}
+                        <option value="{{ value }}"{% if state == value %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="toolbar-actions">
+                    <button type="submit" class="btn btn-secondary">Search</button>
+                    {% if filters_active %}
+                    <a class="btn btn-ghost" href="{% url 'frontend:people' %}">Clear filters</a>
+                    {% endif %}
+                </div>
+            </form>
+            <p class="list-count" role="status">
+                {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}{% if query %} matching “{{ query }}”{% endif %}
+            </p>
         </div>
     </div>
     <div class="card-body" style="padding: 0;">
@@ -88,38 +78,69 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="pessoas-tabela">
-                {% for p in pessoas %}
-                <tr data-tipo="{{ p.tipo }}" data-status="{{ p.status }}">
-                    <td>{{ p.nome }}</td>
+                <tbody id="people-table">
+                {% for p in people %}
+                <tr data-person-type="{{ p.person_type }}" data-active="{{ p.active|yesno:'true,false' }}">
+                    <td>{{ p.name }}</td>
                     <td>
                         <span class="badge badge-primary" style="font-size: var(--font-size-xs);">
-                            {{ p.tipo }}
+                            {{ p.get_person_type_display }}
                         </span>
                     </td>
-                    <td><code>{{ p.matricula }}</code></td>
+                    <td><code>{{ p.doc_id }}</code></td>
                     <td class="numeric">
                         <span style="font-weight: var(--font-weight-medium);
-                            {% if p.saldo < 0 %}color: var(--color-danger);
-                            {% elif p.saldo > 0 %}color: var(--color-success);
+                            {% if p.balance < 0 %}color: var(--color-danger);
+                            {% elif p.balance > 0 %}color: var(--color-success);
                             {% else %}color: var(--color-text-muted);{% endif %}">
-                            R$ {{ p.balance }}
+                            R$ {{ p.balance|floatformat:2 }}
                         </span>
                     </td>
                     <td>
                         <span class="badge
-                            {% if p.status == 'ACTIVE' %}badge-success{% else %}badge-neutral{% endif %}"
+                            {% if p.active %}badge-success{% else %}badge-neutral{% endif %}"
                             style="font-size: var(--font-size-xs);">
-                            {{ p.status }}
+                            {% if p.active %}Active{% else %}Inactive{% endif %}
                         </span>
                     </td>
                     <td>
-                        <button class="btn btn-icon btn-ghost" title="Copy registration" aria-label="Copy registration of {{ p.nome }}" onclick="copiarMatricula('{{ p.matricula }}')">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                            </svg>
-                        </button>
+                        <div class="row-actions">
+                            {% if can_manage %}
+                            <a class="btn btn-icon btn-ghost" href="{% url 'frontend:person_edit' p.id %}" title="Edit" aria-label="Edit {{ p.name }}">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                            </a>
+                            {% if p.can_delete %}
+                            <form method="post" action="{% url 'frontend:person_delete' p.id %}" data-confirm-destructive="true" data-confirm-title="Delete person?" data-confirm-record="{{ p.name }}" data-confirm-detail="This removes {{ p.name }} from the registry. This action cannot be undone.">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-icon btn-ghost btn-danger-ghost" title="Delete" aria-label="Delete {{ p.name }}">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                            {% else %}
+                            <form method="post" action="{% url 'frontend:person_delete' p.id %}" data-confirm-destructive="true" data-confirm-blocked="true" data-confirm-title="Cannot delete person" data-confirm-record="{{ p.name }}" data-confirm-detail="{{ p.sales_count }} sale(s) and {{ p.receivables_count }} receivable(s) reference this person. Deactivate them instead so sales and receivables history stays intact.">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-icon btn-ghost row-action-blocked" title="Has history — deactivate instead" aria-label="Delete {{ p.name }} (blocked: referenced by history)">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                            {% endif %}
+                            {% endif %}
+                            <button type="button" class="btn btn-icon btn-ghost" title="Copy registration" aria-label="Copy registration of {{ p.name }}" onclick="copyRegistration('{{ p.doc_id|escapejs }}')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 {% empty %}
@@ -128,41 +149,62 @@
                         <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                             <circle cx="9" cy="7" r="4"></circle>
-                            <line x1="12" y1="12" x2="12.01" y2="12"></path>
+                            <line x1="12" y1="12" x2="12.01" y2="12"></line>
                         </svg>
+                        {% if filters_active %}
+                        <div class="empty-state-title">No people match your search</div>
+                        <div class="empty-state-description">Nothing found for the active query or filters. <a href="{% url 'frontend:people' %}">Clear the search</a> to see everyone.</div>
+                        {% else %}
                         <div class="empty-state-title">No people registered</div>
                         <div class="empty-state-description">Use the form above to register the first person</div>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
+        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=list_qs page_param="page" aria_label="People pagination" %}
     </div>
 </div>
+
+{% if edit_form and edit_person %}
+<div class="modal-overlay" id="person-edit-modal">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="person-edit-title">
+        <div class="modal-header">
+            <h2 class="modal-title" id="person-edit-title">Edit Person</h2>
+            <button type="button" class="modal-close" onclick="closeModal('person-edit-modal')" aria-label="Close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <form method="post" action="{% url 'frontend:person_edit' edit_person.id %}">
+            <div class="modal-body">
+                {% csrf_token %}
+                {% include "frontend/partials/person_form_fields.html" with form=edit_form %}
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-secondary" href="{% url 'frontend:people' %}">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    window.filtrarPeople = function() {
-        const tipo = document.getElementById('filtro-tipo').value;
-        const status = document.getElementById('filtro-status-pessoa').value;
-
-        document.querySelectorAll('#pessoas-tabela tr').forEach(row => {
-            if (row.classList.contains('empty-state')) return;
-
-            let show = true;
-            if (tipo && row.dataset.tipo !== tipo) show = false;
-            if (status && row.dataset.status !== status) show = false;
-
-            row.style.display = show ? '' : 'none';
-        });
+    window.copyRegistration = function(registration) {
+        quadrum.copyToClipboard(registration, `Registration ${registration} copied`);
     };
 
-    window.copiarMatricula = function(matricula) {
-        quadrum.copyToClipboard(matricula, `Registration ${matricula} copied`);
-    };
+    {% if edit_form and edit_person %}
+    if (typeof window.openModal === 'function') window.openModal('person-edit-modal');
+    {% endif %}
 });
 </script>
 {% endblock %}

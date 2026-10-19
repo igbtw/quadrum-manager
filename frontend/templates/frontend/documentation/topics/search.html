@@ -1,0 +1,48 @@
+{% extends "frontend/documentation/topic_base.html" %}
+
+{% block topic_content %}
+<p>Global search opens with <code>Ctrl+K</code> (or <code>Cmd+K</code> on macOS) from any page. It has two modes: with an empty field it <strong>browses</strong> destinations by category tab; once you type at least two characters it <strong>searches</strong> real data live.</p>
+
+<h3>Browse mode</h3>
+<ul>
+    <li>With an empty field, the tabs All, Pages, Docs, Products, People, and Sales show what each category can search and how to query it.</li>
+    <li>Switching tabs never clears your query; clearing the query returns to browse mode.</li>
+</ul>
+
+<h3>Search mode</h3>
+<ul>
+    <li>Type two or more characters: matching pages and documentation topics appear immediately, and products, people, and sales are fetched from the server as you type.</li>
+    <li>Unprefixed searches cover every resource type at once.</li>
+    <li>Results always link to a real destination: pages open the page, documentation opens the topic page, products open the Products listing, people open the People listing already filtered by the matched name, and sales open the Sales history.</li>
+</ul>
+
+<h3>Advanced prefixes</h3>
+<div class="doc-table-wrap">
+    <table class="doc-table">
+        <thead>
+            <tr><th>Prefix</th><th>Searches</th><th>Example</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>page:</code></td><td>Application pages by name or keyword.</td><td><code>page:inventory</code></td></tr>
+            <tr><td><code>doc:</code></td><td>Documentation topics.</td><td><code>doc:receivables</code></td></tr>
+            <tr><td><code>product:</code></td><td>Products by name or code.</td><td><code>product:rice</code></td></tr>
+            <tr><td><code>person:</code></td><td>People by name or registration/record number.</td><td><code>person:maria</code></td></tr>
+            <tr><td><code>sale:</code></td><td>Sales by code or customer name.</td><td><code>sale:1042</code></td></tr>
+        </tbody>
+    </table>
+</div>
+<ul>
+    <li>Prefixes are case-insensitive and tolerate surrounding whitespace: <code>PRODUCT: rice</code> works like <code>product:rice</code>.</li>
+    <li>A recognized prefix with no term yet shows a prompt explaining what can be searched (for example, <code>person:</code> asks for a name or document).</li>
+    <li>Unknown prefixes are treated as ordinary search text, not as errors.</li>
+    <li>Each resource type returns up to five results, and sensitive fields — like people's email and phone — are never included.</li>
+</ul>
+
+<h3>Keyboard use</h3>
+<ul>
+    <li><code>↑</code>/<code>↓</code> move through results, <code>Enter</code> opens the highlighted result, and <code>Esc</code> closes the palette.</li>
+    <li><code>Tab</code> and the arrow keys move between category tabs when a tab is focused.</li>
+</ul>
+
+<p class="doc-note">The endpoint behind the palette (<code>GET /api/search/</code>) is documented on the <a href="{% url 'frontend:documentation_topic' 'api' %}">API Reference</a> page.</p>
+{% endblock %}

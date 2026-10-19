@@ -1,0 +1,47 @@
+{% extends "frontend/documentation/topic_base.html" %}
+
+{% block topic_content %}
+<p>Quadrum is a Django-based <strong>Simple Management System</strong> for product inventory, point-of-sale (POS) sales, accounts receivable, and basic reporting. This page covers the basics of signing in, finding your way around, and the everyday workflows.</p>
+
+<h3>Accounts and access</h3>
+<ul>
+    <li>You can create your own account from the <a href="{% url 'frontend:register' %}">registration page</a>. Every operational area requires signing in.</li>
+    <li>Any successfully registered account can access the operational pages: Dashboard, Sales, Products, Inventory, People, Finance, and Reports. There are no additional roles inside the application.</li>
+    <li>Registration never grants Django staff or superuser privileges. Application access and administrative privileges are separate.</li>
+    <li>When your session ends, sign in again to continue. Saved data is not affected.</li>
+</ul>
+
+<h3>First-run guide</h3>
+<ul>
+    <li>Newly registered accounts see the getting started guide once. You can skip it or finish it; either way it will not appear again on its own while a guide is pending.</li>
+    <li>The guide's current step is stored per account, so it resumes where you left off even after navigating or signing back in.</li>
+    <li>Replay it any time with <strong>Show getting started guide</strong> on the <a href="{% url 'frontend:documentation' %}">Documentation index</a>.</li>
+</ul>
+
+<h3>Getting around</h3>
+<ul>
+    <li>The sidebar links to every area of the system; collapse it with <code>Ctrl+B</code> on desktop.</li>
+    <li>The header search (or <code>Ctrl+K</code>) opens the global search palette — see <a href="{% url 'frontend:documentation_topic' 'search' %}">Search and Advanced Queries</a>.</li>
+    <li>The Preferences dialog stores interface settings in this browser only — see <a href="{% url 'frontend:documentation_topic' 'preferences-troubleshooting' %}">Preferences and Troubleshooting</a>.</li>
+</ul>
+
+<h3>Application areas</h3>
+<ul>
+    <li><a href="{% url 'frontend:dashboard' %}">Dashboard</a> — sales and revenue for today, receivables, low-stock alerts, and recent activity.</li>
+    <li><a href="{% url 'frontend:sales_list' %}">Sales</a> — history of recorded sales with status, totals, customer, and responsible user.</li>
+    <li><a href="{% url 'frontend:point_of_sale' %}">New Sale</a> — the point of sale used to build a cart and finalize a sale.</li>
+    <li><a href="{% url 'frontend:products' %}">Products</a> — the catalog of items with category, price, cost, and minimum stock.</li>
+    <li><a href="{% url 'frontend:inventory' %}">Inventory</a> — current stock per product, status indicators, and manual stock adjustments.</li>
+    <li><a href="{% url 'frontend:people' %}">People</a> — students, teachers, staff, and visitors that can be selected as sale customers.</li>
+    <li><a href="{% url 'frontend:finance' %}">Finance</a> — outstanding accounts receivable and payment registration.</li>
+    <li><a href="{% url 'frontend:reports' %}">Reports</a> — operational summaries by period.</li>
+</ul>
+
+<h3>Daily workflows</h3>
+<ol>
+    <li><strong>Record a sale.</strong> Open New Sale, pick products by category, and adjust quantities. Choose the payment method (Cash, Debit, Credit, PIX, or On Account), then select Finalize Sale. The sale is recorded as Completed and stock is deducted. See <a href="{% url 'frontend:documentation_topic' 'sales-pos' %}">Sales and Point of Sale</a>.</li>
+    <li><strong>Adjust stock.</strong> Open Inventory and use the stock adjustment form. Enter a positive quantity to add stock or a negative quantity to remove it, and include a reason. Every adjustment is stored as a stock movement. See <a href="{% url 'frontend:documentation_topic' 'products-inventory' %}">Products and Inventory</a>.</li>
+    <li><strong>Register a payment.</strong> Open Finance, pick the receivable, and enter the amount and method. A payment cannot exceed the remaining balance; the receivable status updates automatically. See <a href="{% url 'frontend:documentation_topic' 'finance' %}">Finance and Receivables</a>.</li>
+    <li><strong>Review results.</strong> Use the <a href="{% url 'frontend:dashboard' %}">Dashboard</a> for the current picture and <a href="{% url 'frontend:reports' %}">Reports</a> for period summaries.</li>
+</ol>
+{% endblock %}

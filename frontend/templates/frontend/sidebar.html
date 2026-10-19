@@ -1,62 +1,90 @@
 <!-- Sidebar -->
-<aside class="sidebar" id="sidebar" role="navigation" aria-label="Main menu">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <a href="{% url 'frontend:dashboard' %}" class="sidebar-logo" aria-label="quadrum">
-            <div class="sidebar-logo-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28" fill="none" aria-label="quadrum mark" style="display:block;"><rect x="2" y="2" width="24" height="24" rx="4" stroke="currentColor" stroke-width="2.5" fill="none"/><rect x="10" y="10" width="8" height="8" rx="1" fill="currentColor"/></svg></div>
-            <span>quadrum</span>
+        <a href="{% url 'frontend:dashboard' %}" class="sidebar-logo" aria-label="quadrum — Dashboard">
+            <span class="sidebar-logo-mark" aria-hidden="true">
+                <i data-lucide="squares-intersect" aria-hidden="true"></i>
+            </span>
+            <span class="sidebar-logo-text">quadrum</span>
         </a>
-        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Collapse sidebar" onclick="toggleSidebarCollapse()" title="Collapse sidebar (Ctrl+B)">
-            <i data-lucide="chevron-left" style="width:14px;height:14px;stroke-width:2.5;"></i>
-        </button>
     </div>
 
-    <nav class="sidebar-nav" aria-label="Main navigation">
-        <div class="nav-section" aria-label="Navigation">
-            <div class="nav-section-label">Navigation</div>
-            <a href="{% url 'frontend:dashboard' %}" class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" aria-label="Dashboard" title="Dashboard">
-                <i data-lucide="layout-dashboard" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="{% url 'frontend:sales_list' %}" class="nav-item {% if request.resolver_match.url_name == 'sales_list' %}active{% endif %}" aria-label="Sales" title="Sales">
-                <i data-lucide="receipt" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Sales</span>
-            </a>
-            <a href="{% url 'frontend:point_of_sale' %}" class="nav-item {% if request.resolver_match.url_name == 'point_of_sale' %}active{% endif %}" aria-label="New Sale" title="New Sale">
-                <i data-lucide="credit-card" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>New Sale</span>
-            </a>
-            <a href="{% url 'frontend:products' %}" class="nav-item {% if request.resolver_match.url_name == 'products' %}active{% endif %}" aria-label="Products" title="Products">
-                <i data-lucide="package" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Products</span>
-            </a>
-            <a href="{% url 'frontend:inventory' %}" class="nav-item {% if request.resolver_match.url_name == 'inventory' %}active{% endif %}" aria-label="Inventory" title="Inventory">
-                <i data-lucide="boxes" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Inventory</span>
-            </a>
-            <a href="{% url 'frontend:people' %}" class="nav-item {% if request.resolver_match.url_name == 'people' %}active{% endif %}" aria-label="People" title="People">
-                <i data-lucide="users" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>People</span>
-            </a>
-            <a href="{% url 'frontend:finance' %}" class="nav-item {% if request.resolver_match.url_name == 'finance' %}active{% endif %}" aria-label="Finance" title="Finance">
-                <i data-lucide="banknote" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Finance</span>
-            </a>
-            <a href="{% url 'frontend:reports' %}" class="nav-item {% if request.resolver_match.url_name == 'reports' %}active{% endif %}" aria-label="Reports" title="Reports">
-                <i data-lucide="bar-chart-3" style="width:18px;height:18px;stroke-width:2;"></i>
-                <span>Reports</span>
-            </a>
+    <nav class="sidebar-nav" aria-label="Main">
+        <div class="nav-section">
+            <div class="nav-section-label" id="sidebarNavLabel">Navigation</div>
+            <ul class="nav-list" aria-labelledby="sidebarNavLabel">
+                <li>
+                    <a href="{% url 'frontend:dashboard' %}" class="nav-item{% if request.resolver_match.url_name == 'dashboard' %} active{% endif %}" title="Dashboard" aria-label="Dashboard"{% if request.resolver_match.url_name == 'dashboard' %} aria-current="page"{% endif %}>
+                        <span class="nav-item-icon" aria-hidden="true"><i data-lucide="layout-dashboard"></i></span>
+                        <span class="nav-item-label">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'frontend:sales_list' %}" class="nav-item{% if request.resolver_match.url_name == 'sales_list' %} active{% endif %}" title="Sales" aria-label="Sales"{% if request.resolver_match.url_name == 'sales_list' %} aria-current="page"{% endif %}>
+                        <span class="nav-item-icon" aria-hidden="true"><i data-lucide="receipt"></i></span>
+                        <span class="nav-item-label">Sales</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'frontend:point_of_sale' %}" class="nav-item{% if request.resolver_match.url_name == 'point_of_sale' %} active{% endif %}" title="New Sale" aria-label="New Sale"{% if request.resolver_match.url_name == 'point_of_sale' %} aria-current="page"{% endif %}>
+                        <span class="nav-item-icon" aria-hidden="true"><i data-lucide="credit-card"></i></span>
+                        <span class="nav-item-label">New Sale</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'frontend:products' %}" class="nav-item{% if request.resolver_match.url_name == 'products' %} active{% endif %}" title="Products" aria-label="Products"{% if request.resolver_match.url_name == 'products' %} aria-current="page"{% endif %}>
+                        <span class="nav-item-icon" aria-hidden="true"><i data-lucide="package"></i></span>
+                        <span class="nav-item-label">Products</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'frontend:inventory' %}" class="nav-item{% if request.resolver_match.url_name == 'inventory' %} active{% endif %}" title="Inventory" aria-label="Inventory"{% if request.resolver_match.url_name == 'inventory' %} aria-current="page"{% endif %}>
+                        <span class="nav-item-icon" aria-hidden="true"><i data-lucide="boxes"></i></span>
+                        <span class="nav-item-label">Inventory</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'frontend:people' %}" class="nav-item{% if request.resolver_match.url_name == 'people' %} active{% endif %}" title="People" aria-label="People"{% if request.resolver_match.url_name == 'people' %} aria-current="page"{% endif %}>
+                        <span class="nav-item-icon" aria-hidden="true"><i data-lucide="users"></i></span>
+                        <span class="nav-item-label">People</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'frontend:finance' %}" class="nav-item{% if request.resolver_match.url_name == 'finance' %} active{% endif %}" title="Finance" aria-label="Finance"{% if request.resolver_match.url_name == 'finance' %} aria-current="page"{% endif %}>
+                        <span class="nav-item-icon" aria-hidden="true"><i data-lucide="banknote"></i></span>
+                        <span class="nav-item-label">Finance</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'frontend:reports' %}" class="nav-item{% if request.resolver_match.url_name == 'reports' %} active{% endif %}" title="Reports" aria-label="Reports"{% if request.resolver_match.url_name == 'reports' %} aria-current="page"{% endif %}>
+                        <span class="nav-item-icon" aria-hidden="true"><i data-lucide="bar-chart-3"></i></span>
+                        <span class="nav-item-label">Reports</span>
+                    </a>
+                </li>
+            </ul>
         </div>
     </nav>
 
     <div class="sidebar-footer">
-        <div class="user-card" onclick="togglePanel('profileMenu')" role="button" aria-label="Profile" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();togglePanel('profileMenu');}">
-            <div class="user-avatar">U</div>
+        {% if user.is_authenticated %}
+        <div class="user-card">
+            <span class="user-avatar" aria-hidden="true">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</span>
             <div class="user-info-text">
-                <div class="user-name">User</div>
-                <div class="user-role">Standard</div>
+                <div class="user-name" title="{{ user.get_full_name|default:user.username }}">{{ user.get_full_name|default:user.username }}</div>
+                <div class="user-role" title="@{{ user.username }}">@{{ user.username }}</div>
             </div>
+            <form method="post" action="{% url 'frontend:logout' %}" class="logout-form" id="logoutForm">
+                {% csrf_token %}
+                <button type="button" class="logout-btn" id="sidebarLogoutBtn" aria-label="Sign out" title="Sign out" aria-haspopup="dialog" aria-controls="logoutDialog">
+                    <i data-lucide="log-out" aria-hidden="true"></i>
+                </button>
+            </form>
         </div>
+        {% else %}
+        <a href="{% url 'frontend:login' %}" class="sidebar-signin">
+            <i data-lucide="log-in" aria-hidden="true"></i>
+            <span class="sidebar-signin-label">Sign in</span>
+        </a>
+        {% endif %}
     </div>
 </aside>
-
-<div class="sidebar-overlay" id="sidebarOverlay"></div>

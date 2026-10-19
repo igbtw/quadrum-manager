@@ -4,11 +4,23 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import Product, Sale, SaleItem, StockMovement, AccountReceivable
+from .models import Product, Sale, SaleItem, StockMovement, AccountReceivable, Person
 
 
 class InsufficientStockError(ValueError):
     """Raised when a stock reduction cannot be fulfilled by available inventory."""
+
+
+class ReferencedRecordError(ValueError):
+    """Raised when a record with historical references cannot be deleted.
+
+    The record must stay intact so sales, receivables, and inventory history
+    keep their relationships; the message explains the blocking references.
+    """
+
+    def __init__(self, message, *, references):
+        super().__init__(message)
+        self.references = references
 
 
 def reduce_stock(product: Product, qty: int, user: User = None, sale: Sale = None):
@@ -90,6 +102,46 @@ def cancel_sale(sale: Sale, user: User = None):
         return s
 
 
+def delete_person(person: Person):
+    """Delete a person only when nothing historical references them.
+
+    Runs inside a transaction with the person row locked, so a sale or
+    receivable cannot appear between the reference check and the delete.
+    Referenced people must be deactivated (``active=False``) instead so
+    historical sales keep their customer names and receivables keep their
+    debtor.
+    """
+    with transaction.atomic():
+        locked = Person.objects.select_for_update().get(pk=person.pk)
+        sales = locked.sales.count()
+        receivables = locked.receivables.count()
+        if sales or receivables:
+            raise ReferencedRecordError(
+                'This person cannot be deleted because historical records reference them.',
+                references={'sales': sales, 'receivables': receivables},
+            )
+        locked.delete()
+
+
+def delete_product(product: Product):
+    """Delete a product only when no sale items or stock movements exist.
+
+    Same locking/check discipline as :func:`delete_person`; referenced
+    products must be deactivated (``active=False``) so sales history and
+    inventory movements stay intact.
+    """
+    with transaction.atomic():
+        locked = Product.objects.select_for_update().get(pk=product.pk)
+        sale_items = locked.sale_items.count()
+        movements = locked.movements.count()
+        if sale_items or movements:
+            raise ReferencedRecordError(
+                'This product cannot be deleted because sales or inventory history reference it.',
+                references={'sale_items': sale_items, 'movements': movements},
+            )
+        locked.delete()
+
+
 def adjust_stock(product: Product, qty: int, reason: str = '', user: User = None):
     """Manual stock adjustment with audit movement."""
     from django.db import transaction
@@ -114,7 +166,7 @@ def finalize_sale(sale: Sale, user: User = None):
         s.completed_at = timezone.now()
         s.responsible = user or s.responsible
         s.save(update_fields=['status', 'completed_at', 'responsible'])
-        # If items not yet created (e.g. PDV draft), create from existing data if any
+        # If items not yet created (e.g. POS draft), create from existing data if any
         # Receivable on account
         if s.payment_method == 'ON_ACCOUNT' and s.customer:
             AccountReceivable.objects.get_or_create(

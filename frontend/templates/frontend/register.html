@@ -1,0 +1,58 @@
+{% extends "frontend/auth_base.html" %}
+
+{% block title %}Create your account — quadrum{% endblock %}
+
+{% block content %}
+<header class="auth-header">
+    <h1 class="auth-heading">Create your account</h1>
+    <p class="auth-sub">Choose a username and password to start using quadrum.</p>
+</header>
+
+<form method="post" action="{% url 'frontend:register' %}" class="auth-form" novalidate>
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger" role="alert" aria-live="polite">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="id_username" class="form-label">Username</label>
+        <input type="text" name="username" id="id_username" class="input{% if form.username.errors %} input-error{% endif %}" value="{{ form.username.value|default:'' }}" placeholder="Choose a username" maxlength="150" autocomplete="username" autocapitalize="none" spellcheck="false" autofocus required{% if form.username.errors %} aria-invalid="true" aria-describedby="username-errors"{% endif %}>
+        <p class="form-hint">150 characters or fewer — letters, digits and @/./+/-/_ only.</p>
+        {% if form.username.errors %}
+        <p class="form-error" id="username-errors">{% for error in form.username.errors %}{{ error }}{% if not forloop.last %} {% endif %}{% endfor %}</p>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="id_password1" class="form-label">Password</label>
+        <input type="password" name="password1" id="id_password1" class="input{% if form.password1.errors %} input-error{% endif %}" autocomplete="new-password" required{% if form.password1.errors %} aria-invalid="true" aria-describedby="password1-errors"{% endif %}>
+        <p class="form-hint">At least 8 characters — avoid common or entirely numeric passwords.</p>
+        {% if form.password1.errors %}
+        <p class="form-error" id="password1-errors">{% for error in form.password1.errors %}{{ error }}{% if not forloop.last %} {% endif %}{% endfor %}</p>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="id_password2" class="form-label">Confirm password</label>
+        <input type="password" name="password2" id="id_password2" class="input{% if form.password2.errors %} input-error{% endif %}" autocomplete="new-password" required{% if form.password2.errors %} aria-invalid="true" aria-describedby="password2-errors"{% endif %}>
+        {% if form.password2.errors %}
+        <p class="form-error" id="password2-errors">{% for error in form.password2.errors %}{{ error }}{% if not forloop.last %} {% endif %}{% endfor %}</p>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary auth-submit">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <line x1="19" y1="8" x2="19" y2="14"></line>
+            <line x1="22" y1="11" x2="16" y2="11"></line>
+        </svg>
+        Create account
+    </button>
+</form>
+
+<p class="auth-switch">Already have an account? <a href="{% url 'frontend:login' %}">Sign in</a></p>
+{% endblock %}

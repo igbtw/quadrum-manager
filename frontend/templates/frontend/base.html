@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en" data-corners="square">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}School Cafeteria{% endblock %}</title>
+    <title>{% block title %}quadrum{% endblock %}</title>
     {% load static %}
+    {% include "frontend/partials/theme_boot.html" %}
     <link rel="stylesheet" href="{% static 'css/reset.css' %}">
     <link rel="stylesheet" href="{% static 'css/variables.css' %}">
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
@@ -17,82 +18,385 @@
     <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <script>
-        // Prevent theme flash by setting theme before CSS loads
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const theme = savedTheme || 'light';
-            document.documentElement.setAttribute('data-theme', theme);
-        })();
-    </script>
 </head>
 <body>
+    <button type="button" class="sidebar-collapse-btn sidebar-edge-toggle" id="sidebarCollapseBtn" aria-label="Collapse sidebar" aria-expanded="true" aria-controls="sidebar" title="Collapse sidebar (Ctrl+B)">
+        <i data-lucide="chevron-left" aria-hidden="true"></i>
+    </button>
+
     <div class="layout">
         {% include "frontend/sidebar.html" %}
 
         <!-- Header -->
         <header class="header" role="banner">
             <div class="header-left">
-                <button class="mobile-menu-btn" aria-label="Open menu" onclick="toggleSidebar()">
-                    <i data-lucide="menu" style="width:24px;height:24px;stroke-width:2;"></i>
+                <button type="button" class="mobile-menu-btn" id="sidebarToggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
+                    <i data-lucide="menu" aria-hidden="true"></i>
                 </button>
 
-                <form class="search-form" role="search">
-                    <div class="search-input-wrapper">
-                        <i data-lucide="search" class="search-icon" style="width:16px;height:16px;stroke-width:2;"></i>
-                        <input class="search-input" type="search" placeholder="Search products, people, sales..." aria-label="Search global" id="globalSearchInput">
-                    </div>
+                <form class="search-form" role="search" id="globalSearchForm">
+                    <button type="button" class="search-trigger" id="globalSearchTrigger" aria-label="Open search (Ctrl+K)" aria-haspopup="dialog" aria-controls="searchPalette" title="Search (Ctrl+K)">
+                        <i data-lucide="search" class="search-trigger-icon" aria-hidden="true"></i>
+                        <span class="search-trigger-label">Search</span>
+                        <span class="search-shortcut" aria-hidden="true">
+                            <kbd data-shortcut-modifier>Ctrl</kbd><kbd>K</kbd>
+                        </span>
+                    </button>
                 </form>
             </div>
 
             <div class="header-right">
-                <div class="theme-toggle">
-                    <button id="themeToggle" aria-label="Alternar tema" onclick="toggleTheme()">
-                        <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-                        </svg>
-                    </button>
-                </div>
-                <button class="header-action" aria-label="Notifications" onclick="togglePanel('notificationPanel')">
-                    <i data-lucide="bell" style="width:20px;height:20px;stroke-width:2;"></i>
+                <a href="{% url 'frontend:documentation' %}" class="header-action" id="helpBtn" aria-label="Help and documentation" title="Help and documentation">
+                    <i data-lucide="help-circle" aria-hidden="true"></i>
+                </a>
+                <button type="button" class="header-action" id="preferencesBtn" aria-label="Preferences" aria-haspopup="dialog" aria-expanded="false" aria-controls="preferencesDialog" title="Preferences">
+                    <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
                 </button>
-                <button class="header-action" aria-label="Messages">
-                    <i data-lucide="message-square" style="width:20px;height:20px;stroke-width:2;"></i>
+                <button type="button" class="header-action" id="notificationBtn" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="notificationPanel">
+                    <i data-lucide="bell" aria-hidden="true"></i>
                 </button>
+                {% if user.is_authenticated %}
                 <div class="user-info">
-                    <div class="user-avatar">U</div>
+                    <div class="user-avatar" aria-hidden="true">{{ user.get_full_name|default:user.username|slice:":1"|upper }}</div>
                     <div class="user-details">
-                        <div class="user-name">User</div>
-                        <div class="user-role">Standard</div>
+                        <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="user-role">@{{ user.username }}</div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </header>
 
         <main class="main" role="main">
+            {% if messages %}
+            <div class="messages" role="status" aria-live="polite">
+                {% for message in messages %}
+                <div class="alert alert-small {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
             {% block content %}{% endblock %}
         </main>
     </div>
 
-    <div class="notification-panel" id="notificationPanel" role="dialog" aria-label="Notifications" style="position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
-        <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Notifications</div>
-        <div style="font-size:0.875rem;color:var(--color-text-secondary);">No notifications at this time</div>
+    <div class="notification-panel" id="notificationPanel" role="dialog" aria-label="Notifications">
+        <div class="panel-title">Notifications</div>
+        <div class="panel-empty">No notifications at this time</div>
     </div>
 
-    <div class="message-panel" id="messagePanel" role="dialog" aria-label="Messages" style="position:fixed;top:58px;right:16px;width:320px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:12px;z-index:700;box-shadow:var(--shadow-lg);">
-        <div style="font-size:0.75rem;font-weight:600;color:var(--color-text-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px;">Messages</div>
-        <div style="font-size:0.875rem;color:var(--color-text-secondary);">No messages</div>
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+    <ul id="searchPageData" hidden>
+        <li><a href="{% url 'frontend:dashboard' %}" data-icon="layout-dashboard" data-keywords="dashboard home overview">Dashboard</a></li>
+        <li><a href="{% url 'frontend:sales_list' %}" data-icon="receipt" data-keywords="sales orders history">Sales</a></li>
+        <li><a href="{% url 'frontend:point_of_sale' %}" data-icon="credit-card" data-keywords="new sale pos point of sale checkout">New Sale</a></li>
+        <li><a href="{% url 'frontend:products' %}" data-icon="package" data-keywords="products catalog items">Products</a></li>
+        <li><a href="{% url 'frontend:inventory' %}" data-icon="boxes" data-keywords="inventory stock">Inventory</a></li>
+        <li><a href="{% url 'frontend:people' %}" data-icon="users" data-keywords="people customers students teachers staff">People</a></li>
+        <li><a href="{% url 'frontend:finance' %}" data-icon="banknote" data-keywords="finance receivables payments">Finance</a></li>
+        <li><a href="{% url 'frontend:reports' %}" data-icon="bar-chart-3" data-keywords="reports analytics">Reports</a></li>
+        <li><a href="{% url 'frontend:documentation' %}" data-icon="help-circle" data-keywords="documentation help guide manual">Documentation</a></li>
+    </ul>
+
+    <ul id="searchDocData" hidden>
+        {% for topic in doc_topics %}
+        <li><a href="{% url 'frontend:documentation_topic' topic.slug %}" data-icon="{{ topic.icon }}" data-keywords="{{ topic.keywords }}">{{ topic.title }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <div class="command-overlay" id="searchPalette" aria-hidden="true" data-search-url="{% url 'frontend:api_search' %}">
+        <div class="command-panel" role="dialog" aria-modal="true" aria-labelledby="searchPaletteTitle">
+            <h2 class="sr-only" id="searchPaletteTitle">Global search</h2>
+            <div class="command-input-row">
+                <i data-lucide="search" class="command-search-icon" aria-hidden="true"></i>
+                <input type="text" id="searchPaletteInput" class="command-input" placeholder="Search pages, docs, products, people, sales..." role="combobox" aria-expanded="false" aria-autocomplete="list" aria-controls="searchResults" aria-activedescendant="" autocomplete="off" spellcheck="false">
+                <kbd class="command-kbd" aria-hidden="true">esc</kbd>
+            </div>
+            <div class="command-tabs" id="searchTabs" role="tablist" aria-label="Search scope">
+                <button type="button" class="command-tab" role="tab" id="searchTabAll" data-search-tab="all" aria-selected="true" aria-controls="searchResults" tabindex="0">All</button>
+                <button type="button" class="command-tab" role="tab" id="searchTabPages" data-search-tab="pages" aria-selected="false" aria-controls="searchResults" tabindex="-1">Pages</button>
+                <button type="button" class="command-tab" role="tab" id="searchTabDocs" data-search-tab="docs" aria-selected="false" aria-controls="searchResults" tabindex="-1">Docs</button>
+                <button type="button" class="command-tab" role="tab" id="searchTabProducts" data-search-tab="products" aria-selected="false" aria-controls="searchResults" tabindex="-1">Products</button>
+                <button type="button" class="command-tab" role="tab" id="searchTabPeople" data-search-tab="people" aria-selected="false" aria-controls="searchResults" tabindex="-1">People</button>
+                <button type="button" class="command-tab" role="tab" id="searchTabSales" data-search-tab="sales" aria-selected="false" aria-controls="searchResults" tabindex="-1">Sales</button>
+            </div>
+            <p class="command-hint" id="searchPrefixHint">
+                <span>Advanced:</span>
+                <code>page:</code><code>doc:</code><code>product:</code><code>person:</code><code>sale:</code>
+                <a class="command-hint-link" href="{% url 'frontend:documentation_topic' 'search' %}">Search help</a>
+            </p>
+            <div class="command-results" id="searchResults" role="listbox" aria-label="Search results"></div>
+            <div class="command-footer" aria-hidden="true">
+                <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+                <span><kbd>↵</kbd> select</span>
+                <span><kbd>esc</kbd> close</span>
+            </div>
+        </div>
+    </div>
+    <div class="sr-only" id="searchStatus" role="status" aria-live="polite"></div>
+
+    <div class="command-overlay preferences-overlay" id="preferencesDialog" aria-hidden="true" data-per-page-url="{% url 'frontend:preferences_per_page' %}">
+        <div class="command-panel preferences-panel" role="dialog" aria-modal="true" aria-labelledby="preferencesTitle" aria-describedby="preferencesDescription" tabindex="-1">
+            {% csrf_token %}
+            <div class="preferences-header">
+                <div class="preferences-heading">
+                    <i data-lucide="sliders-horizontal" class="preferences-heading-icon" aria-hidden="true"></i>
+                    <div>
+                        <h2 class="preferences-title" id="preferencesTitle">Preferences</h2>
+                        <p class="preferences-description" id="preferencesDescription">Interface settings for this browser.</p>
+                    </div>
+                </div>
+                <button type="button" class="preferences-close" id="preferencesCloseBtn" aria-label="Close preferences" title="Close (Esc)">
+                    <kbd class="command-kbd" aria-hidden="true">esc</kbd>
+                </button>
+            </div>
+            <div class="command-input-row preferences-search-row">
+                <i data-lucide="search" class="command-search-icon" aria-hidden="true"></i>
+                <input type="text" id="preferencesSearchInput" class="command-input preferences-search-input" placeholder="Search preferences..." aria-label="Search preferences" aria-controls="preferencesSettings" autocomplete="off" spellcheck="false">
+            </div>
+            <div class="preferences-groups" id="preferencesSettings">
+                <section class="preference-group" data-preference-group>
+                    <h3 class="preference-group-title">Appearance</h3>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefThemeLabel">Theme</div>
+                            <p class="preference-description" id="prefThemeHelp">Follow the system or choose a fixed theme.</p>
+                            <p class="preference-effective" id="prefThemeEffective" aria-live="polite"></p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefThemeLabel" aria-describedby="prefThemeHelp">
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-theme" value="system" class="preference-radio" checked>
+                                <span class="preference-option-content">System</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-theme" value="light" class="preference-radio">
+                                <span class="preference-option-content">Light</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-theme" value="dark" class="preference-radio">
+                                <span class="preference-option-content">Dark</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefAccentLabel">Accent color</div>
+                            <p class="preference-description" id="prefAccentHelp">Tints buttons, links, focus rings, and selected items.</p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefAccentLabel" aria-describedby="prefAccentHelp">
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-accent" value="default" class="preference-radio" checked>
+                                <span class="preference-option-content">Default</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-accent" value="blue" class="preference-radio">
+                                <span class="preference-option-content">Blue</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-accent" value="violet" class="preference-radio">
+                                <span class="preference-option-content">Violet</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-accent" value="emerald" class="preference-radio">
+                                <span class="preference-option-content">Emerald</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefDensityLabel">Interface density</div>
+                            <p class="preference-description" id="prefDensityHelp">Adjust spacing in panels, tables, and forms.</p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefDensityLabel" aria-describedby="prefDensityHelp">
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-density" value="comfortable" class="preference-radio" checked>
+                                <span class="preference-option-content">Comfortable</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-density" value="compact" class="preference-radio">
+                                <span class="preference-option-content">Compact</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefCornersLabel">Corner style</div>
+                            <p class="preference-description" id="prefCornersHelp">Square removes rounded corners across the interface; Rounded restores the classic look.</p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefCornersLabel" aria-describedby="prefCornersHelp">
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-corners" value="square" class="preference-radio" checked>
+                                <span class="preference-option-content">Square</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-corners" value="rounded" class="preference-radio">
+                                <span class="preference-option-content">Rounded</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+                <section class="preference-group" data-preference-group>
+                    <h3 class="preference-group-title">Navigation</h3>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefSidebarLabel">Desktop sidebar</div>
+                            <p class="preference-description" id="prefSidebarHelp">Choose the default desktop navigation layout.</p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefSidebarLabel" aria-describedby="prefSidebarHelp">
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-sidebar" value="expanded" class="preference-radio" checked>
+                                <span class="preference-option-content">Expanded</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-sidebar" value="icon" class="preference-radio">
+                                <span class="preference-option-content">Icon-only</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+                <section class="preference-group" data-preference-group>
+                    <h3 class="preference-group-title">Accessibility</h3>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefTextSizeLabel">Text size</div>
+                            <p class="preference-description" id="prefTextSizeHelp">Scale the interface text up or down. Default keeps the current size.</p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefTextSizeLabel" aria-describedby="prefTextSizeHelp">
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-text-size" value="small" class="preference-radio">
+                                <span class="preference-option-content">Small</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-text-size" value="default" class="preference-radio" checked>
+                                <span class="preference-option-content">Default</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-text-size" value="large" class="preference-radio">
+                                <span class="preference-option-content">Large</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefMotionLabel">Motion</div>
+                            <p class="preference-description" id="prefMotionHelp">Follow the system or reduce non-essential animation.</p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefMotionLabel" aria-describedby="prefMotionHelp">
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-motion" value="system" class="preference-radio" checked>
+                                <span class="preference-option-content">System</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-motion" value="reduced" class="preference-radio">
+                                <span class="preference-option-content">Reduced</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefContrastLabel">High contrast</div>
+                            <p class="preference-description" id="prefContrastHelp">Strengthen text, borders, and focus indicators.</p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefContrastLabel" aria-describedby="prefContrastHelp">
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-contrast" value="disabled" class="preference-radio" checked>
+                                <span class="preference-option-content">Disabled</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-contrast" value="enabled" class="preference-radio">
+                                <span class="preference-option-content">Enabled</span>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+                <section class="preference-group" data-preference-group>
+                    <h3 class="preference-group-title">Behavior</h3>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefConfirmLabel">Confirm destructive actions</div>
+                            <p class="preference-description" id="prefConfirmHelp">Ask before deletes or removals that cannot be undone.</p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefConfirmLabel" aria-describedby="prefConfirmHelp">
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-confirm" value="enabled" class="preference-radio" checked>
+                                <span class="preference-option-content">Enabled</span>
+                            </label>
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-confirm" value="disabled" class="preference-radio">
+                                <span class="preference-option-content">Disabled</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="preference-row" data-preference-row>
+                        <div class="preference-info">
+                            <div class="preference-name" id="prefPerPageLabel">Records per page</div>
+                            <p class="preference-description" id="prefPerPageHelp">How many rows list pages show before paginating (10 to 40).</p>
+                        </div>
+                        <div class="preference-control" role="radiogroup" aria-labelledby="prefPerPageLabel" aria-describedby="prefPerPageHelp">
+                            {% for value in list_page_size_options %}
+                            <label class="preference-option">
+                                <input type="radio" name="quadrum-per-page" value="{{ value }}" class="preference-radio"{% if list_page_size == value %} checked{% endif %}>
+                                <span class="preference-option-content">{{ value }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </section>
+                <p class="preferences-empty" id="preferencesEmpty" role="status" hidden>No preferences match your search.</p>
+            </div>
+            <div class="command-footer preferences-footer">
+                <span><kbd>tab</kbd> move between settings</span>
+                <span><kbd>esc</kbd> close</span>
+                <span class="preferences-local-note">Saved in this browser.</span>
+            </div>
+        </div>
     </div>
 
-    <div class="profile-menu" id="profileMenu" role="menu" aria-label="Profile" style="position:fixed;top:58px;right:16px;width:200px;background:var(--color-bg-elevated);border:1px solid var(--color-border);border-radius:6px;padding:8px;z-index:700;box-shadow:var(--shadow-lg);">
-        <a href="#" onclick="document.getElementById('profileMenu').classList.remove('open'); return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Profile</a>
-        <a href="#" onclick="document.getElementById('profileMenu').classList.remove('open'); return false;" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-text);font-size:0.875rem;text-decoration:none;">Settings</a>
-        <div style="border-top:1px solid var(--color-border);margin:4px 0;"></div>
-        <a href="{% url 'frontend:login' %}" style="display:block;padding:6px 8px;border-radius:4px;color:var(--color-danger);font-size:0.875rem;text-decoration:none;">Sign out</a>
+    <div class="command-overlay chart-expand-overlay" id="chartExpandDialog" aria-hidden="true">
+        <div class="command-panel chart-expand-panel" role="dialog" aria-modal="true" aria-labelledby="chartExpandTitle" tabindex="-1">
+            <div class="chart-expand-header">
+                <h2 class="chart-expand-title" id="chartExpandTitle"><span id="chartExpandTitleText">Chart</span><span class="panel-subtitle chart-expand-subtitle" id="chartExpandSubtitle" hidden></span></h2>
+                <button type="button" class="chart-expand-close" id="chartExpandCloseBtn" aria-label="Close expanded chart" title="Close (Esc)">
+                    <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="chart-expand-body" id="chartExpandBody"></div>
+            <p class="chart-expand-caption" id="chartExpandCaption" hidden></p>
+        </div>
     </div>
 
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    {% if user.is_authenticated %}
+    <div class="confirm-overlay" id="logoutDialog" aria-hidden="true">
+        <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="logoutDialogTitle" aria-describedby="logoutDialogDesc" tabindex="-1">
+            <div class="confirm-dialog-body">
+                <h2 class="confirm-dialog-title" id="logoutDialogTitle">Sign out?</h2>
+                <p class="confirm-dialog-text" id="logoutDialogDesc">Are you sure you want to sign out of Quadrum?</p>
+            </div>
+            <div class="confirm-dialog-actions">
+                <button type="button" class="btn btn-secondary" id="logoutCancelBtn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="logoutConfirmBtn">Sign out</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="confirm-overlay" id="destructiveConfirmDialog" aria-hidden="true">
+        <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="destructiveConfirmTitle" aria-describedby="destructiveConfirmDetail" tabindex="-1">
+            <div class="confirm-dialog-body">
+                <h2 class="confirm-dialog-title" id="destructiveConfirmTitle">Delete record?</h2>
+                <p class="confirm-dialog-text confirm-dialog-record" id="destructiveConfirmRecord" hidden></p>
+                <p class="confirm-dialog-text" id="destructiveConfirmDetail">This action cannot be undone.</p>
+            </div>
+            <div class="confirm-dialog-actions">
+                <button type="button" class="btn btn-secondary" id="destructiveConfirmCancelBtn">Cancel</button>
+                <button type="button" class="btn btn-danger" id="destructiveConfirmSubmitBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if user.is_authenticated and onboarding_pending %}
+    {% include "frontend/partials/onboarding.html" %}
+    {% endif %}
 
     <script src="{% static 'js/main.js' %}"></script>
     <script>document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });</script>

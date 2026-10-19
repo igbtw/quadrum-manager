@@ -25,7 +25,7 @@ for.
   payment, receivable, dashboard, and reporting workflows actually run through
   the views, services, and models.
 - [API reference](api-reference.md) — the two POS JSON endpoints
-  (`/api/pdv/calcular/`, `/api/pdv/finalizar/`), including request/response
+  (`/api/pos/calculate/`, `/api/pos/finalize/`), including request/response
   schemas, idempotency, and error codes.
 
 ## Development and contributions

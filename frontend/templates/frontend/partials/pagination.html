@@ -1,0 +1,34 @@
+{% comment %}
+Shared pagination controls for list tables.
+
+Include with:
+  page_obj   — the Django Page to render
+  params     — querystring of the active filters (without the page param)
+  page_param — name of the page GET parameter (default: page)
+  aria_label — accessible name for the nav element
+{% endcomment %}
+{% if page_obj.paginator.num_pages > 1 %}
+<nav class="table-pagination" aria-label="{{ aria_label|default:'Pagination' }}">
+    <div class="pagination-links">
+        {% if page_obj.has_previous %}
+        <a class="page-link" href="?{% if params %}{{ params }}&{% endif %}{{ page_param|default:'page' }}={{ page_obj.previous_page_number }}" rel="prev">
+            <span aria-hidden="true">&larr;</span> Previous
+        </a>
+        {% else %}
+        <span class="page-link page-link-disabled" aria-disabled="true">
+            <span aria-hidden="true">&larr;</span> Previous
+        </span>
+        {% endif %}
+        <span class="page-status">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a class="page-link" href="?{% if params %}{{ params }}&{% endif %}{{ page_param|default:'page' }}={{ page_obj.next_page_number }}" rel="next">
+            Next <span aria-hidden="true">&rarr;</span>
+        </a>
+        {% else %}
+        <span class="page-link page-link-disabled" aria-disabled="true">
+            Next <span aria-hidden="true">&rarr;</span>
+        </span>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}

@@ -1,0 +1,71 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+
+{% block title %}Documentation{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Documentation</h1>
+        <p class="page-subtitle">Focused guides for everyday operation, plus developer references — each topic on its own page.</p>
+    </div>
+    <div class="page-actions">
+        <form method="post" action="{% url 'frontend:onboarding_restart' %}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            <button type="submit" class="btn btn-secondary">
+                <i data-lucide="compass" style="width:16px;height:16px;stroke-width:2;"></i>
+                Show getting started guide
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="doc-index">
+    <div class="doc-search" role="search">
+        <i data-lucide="search" class="doc-search-icon" aria-hidden="true"></i>
+        <input type="search" id="docSearchInput" class="doc-search-input" placeholder="Search documentation topics..." aria-label="Search documentation topics" autocomplete="off">
+        <p class="doc-search-status" id="docSearchStatus" role="status" aria-live="polite"></p>
+    </div>
+    <p class="doc-empty" id="docSearchEmpty" hidden>No documentation topics match your search.</p>
+
+    <div class="doc-callouts">
+        <a class="doc-callout" href="{% url 'frontend:documentation_topic' 'getting-started' %}">
+            <i data-lucide="compass" class="doc-callout-icon" aria-hidden="true"></i>
+            <span>
+                <span class="doc-callout-title">New to Quadrum?</span>
+                <span class="doc-callout-text">Start with the Getting Started guide.</span>
+            </span>
+        </a>
+        <a class="doc-callout" href="{% url 'frontend:documentation_topic' 'search' %}">
+            <i data-lucide="search" class="doc-callout-icon" aria-hidden="true"></i>
+            <span>
+                <span class="doc-callout-title">Looking for something specific?</span>
+                <span class="doc-callout-text">Global search supports advanced prefixes — see Search and Advanced Queries.</span>
+            </span>
+        </a>
+    </div>
+
+    <div id="docIndex">
+        {% for group in doc_groups %}
+        <section class="doc-index-group" data-doc-group="{{ group.key }}">
+            <h2 class="doc-index-heading">{{ group.label }}</h2>
+            <div class="doc-card-grid">
+                {% for topic in group.topics %}
+                <a class="doc-card" href="{% url 'frontend:documentation_topic' topic.slug %}" data-doc-keywords="{{ topic.keywords }}">
+                    <span class="doc-card-icon" aria-hidden="true"><i data-lucide="{{ topic.icon }}"></i></span>
+                    <span class="doc-card-body">
+                        <span class="doc-card-title">{{ topic.title }}</span>
+                        <span class="doc-card-description">{{ topic.description }}</span>
+                    </span>
+                    <i data-lucide="arrow-right" class="doc-card-arrow" aria-hidden="true"></i>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
+    </div>
+
+    <p class="doc-note">The repository files <code>README.md</code> and the <code>docs/</code> directory are the internal source of truth for the schema, business rules, and API contract. They are not served by the application; the pages above summarize them in-app.</p>
+</div>
+{% endblock %}

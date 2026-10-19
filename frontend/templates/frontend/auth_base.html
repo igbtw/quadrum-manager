@@ -1,0 +1,43 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-corners="square">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}quadrum{% endblock %}</title>
+    {% include "frontend/partials/theme_boot.html" %}
+    <link rel="stylesheet" href="{% static 'css/reset.css' %}">
+    <link rel="stylesheet" href="{% static 'css/variables.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body class="auth-body">
+    <main class="auth-shell">
+        <section class="auth-brand" aria-label="quadrum">
+            <div class="auth-brand-inner">
+                <div class="auth-brand-logo">
+                    <span class="auth-brand-mark" aria-hidden="true">
+                        <i data-lucide="squares-intersect" aria-hidden="true"></i>
+                    </span>
+                    <span class="auth-brand-wordmark">quadrum</span>
+                </div>
+                <p class="auth-brand-message">Simple management for products, sales, and accounts receivable in one place.</p>
+                <p class="auth-brand-caption">Simple Management System</p>
+            </div>
+        </section>
+        <section class="auth-panel">
+            <div class="auth-panel-inner">
+                {% for message in messages %}
+                <div class="alert{% if message.tags == 'success' %} alert-success{% elif message.tags == 'error' %} alert-danger{% elif message.tags == 'warning' %} alert-warning{% elif message.tags == 'info' %} alert-info{% endif %}" role="status" aria-live="polite">{{ message }}</div>
+                {% endfor %}
+                {% block content %}{% endblock %}
+            </div>
+        </section>
+    </main>
+    <script>document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); });</script>
+</body>
+</html>

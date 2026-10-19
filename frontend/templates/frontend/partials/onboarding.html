@@ -1,0 +1,95 @@
+{% comment %}First-run guide shown once to newly registered users.{% endcomment %}
+<div class="onboarding-overlay open" id="onboardingDialog" aria-hidden="false"
+     data-onboarding-current="{{ onboarding_step }}"
+     data-onboarding-step-url="{% url 'frontend:onboarding_step' %}">
+    <div class="onboarding-spotlight" id="onboardingSpotlight" aria-hidden="true" hidden></div>
+    <div class="command-panel onboarding-panel" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" tabindex="-1">
+        <div class="onboarding-header">
+            <div class="onboarding-heading">
+                <span class="onboarding-badge" aria-hidden="true"><i data-lucide="compass"></i></span>
+                <div>
+                    <h2 class="onboarding-title" id="onboardingTitle">Getting started</h2>
+                    <p class="onboarding-progress" id="onboardingProgress" hidden></p>
+                </div>
+            </div>
+            <form method="post" action="{% url 'frontend:onboarding_skip' %}" class="onboarding-close-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="preferences-close" aria-label="Close and review later" title="Close (Esc)">
+                    <kbd class="command-kbd" aria-hidden="true">esc</kbd>
+                </button>
+            </form>
+        </div>
+
+        <div class="onboarding-body">
+            <section class="onboarding-step" data-onboarding-step data-onboarding-route="{% url 'frontend:dashboard' %}" aria-labelledby="onboardingStep1Title">
+                <span class="onboarding-step-index" aria-hidden="true">1</span>
+                <div class="onboarding-step-content">
+                    <h3 class="onboarding-step-title" id="onboardingStep1Title">Dashboard</h3>
+                    <p class="onboarding-step-text">Your daily overview: sales and revenue for today, receivables and overdue balances, low-stock alerts, and the latest sales activity.</p>
+                    <a class="onboarding-step-link" href="{% url 'frontend:dashboard' %}">Open Dashboard <i data-lucide="arrow-right" aria-hidden="true"></i></a>
+                </div>
+            </section>
+
+            <section class="onboarding-step" data-onboarding-step data-onboarding-route="{% url 'frontend:sales_list' %}" aria-labelledby="onboardingStep2Title">
+                <span class="onboarding-step-index" aria-hidden="true">2</span>
+                <div class="onboarding-step-content">
+                    <h3 class="onboarding-step-title" id="onboardingStep2Title">Sales</h3>
+                    <p class="onboarding-step-text">The sales history lists recent sales with their status (Completed, Pending, or Cancelled), totals, and customer. Use it to review what was finalized and when.</p>
+                    <a class="onboarding-step-link" href="{% url 'frontend:sales_list' %}">View Sales <i data-lucide="arrow-right" aria-hidden="true"></i></a>
+                </div>
+            </section>
+
+            <section class="onboarding-step" data-onboarding-step data-onboarding-route="{% url 'frontend:point_of_sale' %}" aria-labelledby="onboardingStep3Title">
+                <span class="onboarding-step-index" aria-hidden="true">3</span>
+                <div class="onboarding-step-content">
+                    <h3 class="onboarding-step-title" id="onboardingStep3Title">New Sale</h3>
+                    <p class="onboarding-step-text">The point of sale: pick products by category, set quantities, optionally choose the customer, select the payment method, then finalize. Finalizing records the sale and deducts stock; an On Account sale with a customer also creates an account receivable.</p>
+                    <a class="onboarding-step-link" href="{% url 'frontend:point_of_sale' %}">Start a Sale <i data-lucide="arrow-right" aria-hidden="true"></i></a>
+                </div>
+            </section>
+
+            <section class="onboarding-step" data-onboarding-step data-onboarding-route="{% url 'frontend:inventory' %}" aria-labelledby="onboardingStep4Title">
+                <span class="onboarding-step-index" aria-hidden="true">4</span>
+                <div class="onboarding-step-content">
+                    <h3 class="onboarding-step-title" id="onboardingStep4Title">Products and Inventory</h3>
+                    <p class="onboarding-step-text">Products holds the catalog (price, cost, minimum stock). Inventory shows current stock and the manual adjustment form: enter a positive quantity to add stock or a negative quantity to remove it, with a reason. Every change is logged as a stock movement.</p>
+                    <span class="onboarding-step-links">
+                        <a class="onboarding-step-link" href="{% url 'frontend:products' %}">Products <i data-lucide="arrow-right" aria-hidden="true"></i></a>
+                        <a class="onboarding-step-link" href="{% url 'frontend:inventory' %}">Inventory <i data-lucide="arrow-right" aria-hidden="true"></i></a>
+                    </span>
+                </div>
+            </section>
+
+            <section class="onboarding-step" data-onboarding-step data-onboarding-route="{% url 'frontend:finance' %}" aria-labelledby="onboardingStep5Title">
+                <span class="onboarding-step-index" aria-hidden="true">5</span>
+                <div class="onboarding-step-content">
+                    <h3 class="onboarding-step-title" id="onboardingStep5Title">People and Finance</h3>
+                    <p class="onboarding-step-text">People stores students, teachers, staff, and visitors used as sale customers. Finance tracks outstanding accounts and registers payments, updating each receivable's status automatically. Reports summarizes operational activity.</p>
+                    <span class="onboarding-step-links">
+                        <a class="onboarding-step-link" href="{% url 'frontend:people' %}">People <i data-lucide="arrow-right" aria-hidden="true"></i></a>
+                        <a class="onboarding-step-link" href="{% url 'frontend:finance' %}">Finance <i data-lucide="arrow-right" aria-hidden="true"></i></a>
+                    </span>
+                    <p class="onboarding-step-note">Reopen this guide anytime from Help &rarr; Documentation.</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="onboarding-footer">
+            <form method="post" action="{% url 'frontend:onboarding_skip' %}" id="onboardingLaterForm">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="btn btn-ghost btn-sm">Do this later</button>
+            </form>
+            <div class="onboarding-nav" id="onboardingNav">
+                <button type="button" class="btn btn-secondary btn-sm" id="onboardingBackBtn" hidden>Back</button>
+                <button type="button" class="btn btn-primary btn-sm" id="onboardingNextBtn">Next</button>
+            </div>
+            <form method="post" action="{% url 'frontend:onboarding_complete' %}" id="onboardingFinishForm">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="btn btn-primary btn-sm">Finish guide</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -5,7 +5,7 @@ It separates **application-level requirements** (what the app needs) from
 **OS-specific instructions** (how to install packages on your Linux
 distribution). OS-specific commands are marked as conditional.
 
-> **Scope**: This is a school demonstration with fictitious data. The steps here
+> **Scope**: This is a demonstration deployment with fictitious data. The steps here
 > are suitable for a single-server deployment behind a reverse proxy with HTTPS.
 
 ---
@@ -342,9 +342,9 @@ Enable and reload:
 
 ### HTTPS
 
-> ⚠️ **The school may not provide a public domain name, SSL certificate, or access to ports 80/443.** Confirm these requirements with the school before enabling HTTPS redirect and HSTS. If a domain or certificate is unavailable, skip the HTTPS redirect and use only the reverse proxy for internal testing.
+> ⚠️ **Your organization may not provide a public domain name, SSL certificate, or access to ports 80/443.** Confirm these requirements with the deployment owner before enabling HTTPS redirect and HSTS. If a domain or certificate is unavailable, skip the HTTPS redirect and use only the reverse proxy for internal testing.
 
-Obtain certificates using Let's Encrypt (only if the school provides a public domain):
+Obtain certificates using Let's Encrypt (only if a public domain is available):
 ```bash
 # Conditional (Ubuntu/Debian):
 # sudo apt install certbot python3-certbot-nginx  # or python3-certbot-apache
@@ -354,7 +354,7 @@ Obtain certificates using Let's Encrypt (only if the school provides a public do
 
 ### HTTPS vs Internal Demo (without HTTPS)
 
-If the school does **not** provide a domain or SSL certificate:
+If no domain or SSL certificate is available:
 
 - **Skip HTTPS redirect and HSTS.** Do not use `SECURE_SSL_REDIRECT = True` (or set it to `False` in settings for internal demo only — but note that the production settings enforce `True` when `DEBUG=False`).
 - **Do not configure nginx/Apache SSL blocks.** Use a plain HTTP reverse proxy or access Gunicorn directly (e.g., `gunicorn --bind 0.0.0.0:8000`) for local/network testing only.
@@ -598,7 +598,7 @@ curl -I http://127.0.0.1:8000/health/
 curl -I http://127.0.0.1:8000/login/
 curl -I http://127.0.0.1:8000/dashboard/
 
-# 3. Check HTTPS (ONLY if school provides domain + SSL cert; skip entirely otherwise)
+# 3. Check HTTPS (ONLY if a domain + SSL certificate are available; skip entirely otherwise)
 curl -I https://yourdomain.com/health/ || echo "HTTPS test skipped: no domain or SSL cert configured"
 curl -I https://yourdomain.com/login/ || echo "HTTPS test skipped: no domain or SSL cert configured"
 
@@ -690,7 +690,7 @@ If a migration is **forward-only** (e.g., data is dropped/removed):
 
 ## OS-Specific Package Installation Commands
 
-These are **conditional** and depend on the school's Linux distribution.
+These are **conditional** and depend on the server's Linux distribution.
 
 ### Ubuntu / Debian (APT)
 

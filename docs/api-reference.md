@@ -4,14 +4,16 @@ quadrum exposes two JSON endpoints for the point-of-sale (POS) workflow. Both
 live in `frontend/views.py` and are registered in `frontend/urls.py` under
 `app_name = 'frontend'`, which `config/urls.py` includes at the site root.
 
-**The HTTP paths are intentionally kept in Portuguese for backwards
-compatibility and must not be renamed.** The Python view names and Django URL
-names are English and are separate concepts:
+The canonical HTTP paths, Python view names, and Django URL names are English.
+The legacy Portuguese paths remain registered as aliases for backwards
+compatibility:
 
 | HTTP path | view function | URL name |
 |---|---|---|
-| `/api/pdv/calcular/` | `api_pos_calculate` | `frontend:api_pos_calculate` |
-| `/api/pdv/finalizar/` | `api_pos_finalize` | `frontend:api_pos_finalize` |
+| `/api/pos/calculate/` | `api_pos_calculate` | `frontend:api_pos_calculate` |
+| `/api/pos/finalize/` | `api_pos_finalize` | `frontend:api_pos_finalize` |
+| `/api/pdv/calcular/` (legacy alias) | `api_pos_calculate` | `frontend:api_pos_calculate_legacy` |
+| `/api/pdv/finalizar/` (legacy alias) | `api_pos_finalize` | `frontend:api_pos_finalize_legacy` |
 
 Both endpoints are `POST`-only and both are protected. Verified sources:
 `frontend/views.py`, `frontend/urls.py`, `frontend/urls.py` routing,
@@ -27,7 +29,7 @@ Related documents: [Business flows](business-flows.md) ·
 - **Authentication.** Both views are decorated with `@login_required`. An
   unauthenticated request is redirected to `LOGIN_URL` (`/login/`) with status
   `302`, not a `401`/`403`. Verified by
-  `test_api_pdv_requires_login_and_ignores_client_price`, which posts a finalize
+  `test_api_pos_requires_login_and_ignores_client_price`, which posts a finalize
   request anonymously and asserts `302`.
 - **Methods.** Both views are wrapped with `@require_http_methods(["POST"])`.
   Because the decorators are applied as `@login_required` over
@@ -49,7 +51,7 @@ Related documents: [Business flows](business-flows.md) ·
 
 ## Endpoint 1: Calculate total
 
-`POST /api/pdv/calcular/`
+`POST /api/pos/calculate/`
 
 Computes a cart total from product ids and quantities. It is read-only.
 
@@ -74,7 +76,7 @@ used.
 Minimal request:
 
 ```http
-POST /api/pdv/calcular/
+POST /api/pos/calculate/
 Content-Type: application/json
 X-CSRFToken: <csrf-token>
 Cookie: sessionid=<session-id>
@@ -136,13 +138,13 @@ review, but the code was not changed here.)
 `test_calculate_missing_product_returns_404`,
 `test_calculate_unexpected_error_hides_internal_details`,
 `test_calculate_malformed_json_returns_controlled_error`), alongside
-`test_api_pdv_calcular_real_product`, `test_api_pdv_calcular_bad_id`
+`test_api_pos_calcular_real_product`, `test_api_pos_calcular_bad_id`
 (`frontend/tests/test_regressions.py`), and `test_invalid_product_id_in_api`
 (`frontend/tests/test_auth_security.py`).
 
 ## Endpoint 2: Finalize sale
 
-`POST /api/pdv/finalizar/`
+`POST /api/pos/finalize/`
 
 Creates and completes a sale (with idempotency), reducing stock and, for
 on-account sales with a customer, creating a receivable.
@@ -179,7 +181,7 @@ enforced by this endpoint.)
 Minimal request:
 
 ```http
-POST /api/pdv/finalizar/
+POST /api/pos/finalize/
 Content-Type: application/json
 X-CSRFToken: <csrf-token>
 Cookie: sessionid=<session-id>
@@ -195,10 +197,10 @@ Cookie: sessionid=<session-id>
 ### Success response
 
 ```json
-{"success": true, "codigo": "VEN-000042", "message": "Sale completed"}
+{"success": true, "code": "VEN-000042", "message": "Sale completed"}
 ```
 
-`codigo` is the `Sale.code`. The same body is returned for a successful idempotent
+`code` is the `Sale.code`. The same body is returned for a successful idempotent
 replay (see below).
 
 ### Error responses
@@ -233,7 +235,7 @@ inventory fails and rolls back. This path is not logged as a server error;
 genuinely unexpected exceptions still log via `logger.exception` and return the
 generic `500`.
 
-The calculation endpoint (`POST /api/pdv/calcular/`) performs **no** stock
+The calculation endpoint (`POST /api/pos/calculate/`) performs **no** stock
 check and does **not** reserve or guarantee inventory; it only reports an
 indicative total. Availability is decided solely by the locked check above,
 which is why stock can change between calculation and finalization.
@@ -260,7 +262,7 @@ come from the validated items, so the fingerprint always reflects the exact
 integers that will be persisted. Rules:
 
 - **Equivalent retry** (same key, same fingerprint, existing sale `COMPLETED`):
-  `200` with the original `codigo`; no writes.
+  `200` with the original `code`; no writes.
 - **Key reused with different data**: `409 Key conflict: request data changed`.
 - **Different user, same key**: `403 Idempotency key not authorized`. Ownership
   is `(responsible_id or 0) == request.user.id`.
@@ -282,7 +284,7 @@ view):
 No `Payment` is created. The endpoint never trusts a client price. These
 behaviors are verified by `test_duplicate_finalization_idempotent`,
 `test_idempotency_ownership_and_conflict`,
-`test_api_pdv_requires_login_and_ignores_client_price`,
+`test_api_pos_requires_login_and_ignores_client_price`,
 `test_missing_fingerprint_returns_409`,
 `test_integrityerror_without_matching_record_returns_500`, and
 `test_unexpected_exception_returns_generic_500` in
@@ -303,13 +305,12 @@ quantity is never truncated for fingerprinting
 (`test_finalize_fingerprint_not_truncated`,
 `test_finalize_float_replay_not_treated_as_equivalent`).
 
-### Client mismatch (current limitation)
+### Client payload
 
-The bundled template `frontend/templates/frontend/point_of_sale.html` builds its
-payload with Portuguese field names (`itens`, `produto_id`, `forma_pagamento`,
-`cliente_id`) and calls undefined helpers such as `quadrum.showToast`. The
-endpoint expects the English fields documented above, so the current UI cannot
-successfully finalize a sale through this endpoint. The frontend defect is out
-of scope for this documentation phase and must not be treated as an operational
-feature. The contract above is what the server actually accepts, verified by the
-tests cited.
+The bundled template `frontend/templates/frontend/point_of_sale.html` sends the
+English payload documented above (`items`, `customer_id`, `payment_method`,
+`idempotency_key`) and reads `data.code` from the response. It references
+`#selected-customer`, an element the template does not render, so `customer_id`
+is always `null`; on-account sales created from this UI therefore have no
+customer and no receivable. The server contract above remains authoritative and
+is verified by the tests cited.

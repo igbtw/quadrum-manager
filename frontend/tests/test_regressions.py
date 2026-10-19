@@ -79,17 +79,21 @@ class PhaseARegressionTests(TestCase):
         self.assertEqual(Product.objects.get(pk=prod.pk).stock_quantity, stock_after_sale)
         self.assertFalse(StockMovement.objects.filter(sale=sale, movement_type='RETURN').exists())
 
-    def test_api_pdv_calcular_real_product(self):
+    def test_api_pos_calculate_real_product(self):
         from frontend.models import Product
         prod = Product.objects.create(name='APIProd', code='AP', category=Category.objects.create(name='API'), price=Decimal('5'), stock_quantity=10)
         self.client.force_login(self.user)
         resp = self.client.post(reverse('frontend:api_pos_calculate'), data='{"items":[{"product_id":%d,"quantity":2}]}' % prod.pk, content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertEqual(resp.status_code, 200)
 
-    def test_api_pdv_calcular_bad_id(self):
+    def test_api_pos_calculate_bad_id(self):
         self.client.force_login(self.user)
         resp = self.client.post(reverse('frontend:api_pos_calculate'), data='{"items":[{"product_id":99999,"quantity":1}]}', content_type='application/json', HTTP_X_CSRFTOKEN='fake')
         self.assertIn(resp.status_code, [400, 404])
+
+    def test_legacy_pdv_alias_paths_resolve(self):
+        self.assertEqual(reverse('frontend:api_pos_calculate_legacy'), '/api/pdv/calcular/')
+        self.assertEqual(reverse('frontend:api_pos_finalize_legacy'), '/api/pdv/finalizar/')
 
     def test_payment_service_recalculates(self):
         pers = Person.objects.create(name='Jo', doc_id='D', person_type='STUDENT')
@@ -99,7 +103,7 @@ class PhaseARegressionTests(TestCase):
         self.assertEqual(rc.status, 'PARTIAL')
         self.assertEqual(rc.remaining_balance, Decimal('70'))
 
-    def test_api_pdv_requires_login_and_ignores_client_price(self):
+    def test_api_pos_requires_login_and_ignores_client_price(self):
         """Regression: anonymous users must not finalize sales or manipulate prices."""
         cat = Category.objects.create(name='RegC')
         prod = Product.objects.create(name='RegP', code='RP', category=cat, price=Decimal('99.99'), stock_quantity=50)

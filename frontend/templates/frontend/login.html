@@ -1,42 +1,48 @@
-{% extends "frontend/base.html" %}
-{% load static %}
+{% extends "frontend/auth_base.html" %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Sign in — quadrum{% endblock %}
 
 {% block content %}
-<div class="login-container">
-    <div class="login-card">
-        <div class="login-logo">
-            <div class="login-logo-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="64" height="64" fill="none" aria-label="quadrum mark" style="display:block;"><rect x="2" y="2" width="24" height="24" rx="4" stroke="currentColor" stroke-width="2.5" fill="none"/><rect x="10" y="10" width="8" height="8" rx="1" fill="currentColor"/></svg></div>
-            <h2 class="login-title">Welcome</h2>
-            <p class="login-subtitle">quadrum — School Cafeteria System</p>
-        </div>
+<header class="auth-header">
+    <h1 class="auth-heading">Sign in</h1>
+    <p class="auth-sub">Enter your credentials to continue to quadrum.</p>
+</header>
 
-        <form method="post" action="{% url 'frontend:login' %}" class="login-form" novalidate>
-            {% csrf_token %}
-            {% if error %}
-            <div class="alert alert-small alert-danger" role="alert" aria-live="polite">{{ error }}</div>
-            {% endif %}
-            
-            <div class="form-group">
-                <label for="username" class="form-label">User</label>
-                <input type="text" id="username" name="username" class="input" placeholder="Seu usuário" required autofocus>
-            </div>
-            
-            <div class="form-group">
-                <label for="password" class="form-label">Senha</label>
-                <input type="password" id="password" name="password" class="input" placeholder="Sua senha" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary" style="width: 100%;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: var(--space-2);">
-                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-                    <polyline points="10 17 15 12 10 7"></polyline>
-                    <line x1="15" y1="12" x2="3" y2="12"></line>
-                </svg>
-                Entrar
-            </button>
-        </form>
+<form method="post" action="{% url 'frontend:login' %}" class="auth-form" novalidate>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}">
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger" role="alert" aria-live="polite">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
     </div>
-</div>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="id_username" class="form-label">Username</label>
+        <input type="text" name="username" id="id_username" class="input{% if form.username.errors %} input-error{% endif %}" value="{{ form.username.value|default:'' }}" placeholder="Your username" maxlength="150" autocomplete="username" autocapitalize="none" spellcheck="false" autofocus required{% if form.username.errors %} aria-invalid="true" aria-describedby="username-errors"{% endif %}>
+        {% if form.username.errors %}
+        <p class="form-error" id="username-errors">{% for error in form.username.errors %}{{ error }}{% if not forloop.last %} {% endif %}{% endfor %}</p>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="id_password" class="form-label">Password</label>
+        <input type="password" name="password" id="id_password" class="input{% if form.password.errors %} input-error{% endif %}" placeholder="Your password" autocomplete="current-password" required{% if form.password.errors %} aria-invalid="true" aria-describedby="password-errors"{% endif %}>
+        {% if form.password.errors %}
+        <p class="form-error" id="password-errors">{% for error in form.password.errors %}{{ error }}{% if not forloop.last %} {% endif %}{% endfor %}</p>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary auth-submit">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+        </svg>
+        Sign in
+    </button>
+</form>
+
+<p class="auth-switch">New to quadrum? <a href="{% url 'frontend:register' %}">Create an account</a></p>
 {% endblock %}

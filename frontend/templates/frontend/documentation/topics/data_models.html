@@ -1,0 +1,43 @@
+{% extends "frontend/documentation/topic_base.html" %}
+
+{% block topic_content %}
+<p>The application keeps a compact data model: nine entities covering the catalog, sales, stock auditing, receivables, and onboarding state. This page is a quick map; the schema, constraints, and migration guidance live in <code>docs/data-model.md</code>.</p>
+
+<h3>Entities</h3>
+<div class="doc-table-wrap">
+    <table class="doc-table">
+        <thead>
+            <tr><th>Model</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+            <tr><td><code>Category</code></td><td>Groups products; referenced with <code>PROTECT</code> so a category in use cannot be deleted.</td></tr>
+            <tr><td><code>Product</code></td><td>Name, code, category, price, cost, stock, minimum stock, and active flag.</td></tr>
+            <tr><td><code>Person</code></td><td>Customer registry with type, record/doc, contact fields, and active flag.</td></tr>
+            <tr><td><code>Sale</code></td><td>Sale header: code, status, payment method, totals, customer, responsible user, and idempotency key.</td></tr>
+            <tr><td><code>SaleItem</code></td><td>One line of a sale with the captured unit price at sale time.</td></tr>
+            <tr><td><code>StockMovement</code></td><td>Append-only audit log of every stock change (sale, return, adjustment), with optional sale and user links.</td></tr>
+            <tr><td><code>AccountReceivable</code></td><td>Amount owed by a person for an On Account sale.</td></tr>
+            <tr><td><code>Payment</code></td><td>A payment applied to a receivable.</td></tr>
+            <tr><td><code>OnboardingProgress</code></td><td>First-run guide state per account, including the resume step.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<h3>Business rules the application enforces</h3>
+<ul>
+    <li>Stock is never allowed to go negative — a database constraint backs the service-level checks.</li>
+    <li>Payments never exceed the outstanding balance, and cancelled receivables refuse new payments at multiple layers.</li>
+    <li>A completed sale keeps its captured prices; later catalog changes do not rewrite its history.</li>
+    <li>Product and person records referenced by sales are protected from deletion (<code>PROTECT</code>); the sale keeps a nullable link if a customer is removed (<code>SET_NULL</code>).</li>
+    <li>Monetary values keep two decimal places.</li>
+    <li>Stock movement history is append-only, so stock changes can always be reconstructed.</li>
+</ul>
+
+<h3>Related repository documents</h3>
+<ul>
+    <li><code>docs/data-model.md</code> — full schema, relationships, constraints, and migration practices.</li>
+    <li><code>docs/business-flows.md</code> — the workflows that read and write these entities.</li>
+    <li><code>docs/architecture.md</code> — project layout and request flow.</li>
+</ul>
+<p class="doc-note">These files are the internal source of truth and are not served by the application. See also <a href="{% url 'frontend:documentation_topic' 'api' %}">API Reference</a>.</p>
+{% endblock %}

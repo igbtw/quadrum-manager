@@ -15,7 +15,7 @@ Related documents: [Data model](data-model.md) ·
 
 ## A. Point-of-sale calculation
 
-**Entry point:** `POST /api/pdv/calcular/` → `frontend.views.api_pos_calculate`
+**Entry point:** `POST /api/pos/calculate/` → `frontend.views.api_pos_calculate`
 (URL name `frontend:api_pos_calculate`).
 
 **Ordered processing steps:**
@@ -59,7 +59,7 @@ not reserve or guarantee stock; it only reports an indicative total.
   returns `400` in the current code; that status for an unexpected failure may
   merit a future API-contract review.)
 
-**Tests:** `test_api_pdv_calcular_real_product` and `test_api_pdv_calcular_bad_id`
+**Tests:** `test_api_pos_calcular_real_product` and `test_api_pos_calcular_bad_id`
 in `frontend/tests/test_regressions.py`; `test_invalid_product_id_in_api` in
 `frontend/tests/test_auth_security.py`; and the `PosApiValidationTests` cases
 (`test_calculate_valid_total`, `test_calculate_ignores_client_price`,
@@ -73,7 +73,7 @@ in `frontend/tests/test_regressions.py`; `test_invalid_product_id_in_api` in
 
 ## B. Sale finalization
 
-**Entry point:** `POST /api/pdv/finalizar/` → `frontend.views.api_pos_finalize`
+**Entry point:** `POST /api/pos/finalize/` → `frontend.views.api_pos_finalize`
 (URL name `frontend:api_pos_finalize`).
 
 **Ordered processing steps (verified against `frontend/views.py`):**
@@ -122,7 +122,7 @@ in `frontend/tests/test_regressions.py`; `test_invalid_product_id_in_api` in
     `responsible`, save, and — for `ON_ACCOUNT` sales with a customer — create an
     `AccountReceivable` via `get_or_create` (`person`, `original_amount=total`,
     `due_date=completed_at.date()`, `status='PENDING'`).
-14. Return `200 {"success": true, "codigo": sale.code, "message": "Sale completed"}`.
+14. Return `200 {"success": true, "code": sale.code, "message": "Sale completed"}`.
 
 **Database writes and side effects:** one `Sale`, one `SaleItem` per line,
 `Product.stock_quantity` decrements, one `SALE` `StockMovement` per line, and
@@ -157,7 +157,7 @@ This is a confirmed guarantee of the code path, not an assumption.
 **Idempotency/ownership/conflict details** are in
 [section C](#c-idempotency-and-retries).
 
-**Tests:** `test_api_pdv_requires_login_and_ignores_client_price`,
+**Tests:** `test_api_pos_requires_login_and_ignores_client_price`,
 `test_duplicate_finalization_idempotent`, `test_idempotency_ownership_and_conflict`,
 `test_missing_fingerprint_returns_409`,
 `test_integrityerror_without_matching_record_returns_500`, and
@@ -186,7 +186,7 @@ hashed with SHA-256. It is stored in `Sale.request_fingerprint`.
 
 **Equivalent retry:** the same key with an equivalent payload (same items,
 quantities, customer, and method) finds the existing `COMPLETED` sale with a
-matching fingerprint and returns `200 {"success": true, "codigo": <code>,
+matching fingerprint and returns `200 {"success": true, "code": <code>,
 "message": "Sale completed"}`. No new sale, stock movement, or item is written.
 Verified by `test_duplicate_finalization_idempotent` (stock decremented exactly
 once).
@@ -416,9 +416,9 @@ restored with `RETURN` movements. Once `CANCELLED`, the receivable is closed:
 
 Aggregates over the current date (`timezone.now().date()`):
 
-- `vendas_dia` — count of `COMPLETED` sales created today.
-- `faturamento_dia` — `Sum('total')` of `COMPLETED` sales today (defaults to `0.00`).
-- `valor_receber` — `Sum('original_amount')` for receivables in
+- `sales_today` — count of `COMPLETED` sales created today.
+- `daily_revenue` — `Sum('total')` of `COMPLETED` sales today (defaults to `0.00`).
+- `receivables_total` — `Sum('original_amount')` for receivables in
   `PENDING`/`PARTIAL`/`OVERDUE`. This uses the **original** amount, not the
   remaining balance (a simplification noted in a code comment).
 - Low-stock count (active, `stock_quantity <= minimum_stock`, `> 0`) and
@@ -430,33 +430,30 @@ Rendered with `frontend/templates/frontend/dashboard.html`. Verified in part by
 
 ### Reports (`frontend.views.reports`, protected)
 
-- `vendas_periodo` — `COMPLETED` sales with `created_at__date >= today - 7 days`.
-- `total_vendas_periodo` — `Sum('total')` over that period; `count_vendas_periodo`
+- `period_sales` — `COMPLETED` sales with `created_at__date >= today - 7 days`.
+- `period_sales_total` — `Sum('total')` over that period; `period_sales_count`
   — its count.
 - `best_selling` — top 5 products by `Sum('quantity')` over `SaleItem` rows whose
   sale is `COMPLETED`, grouped by `product__name`.
 - `low_stock_count` — active products with `stock_quantity <= minimum_stock`.
 - `receivable_total` — `Sum('original_amount')` for
   `PENDING`/`PARTIAL`/`OVERDUE`.
-- `vendas_hoje` — count of `COMPLETED` sales today.
+- `sales_today` — count of `COMPLETED` sales today.
 
 Rendered with `frontend/templates/frontend/reports.html`. Verified by
 `test_report_best_selling`, `test_report_receivable_open`, and
 `test_report_empty_dataset` (an empty aggregate returns `None`, which callers
 coalesce to `0`).
 
-### Known frontend limitation
+### Frontend wiring
 
-The dashboard/reports numbers come from the database and are accurate. The
-browser-side interactive layer has a known wiring defect that is **not** an
-operational feature and is out of scope here: `static/js/main.js` calls
-`initCarrinhos()` inside `DOMContentLoaded`, but no such function is defined, and
-several templates call `quadrum.showToast`/`quadrum.copyToClipboard`, which the
-exported `window.quadrum` object does not provide. These calls cannot be relied
-upon. In addition, the POS template `frontend/templates/frontend/point_of_sale.html`
-builds its checkout payload with Portuguese field names (`itens`, `produto_id`,
-`forma_pagamento`, `cliente_id`), while `api_pos_finalize` reads the English
-field names documented in the [API reference](api-reference.md). The bundled UI
-therefore does not currently produce a payload the endpoint accepts. Fixing the
-frontend is a separate engineering task and was not performed in this
-documentation phase.
+The dashboard/reports numbers come from the database and are accurate.
+`static/js/main.js` defines and exports the helpers used by the templates,
+including `showToast`, `copyToClipboard`, and `showNotification`, and initializes
+filters and notifications on `DOMContentLoaded`. The POS template
+`frontend/templates/frontend/point_of_sale.html` sends the English payload
+(`items`, `customer_id`, `payment_method`, `idempotency_key`) documented in the
+[API reference](api-reference.md). One pre-existing limitation remains: the
+template queries `#selected-customer`, which it does not render, so
+`customer_id` is always `null` and on-account sales created from this UI have no
+customer or receivable.

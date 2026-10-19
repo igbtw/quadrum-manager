@@ -53,18 +53,6 @@ class Product(models.Model):
     def is_out_of_stock(self):
         return self.active and self.stock_quantity == 0
 
-    @property
-    def estoque(self):
-        return self.stock_quantity
-
-    @property
-    def estoque_minimo(self):
-        return self.minimum_stock
-
-    @property
-    def nome(self):
-        return self.name
-
 
 class Person(models.Model):
     PERSON_TYPES = [
@@ -86,6 +74,12 @@ class Person(models.Model):
         ordering = ['name']
         verbose_name = 'Person'
         verbose_name_plural = 'People'
+        permissions = [
+            (
+                'manage_master_data',
+                'Can manage master data (people, products, categories)',
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -122,6 +116,12 @@ class Sale(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Sale'
         verbose_name_plural = 'Sales'
+        permissions = [
+            (
+                'view_all_responsible_data',
+                'Can view every responsible user\'s sales, receivables and payments',
+            ),
+        ]
 
     def save(self, *args, **kwargs):
         # Prevent double insert/update conflict when Django passes force_insert
@@ -202,6 +202,10 @@ class AccountReceivable(models.Model):
         verbose_name = 'Account Receivable'
         verbose_name_plural = 'Accounts Receivable'
 
+    def __str__(self):
+        due = self.due_date.strftime('%m/%d/%Y') if self.due_date else '—'
+        return f'{self.person.name} — R$ {self.original_amount:.2f} (due {due})'
+
     @property
     def amount_paid(self):
         result = self.payments.aggregate(s=Sum('amount'))['s']
@@ -244,10 +248,17 @@ def register_payment(account_receivable: AccountReceivable, amount: Decimal, met
 
 
 class Payment(models.Model):
+    PAYMENT_METHODS = [
+        ('CASH', 'Cash'),
+        ('DEBIT', 'Debit'),
+        ('CREDIT', 'Credit'),
+        ('PIX', 'PIX'),
+        ('TRANSFER', 'Transfer'),
+    ]
     account_receivable = models.ForeignKey(AccountReceivable, on_delete=models.PROTECT, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
     payment_date = models.DateField(auto_now_add=True)
-    method = models.CharField(max_length=20, choices=[('CASH','Cash'),('DEBIT','Debit'),('CREDIT','Credit'),('PIX','PIX'),('TRANSFER','Transfer')], default='CASH')
+    method = models.CharField(max_length=20, choices=PAYMENT_METHODS, default='CASH')
     responsible_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -316,3 +327,29 @@ class Payment(models.Model):
             self.account_receivable.refresh_from_db()
             self.account_receivable.update_status()
             self.account_receivable.save(update_fields=['status'])
+
+
+class OnboardingProgress(models.Model):
+    """Per-user first-run guide state; rows are created for new registrations."""
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='onboarding')
+    current_step = models.PositiveIntegerField(default=0)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    skipped_at = models.DateTimeField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Onboarding Progress'
+        verbose_name_plural = 'Onboarding Progress'
+
+    def __str__(self):
+        state = 'pending'
+        if self.completed_at:
+            state = 'completed'
+        elif self.skipped_at:
+            state = 'skipped'
+        return f'{self.user.username} — {state}'
+
+    @property
+    def is_pending(self):
+        return self.completed_at is None and self.skipped_at is None

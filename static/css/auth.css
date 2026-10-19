@@ -1,0 +1,229 @@
+/* ---------- Authentication shell (auth_base.html) ----------
+   Standalone split-screen layout for login and registration. Consumes the
+   shared token system (variables.css) so theme, density, text size, accent,
+   and high-contrast preferences all apply without loading dashboard CSS. */
+
+.auth-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+}
+
+/* Brand panel: intentionally near-black in both themes (branding surface). */
+.auth-brand {
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: var(--space-12);
+    background: linear-gradient(160deg, #141416 0%, #09090a 100%);
+    color: #f5f5f5;
+}
+
+/* Oversized echo of the quadrum mark. */
+.auth-brand::before {
+    content: '';
+    position: absolute;
+    right: -14%;
+    bottom: -28%;
+    width: min(72%, 560px);
+    aspect-ratio: 1 / 1;
+    border: var(--border-width) solid rgba(255, 255, 255, 0.08);
+    border-radius: 48px;
+    transform: rotate(14deg);
+    pointer-events: none;
+}
+
+/* Soft corner glow. */
+.auth-brand::after {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -14%;
+    width: min(80%, 640px);
+    aspect-ratio: 1 / 1;
+    background: radial-gradient(closest-side, rgba(255, 255, 255, 0.07), transparent 72%);
+    pointer-events: none;
+}
+
+.auth-brand-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    max-width: 440px;
+}
+
+.auth-brand-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.auth-brand-mark {
+    display: flex;
+    flex-shrink: 0;
+    color: #f5f5f5;
+}
+
+.auth-brand-mark svg,
+.auth-brand-mark i[data-lucide] {
+    width: 38px;
+    height: 38px;
+}
+
+.auth-brand-wordmark {
+    font-size: 1.375rem;
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: -0.01em;
+}
+
+.auth-brand-message {
+    max-width: 36ch;
+    font-size: 1.125rem;
+    line-height: var(--line-height-base);
+    color: rgba(255, 255, 255, 0.74);
+}
+
+.auth-brand-caption {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.auth-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-10) var(--space-6);
+    background: var(--color-bg);
+}
+
+.auth-panel-inner {
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.auth-panel .alert p + p {
+    margin-top: var(--space-1);
+}
+
+.auth-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.auth-heading {
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: -0.01em;
+}
+
+.auth-sub {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.auth-submit {
+    width: 100%;
+}
+
+.auth-switch {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.auth-switch a {
+    color: var(--color-primary);
+    font-weight: var(--font-weight-medium);
+}
+
+.auth-switch a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Mobile: deliberate compact single-column layout ----------
+   The desktop split-screen collapses to a compact brand header followed by
+   the form near the top of the viewport. The shell drops its forced height
+   so short pages do not stretch (on-screen keyboard, short viewports) and
+   tall pages scroll naturally. */
+
+@media (max-width: 880px) {
+    .auth-shell {
+        grid-template-columns: minmax(0, 1fr);
+        min-height: auto;
+    }
+
+    .auth-brand {
+        padding: var(--space-3) var(--space-4);
+    }
+
+    .auth-brand::before,
+    .auth-brand::after {
+        display: none;
+    }
+
+    .auth-brand-inner {
+        gap: var(--space-1);
+    }
+
+    .auth-brand-mark svg,
+    .auth-brand-mark i[data-lucide] {
+        width: 24px;
+        height: 24px;
+    }
+
+    .auth-brand-wordmark {
+        font-size: 1.125rem;
+    }
+
+    .auth-brand-message {
+        display: none;
+    }
+
+    .auth-panel {
+        align-items: stretch;
+        padding: var(--space-6) var(--space-4);
+    }
+
+    .auth-panel-inner {
+        max-width: 440px;
+        gap: var(--space-5);
+    }
+
+    /* Comfortable touch targets; >=16px keeps iOS from zooming on focus. */
+    .auth-form .input {
+        height: var(--input-height-lg);
+        font-size: max(16px, 1rem);
+    }
+
+    .auth-submit {
+        height: var(--btn-height-lg);
+    }
+}
+
+/* Narrow phones (320px-safe). */
+@media (max-width: 360px) {
+    .auth-brand {
+        padding: var(--space-2) var(--space-4);
+    }
+
+    .auth-panel {
+        padding: var(--space-5) var(--space-4);
+    }
+}

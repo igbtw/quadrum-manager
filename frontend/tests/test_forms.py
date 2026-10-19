@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 from decimal import Decimal
 from frontend.forms import ProductForm, PersonForm, PaymentForm
@@ -5,6 +6,11 @@ from frontend.models import Category, Product, Person, AccountReceivable
 
 
 class FormTests(TestCase):
+    def setUp(self):
+        # Global access user: the payment-form tests exercise validation,
+        # not the responsible-based scoping (covered in test_authorization).
+        self.admin = User.objects.create_superuser('form-admin', password='test-pass-123')
+
     def test_product_form_valid(self):
         cat = Category.objects.create(name='C')
         form = ProductForm(data={'name': 'X', 'code': 'X1', 'category': cat.pk, 'price': '10', 'stock_quantity': '5', 'minimum_stock': '2', 'active': True})
@@ -23,13 +29,13 @@ class FormTests(TestCase):
         from frontend.models import register_payment
         pers = Person.objects.create(name='Jo', doc_id='D', person_type='STUDENT')
         rc = AccountReceivable.objects.create(person=pers, original_amount=Decimal('10'), due_date='2030-01-01', status='PENDING')
-        form = PaymentForm(data={'account_receivable': rc.pk, 'amount': '100', 'method': 'CASH'})
+        form = PaymentForm(data={'account_receivable': rc.pk, 'amount': '100', 'method': 'CASH'}, user=self.admin)
         self.assertFalse(form.is_valid())
 
     def test_payment_form_valid(self):
         pers = Person.objects.create(name='Jo', doc_id='D', person_type='STUDENT')
         rc = AccountReceivable.objects.create(person=pers, original_amount=Decimal('100'), due_date='2030-01-01', status='PENDING')
-        form = PaymentForm(data={'account_receivable': rc.pk, 'amount': '30', 'method': 'CASH'})
+        form = PaymentForm(data={'account_receivable': rc.pk, 'amount': '30', 'method': 'CASH'}, user=self.admin)
         self.assertTrue(form.is_valid())
 
     def test_payment_form_excludes_cancelled_receivables(self):
@@ -42,13 +48,13 @@ class FormTests(TestCase):
             person=pers, original_amount=Decimal('50'), due_date='2030-01-01',
             status='PENDING',
         )
-        queryset = PaymentForm().fields['account_receivable'].queryset
+        queryset = PaymentForm(user=self.admin).fields['account_receivable'].queryset
         self.assertNotIn(cancelled, queryset)
         self.assertIn(open_rc, queryset)
 
-        form = PaymentForm(data={'account_receivable': cancelled.pk, 'amount': '10', 'method': 'CASH'})
+        form = PaymentForm(data={'account_receivable': cancelled.pk, 'amount': '10', 'method': 'CASH'}, user=self.admin)
         self.assertFalse(form.is_valid())
         self.assertIn('account_receivable', form.errors)
 
-        form = PaymentForm(data={'account_receivable': open_rc.pk, 'amount': '10', 'method': 'CASH'})
+        form = PaymentForm(data={'account_receivable': open_rc.pk, 'amount': '10', 'method': 'CASH'}, user=self.admin)
         self.assertTrue(form.is_valid())

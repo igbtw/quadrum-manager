@@ -16,7 +16,7 @@ Related documents: [Architecture](architecture.md) ·
 
 ## A. Model overview
 
-All models are defined in `frontend/models.py`. There are eight models.
+All models are defined in `frontend/models.py`. There are nine models.
 
 | Model | Purpose | Role in the application |
 |---|---|---|
@@ -28,11 +28,15 @@ All models are defined in `frontend/models.py`. There are eight models.
 | `StockMovement` | Audit log of stock changes | References `Product` and optionally `Sale`/`User` |
 | `AccountReceivable` | Amount owed by a person for an on-account sale | Created for `ON_ACCOUNT` sales; owns `Payment` |
 | `Payment` | A payment applied to a receivable | Child of `AccountReceivable` |
+| `OnboardingProgress` | First-run guide state for an account | One-to-one with Django's `User` |
 
 Timestamps: every model except `SaleItem` has `created_at`; `Category`,
 `Product`, `Person`, and `AccountReceivable` also have `updated_at`
 (`auto_now`). `Sale` has `created_at` and `completed_at`; `Payment` has
 `payment_date` and `created_at`; `StockMovement` has `created_at`.
+`OnboardingProgress` has `updated_at` (`auto_now`), a `current_step` resume
+position (0-based, default 0), plus nullable `completed_at`/`skipped_at`
+timestamps.
 
 ## B. Entity relationships
 
@@ -54,6 +58,7 @@ erDiagram
     Sale ||--o| AccountReceivable : "receivable (SET_NULL)"
     AccountReceivable ||--o{ Payment : "paid by (PROTECT)"
     User ||--o{ Payment : "responsible_user (SET_NULL)"
+    User ||--o| OnboardingProgress : "first-run guide state (CASCADE)"
 ```
 
 `User` is Django's built-in `django.contrib.auth.models.User` (`config/settings.py`,
@@ -102,6 +107,7 @@ deleted. Database-level deletes of sale history are not intended.
 | `Product.code` unique | model field | `blank=True`, so multiple blank codes are only prevented when non-empty |
 | `Sale.code` unique | model field | Generated, not user-supplied |
 | `Sale.idempotency_key` unique | model field + DB index | Core idempotency guarantee |
+| `OnboardingProgress.user` unique | `OneToOneField` | One guide-state row per account |
 
 ### Check constraints and validation boundaries
 
@@ -173,12 +179,6 @@ column. Enforcement is application-level and varies by path:
 - `Product.is_low_stock` / `is_out_of_stock` are properties derived from `active`,
   `stock_quantity`, and `minimum_stock`.
 
-### Legacy aliases
-
-`Product` exposes Portuguese-named read-only properties `estoque`,
-`estoque_minimo`, and `nome` that alias `stock_quantity`, `minimum_stock`, and
-`name`. They exist for template compatibility and are not separate fields.
-
 ## D. Data invariants
 
 Each invariant below is attributed to the layer that actually enforces it.
@@ -207,7 +207,7 @@ There is no database-level monetary check.
 - `create_sale_items()` ignores any supplied `unit_price` and uses
   `Product.price` (it also overrides a mismatched price explicitly),
   preventing client-side price manipulation. Verified by
-  `test_api_pdv_requires_login_and_ignores_client_price`.
+  `test_api_pos_requires_login_and_ignores_client_price`.
 - `SaleItem.subtotal` is always `quantity * unit_price` via the model's `save()`.
   Verified by `test_sale_item_subtotal_computation`.
 
@@ -377,6 +377,8 @@ whole checkout is transactional as a unit. See
 | `0005_translate_choice_values` | Rewrites model options and choice labels to English (`AlterModelOptions`/`AlterField`); changes schema metadata only, **not** existing rows |
 | `0006_alter_accountreceivable_status_alter_payment_method_and_more` | Fixes choice labels and defaults to English (`CANCELLED`, `STUDENT`, `CASH`) |
 | `0007_translate_existing_choice_values` | `RunPython` data migration translating legacy Portuguese values in existing rows to English |
+| `0008_onboarding_progress` | Creates `OnboardingProgress` (one-to-one with `User`); no backfill — rows are created only for new registrations or guide replays, so existing accounts are never shown onboarding |
+| `0009_onboarding_current_step` | Adds `OnboardingProgress.current_step` (`PositiveIntegerField`, default 0) storing the guide's resume position; no backfill needed |
 
 ### The data migration `0007`
 

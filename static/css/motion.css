@@ -65,13 +65,13 @@
     width: var(--sidebar-width);
   }
   .sidebar.collapsed {
-    width: 56px;
+    width: 64px;
   }
 
   /* Content follows sidebar smoothly */
   .layout.collapsed .main,
   .layout.collapsed .header {
-    margin-left: 56px;
+    margin-left: 64px;
   }
 }
 
@@ -79,31 +79,37 @@
 @media (max-width: 1024px) {
   .sidebar {
     transition: transform var(--motion-normal) var(--ease-out),
-                box-shadow var(--motion-normal) var(--ease-out);
+                box-shadow var(--motion-normal) var(--ease-out),
+                visibility var(--motion-normal);
     width: var(--sidebar-width); /* stays full width */
   }
   .sidebar {
     transform: translateX(-100%);
+    visibility: hidden;
   }
   .sidebar.open {
     transform: translateX(0);
+    visibility: visible;
     box-shadow: 0 8px 32px rgba(0,0,0,0.28);
   }
 }
 
-/* Sidebar label/text fade — smooth, no jump */
-.sidebar.collapsed .nav-item span,
-.sidebar.collapsed .nav-section-label,
-.sidebar.collapsed .user-info-text,
-.sidebar.collapsed .sidebar-logo span {
-  opacity: 0;
-  visibility: hidden;
-  width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  transition: opacity 100ms ease-in,
-              visibility 100ms ease-in,
-              width 100ms ease-in;
+/* Sidebar label/text fade — desktop collapsed rail only */
+@media (min-width: 1025px) {
+  .sidebar.collapsed .nav-item-label,
+  .sidebar.collapsed .nav-section-label,
+  .sidebar.collapsed .user-info-text,
+  .sidebar.collapsed .sidebar-signin-label,
+  .sidebar.collapsed .sidebar-logo-text {
+    opacity: 0;
+    visibility: hidden;
+    width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: opacity 100ms ease-in,
+                visibility 100ms ease-in,
+                width 100ms ease-in;
+  }
 }
 
 /* Sidebar overlay */
@@ -194,11 +200,14 @@
 
 /* Icon / header buttons */
 .header-action,
-.sidebar-collapse-btn,
-.theme-toggle button {
+.sidebar-collapse-btn {
   transition: background 120ms var(--ease-out),
               color 120ms var(--ease-out),
               border-color 120ms var(--ease-out);
+}
+
+.sidebar-collapse-btn svg {
+  transition: transform 120ms var(--ease-out);
 }
 
 /* Links */
@@ -215,9 +224,7 @@ a {
 
 /* Small translateY, no scale (scale creates layout perception issues) */
 .dropdown-menu,
-.profile-menu,
-.notification-panel,
-.message-panel {
+.notification-panel {
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px);
@@ -227,9 +234,7 @@ a {
 }
 
 .dropdown-menu.open,
-.profile-menu.open,
-.notification-panel.open,
-.message-panel.open {
+.notification-panel.open {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -345,10 +350,40 @@ a {
 
 .btn:focus-visible,
 .nav-item:focus-visible,
-.input:focus,
-.select:focus,
-.header-action:focus-visible,
-.theme-toggle button:focus-visible {
+.header-action:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+/* Explicit reduced-motion preference; System continues to use the media query. */
+[data-motion="reduced"] *,
+[data-motion="reduced"] *::before,
+[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+}
+
+[data-motion="reduced"] .main,
+[data-motion="reduced"] .kpi-strip .kpi,
+[data-motion="reduced"] .dashboard-grid-2col > .panel,
+[data-motion="reduced"] .panel,
+[data-motion="reduced"] .card,
+[data-motion="reduced"] .stat-card,
+[data-motion="reduced"] .skeleton {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+[data-motion="reduced"] .skeleton {
+  background: var(--color-bg-hover) !important;
+}
+
+[data-motion="reduced"] .btn:hover:not(:disabled),
+[data-motion="reduced"] .nav-item:hover,
+[data-motion="reduced"] .table tbody tr:hover td,
+[data-motion="reduced"] .kpi-strip .kpi:hover {
+  transform: none !important;
 }

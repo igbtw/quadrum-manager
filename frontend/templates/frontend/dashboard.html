@@ -21,23 +21,23 @@
 <div class="kpi-strip" aria-label="Key indicators">
     <div class="kpi">
         <div class="kpi-label">Sales Today</div>
-        <div class="kpi-value">{{ stats.vendas_dia }}</div>
-        <div class="kpi-meta"><span class="kpi-delta kpi-delta-up">+12%</span> <span class="kpi-compare">vs. yesterday</span></div>
+        <div class="kpi-value">{{ stats.sales_today }}</div>
+        <div class="kpi-meta"><span class="kpi-delta{% if stats.sales_delta.class %} {{ stats.sales_delta.class }}{% endif %}">{{ stats.sales_delta.value }}</span> <span class="kpi-compare">{{ stats.sales_delta.label }}</span></div>
     </div>
     <div class="kpi">
         <div class="kpi-label">Revenue</div>
-        <div class="kpi-value">R$ {{ stats.faturamento_dia }}</div>
-        <div class="kpi-meta"><span class="kpi-delta kpi-delta-up">+8,4%</span> <span class="kpi-compare">vs. yesterday</span></div>
+        <div class="kpi-value">R$ {{ stats.daily_revenue|floatformat:2 }}</div>
+        <div class="kpi-meta"><span class="kpi-delta{% if stats.revenue_delta.class %} {{ stats.revenue_delta.class }}{% endif %}">{{ stats.revenue_delta.value }}</span> <span class="kpi-compare">{{ stats.revenue_delta.label }}</span></div>
     </div>
     <div class="kpi">
         <div class="kpi-label">Receivable</div>
-        <div class="kpi-value">R$ {{ stats.valor_receber }}</div>
-        <div class="kpi-meta"><span class="kpi-sub">4 open accounts</span></div>
+        <div class="kpi-value">R$ {{ stats.receivables_total|floatformat:2 }}</div>
+        <div class="kpi-meta"><span class="kpi-sub">{% if stats.receivables_open_count %}{{ stats.receivables_open_count }} open account{{ stats.receivables_open_count|pluralize }}{% else %}no open accounts{% endif %}</span></div>
     </div>
     <div class="kpi">
         <div class="kpi-label">Low Inventory</div>
-        <div class="kpi-value">{{ stats.produtos_baixo_estoque|length }}</div>
-        <div class="kpi-meta"><span class="kpi-sub kpi-sub-warn">needs attention</span></div>
+        <div class="kpi-value">{{ stats.low_stock_count }}</div>
+        <div class="kpi-meta"><span class="kpi-sub{% if stats.low_inventory_meta.warn %} kpi-sub-warn{% endif %}">{{ stats.low_inventory_meta.text }}</span></div>
     </div>
 </div>
 
@@ -46,7 +46,7 @@
     <section class="panel" aria-labelledby="chart-heading">
         <div class="panel-header">
             <h2 id="chart-heading" class="panel-title">Sales <span class="panel-subtitle">last 7 days</span></h2>
-            <a href="#" class="btn btn-ghost btn-sm">View report <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <a href="{% url 'frontend:reports' %}" class="btn btn-ghost btn-sm">View report <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="chart-area">
@@ -56,27 +56,27 @@
         </div>
     </section>
 
-    <section class="panel" aria-labelledby="estoque-heading">
+    <section class="panel" aria-labelledby="inventory-heading">
         <div class="panel-header">
-            <h2 id="estoque-heading" class="panel-title">Inventory</h2>
+            <h2 id="inventory-heading" class="panel-title">Inventory</h2>
             <a href="{% url 'frontend:inventory' %}" class="btn btn-ghost btn-sm">View inventory <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
-            {% if stats.produtos_baixo_estoque %}
+            {% if stats.low_stock_products %}
             <div class="compact-table-wrap">
                 <table class="table-compact">
                     <thead>
                         <tr><th>Product</th><th class="num">Quantity</th><th class="num">Minimum</th><th>Status</th></tr>
                     </thead>
                     <tbody>
-                        {% for p in stats.produtos_baixo_estoque %}
+                        {% for p in stats.low_stock_products %}
                         <tr>
-                            <td><div class="table-row-primary">{{ p.nome }}</div></td>
-                            <td class="num mono">{{ p.estoque }}</td>
-                            <td class="num mono text-muted">{{ p.estoque_minimo }}</td>
+                            <td><div class="table-row-primary">{{ p.name }}</div></td>
+                            <td class="num mono">{{ p.stock_quantity }}</td>
+                            <td class="num mono text-muted">{{ p.minimum_stock }}</td>
                             <td>
-                                <span class="badge {% if p.estoque == 0 %}badge-danger{% else %}badge-warning{% endif %}">
-                                    {% if p.estoque == 0 %}OUT OF STOCK{% else %}LOW{% endif %}
+                                <span class="badge {% if p.stock_quantity == 0 %}badge-danger{% else %}badge-warning{% endif %}">
+                                    {% if p.stock_quantity == 0 %}OUT OF STOCK{% else %}LOW{% endif %}
                                 </span>
                             </td>
                         </tr>
@@ -86,8 +86,13 @@
             </div>
             {% else %}
             <div class="empty-state compact">
+                {% if stats.active_products_count %}
                 <div class="empty-state-title">Stock OK</div>
                 <div class="empty-state-description">All products have adequate stock — no urgent replenishment.</div>
+                {% else %}
+                <div class="empty-state-title">No products</div>
+                <div class="empty-state-description">Add products to track inventory and low-stock alerts.</div>
+                {% endif %}
             </div>
             {% endif %}
         </div>
@@ -96,10 +101,10 @@
 
 <!-- Secondary Info -->
 <div class="dashboard-grid-2col">
-    <section class="panel" aria-labelledby="vendas-heading">
+    <section class="panel" aria-labelledby="recent-sales-heading">
         <div class="panel-header">
-            <h2 id="vendas-heading" class="panel-title">Recent Sales</h2>
-            <a href="#" class="btn btn-ghost btn-sm">View all <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <h2 id="recent-sales-heading" class="panel-title">Recent Sales</h2>
+            <a href="{% url 'frontend:sales_list' %}" class="btn btn-ghost btn-sm">View all <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="compact-table-wrap">
@@ -108,15 +113,15 @@
                         <tr><th>CODE</th><th>Customer</th><th>TIME</th><th class="num">Total</th><th>Status</th></tr>
                     </thead>
                     <tbody>
-                        {% for venda in stats.vendas_recentes %}
+                        {% for sale in stats.recent_sales %}
                         <tr>
-                            <td class="mono text-muted">{{ venda.codigo }}</td>
-                            <td>{{ venda.pessoa.nome }}</td>
-                            <td class="mono">{{ venda.data_hora|date:"H:i" }}</td>
-                            <td class="num font-semibold text-primary">R$ {{ venda.total }}</td>
+                            <td class="mono text-muted">{{ sale.code }}</td>
+                            <td>{{ sale.customer.name|default:"Walk-in" }}</td>
+                            <td class="mono">{{ sale.created_at|date:"H:i" }}</td>
+                            <td class="num font-semibold text-primary">R$ {{ sale.total|floatformat:2 }}</td>
                             <td>
-                                <span class="badge {% if venda.status == 'COMPLETED' %}badge-success{% elif venda.status == 'CANCELLED' %}badge-danger{% elif venda.status == 'PENDING' %}badge-warning{% else %}badge-info{% endif %}">
-                                    {{ venda.status }}
+                                <span class="badge {% if sale.status == 'COMPLETED' %}badge-success{% elif sale.status == 'CANCELLED' %}badge-danger{% elif sale.status == 'PENDING' %}badge-warning{% else %}badge-info{% endif %}">
+                                    {{ sale.get_status_display }}
                                 </span>
                             </td>
                         </tr>
@@ -129,29 +134,29 @@
         </div>
     </section>
 
-    <section class="panel" aria-labelledby="receb-heading">
+    <section class="panel" aria-labelledby="receivables-heading">
         <div class="panel-header">
-            <h2 id="receb-heading" class="panel-title">Receivables</h2>
-            <a href="#" class="btn btn-ghost btn-sm">View finance <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <h2 id="receivables-heading" class="panel-title">Receivables</h2>
+            <a href="{% url 'frontend:finance' %}" class="btn btn-ghost btn-sm">View finance <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="receivable-summary">
-                <div class="receivable-total">R$ {{ stats.valor_receber|default:"0.00" }}</div>
+                <div class="receivable-total">R$ {{ stats.receivables_total|default:0|floatformat:2 }}</div>
                 <div class="receivable-label">outstanding</div>
                 <div class="receivable-breakdown">
-                    {% if stats.valor_receber %}
+                    {% if stats.receivables_total %}
                     <div class="receivable-row">
                         <span>Pending</span>
-                        <span class="receivable-amount text-warning">R$ {{ stats.valor_receber }}</span>
+                        <span class="receivable-amount text-warning">R$ {{ stats.receivables_total|floatformat:2 }}</span>
                     </div>
                     {% endif %}
-                    {% if stats.valor_vencido %}
+                    {% if stats.overdue_total %}
                     <div class="receivable-row">
                         <span>Overdue</span>
-                        <span class="receivable-amount text-danger">R$ {{ stats.valor_vencido }}</span>
+                        <span class="receivable-amount text-danger">R$ {{ stats.overdue_total|floatformat:2 }}</span>
                     </div>
                     {% endif %}
-                    {% if not stats.valor_receber and not stats.valor_vencido %}
+                    {% if not stats.receivables_total and not stats.overdue_total %}
                     <div class="receivable-row">
                         <span>Up to date</span>
                         <span class="receivable-amount">—</span>
@@ -167,6 +172,7 @@
 {% endblock %}
 
 {% block extra_js %}
+{{ stats.sales_chart|json_script:"sales-chart-data" }}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         if (window.lucide) lucide.createIcons();
@@ -178,14 +184,20 @@
         if (Chart.getChart(canvas)) return;
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
+        const chartDataEl = document.getElementById('sales-chart-data');
+        if (!chartDataEl) return;
+        let chartData;
+        try {
+            chartData = JSON.parse(chartDataEl.textContent);
+        } catch (e) { return; }
         try {
             new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    labels: chartData.labels,
                     datasets: [{
                         label: 'Sales',
-                        data: [12, 19, 15, 27, 22, 30, 24],
+                        data: chartData.units,
                         borderColor: '#606060',
                         backgroundColor: 'rgba(96,96,96,0.08)',
                         tension: 0.35,
