@@ -17,7 +17,11 @@ from .services import (
     delete_person, delete_product, reduce_stock, create_sale_items,
     finalize_sale, cancel_sale, InsufficientStockError, ReferencedRecordError,
 )
-from .models import Product, Sale, SaleItem, AccountReceivable, StockMovement, Category, Person, Payment, OnboardingProgress
+from .models import (
+    AccountReceivable, Category, OnboardingProgress, Payment, PaymentConflictError,
+    Person, Product, Sale, SaleItem, StockMovement, quantize_money, register_payment,
+    remaining_after,
+)
 from .forms import ProductForm, PersonForm, LoginForm, RegisterForm
 from .authorization import (
     can_manage_master_data, management_required,
@@ -71,13 +75,27 @@ def dashboard(request):
     completed_yesterday = scoped_sales(request.user).filter(status='COMPLETED', created_at__date=yesterday)
     sales_today = completed_today.count()
     sales_yesterday = completed_yesterday.count()
-    daily_revenue = completed_today.aggregate(s=Sum('total'))['s'] or Decimal('0.00')
-    yesterday_revenue = completed_yesterday.aggregate(s=Sum('total'))['s'] or Decimal('0.00')
-    open_receivables = scoped_receivables(request.user).filter(status__in=['PENDING','PARTIAL','OVERDUE'])
-    receivables_total = open_receivables.aggregate(s=Sum('original_amount'))['s'] or Decimal('0.00')
-    receivables_open_count = open_receivables.count()
+    daily_revenue = quantize_money(completed_today.aggregate(s=Sum('total'))['s'])
+    yesterday_revenue = quantize_money(completed_yesterday.aggregate(s=Sum('total'))['s'])
+    # Derive the receivable KPI from the ledger, not from status labels: a
+    # stale PAID row with an outstanding balance must remain visible here.
+    receivable_accounts = list(
+        scoped_receivables(request.user)
+        .exclude(status='CANCELLED')
+        .prefetch_related('payments')
+    )
+    receivables_total = quantize_money(sum(
+        (account.remaining_balance for account in receivable_accounts),
+        Decimal('0.00'),
+    ))
+    receivables_open_count = sum(
+        1 for account in receivable_accounts
+        if account.remaining_balance > Decimal('0.00')
+    )
     overdue_accounts = scoped_receivables(request.user).filter(status='OVERDUE')
-    overdue_total = sum(a.remaining_balance or Decimal('0.00') for a in overdue_accounts)
+    overdue_total = quantize_money(sum(
+        (a.remaining_balance for a in overdue_accounts), Decimal('0.00'),
+    ))
     active_products = Product.objects.filter(active=True)
     active_products_count = active_products.count()
     low_stock_count = active_products.filter(stock_quantity__lte=F('minimum_stock')).count()
@@ -587,18 +605,40 @@ def person_delete(request, pk):
 @login_required
 def finance(request):
     from django.db.models import Sum, Q
-    total_receivable = scoped_receivables(request.user).filter(status__in=['PENDING','PARTIAL','OVERDUE']).aggregate(s=Sum('original_amount'))['s'] or Decimal('0.00')
+    receivable_accounts = list(
+        scoped_receivables(request.user)
+        .exclude(status='CANCELLED')
+        .prefetch_related('payments')
+    )
+    total_receivable = quantize_money(sum(
+        (account.remaining_balance for account in receivable_accounts),
+        Decimal('0.00'),
+    ))
     overdue_accounts = scoped_receivables(request.user).filter(status='OVERDUE')
-    total_overdue = sum(a.remaining_balance or Decimal('0.00') for a in overdue_accounts)
+    total_overdue = quantize_money(sum(
+        (a.remaining_balance for a in overdue_accounts), Decimal('0.00'),
+    ))
     if request.method == 'POST':
         from .forms import PaymentForm
         form = PaymentForm(request.POST, user=request.user)
         if form.is_valid():
-            from .models import register_payment
             rc = form.cleaned_data['account_receivable']
-            register_payment(rc, form.cleaned_data['amount'], method=form.cleaned_data['method'], user=request.user if request.user.is_authenticated else None, notes=form.cleaned_data['notes'])
-            messages.success(request, 'Payment registered.')
-            return redirect('frontend:finance')
+            try:
+                register_payment(
+                    rc,
+                    form.cleaned_data['amount'],
+                    method=form.cleaned_data['method'],
+                    user=request.user if request.user.is_authenticated else None,
+                    notes=form.cleaned_data['notes'],
+                    idempotency_key=form.cleaned_data['idempotency_key'],
+                )
+            except PaymentConflictError as exc:
+                messages.error(request, str(exc))
+            except ValueError as exc:
+                messages.error(request, str(exc))
+            else:
+                messages.success(request, 'Payment registered.')
+                return redirect('frontend:finance')
         else:
             messages.error(request, 'Please verify the payment.')
     else:
@@ -633,8 +673,6 @@ def finance(request):
         receivables_qs = receivables_qs.filter(due_date__gte=due_from)
     if due_to:
         receivables_qs = receivables_qs.filter(due_date__lte=due_to)
-    receivables_qs = receivables_qs.annotate(paid_sum=Sum('payments__amount'))
-
     r_filters_active = bool(r_query or r_status or due_from or due_to)
     r_sort, r_direction, r_order_by = sort_state(
         request, RECEIVABLE_SORT_FIELDS, RECEIVABLE_DEFAULT_SORT,
@@ -645,9 +683,13 @@ def finance(request):
     )
     receivables = list(receivables_page.object_list)
     for receivable in receivables:
-        paid = receivable.paid_sum or Decimal('0.00')
+        # Exact Python ledger sum: SQLite still returns float-derived Decimals
+        # for SUM(amount) even on DecimalField.
+        paid = receivable.amount_paid
         receivable.paid_display = paid
-        receivable.remaining_display = max(receivable.original_amount - paid, Decimal('0.00'))
+        receivable.remaining_display = remaining_after(
+            receivable.original_amount, paid,
+        )
 
     # ------------------------------------------------------------------
     # Payments: independent search / filters / pagination.

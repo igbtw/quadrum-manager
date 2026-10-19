@@ -1,10 +1,14 @@
+import uuid
+
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from decimal import Decimal
 from .authorization import scoped_receivables
-from .models import Product, Person, Payment, AccountReceivable
+from .models import (
+    AccountReceivable, Payment, Person, Product, quantize_money,
+)
 
 
 class ProductForm(forms.ModelForm):
@@ -53,8 +57,23 @@ class PersonForm(forms.ModelForm):
 
 
 class PaymentForm(forms.ModelForm):
+    """Server-authoritative payment form.
+
+    Eligibility is derived from the ledger (cancelled or fully settled
+    accounts cannot receive money), never from the displayed status alone, so
+    a stale ``PAID`` row with a positive balance stays payable. The select is
+    still scoped for authorization and offers only receivable choices with an
+    actual outstanding balance; a forged POST naming a settled account is
+    rejected in validation and again by ``register_payment``/``Payment.save``.
+    """
+
+    idempotency_key = forms.CharField(
+        required=False,
+        max_length=255,
+        widget=forms.HiddenInput(),
+    )
     account_receivable = forms.ModelChoiceField(
-        queryset=AccountReceivable.objects.exclude(status='CANCELLED').select_related('person'),
+        queryset=AccountReceivable.objects.none(),
         widget=forms.Select(attrs={'class': 'select'}),
         empty_label='Select an account',
     )
@@ -63,9 +82,32 @@ class PaymentForm(forms.ModelForm):
         """``user`` is required: choices are limited to the receivables that
         user may see (their own, or every receivable with global access)."""
         super().__init__(*args, **kwargs)
-        self.fields['account_receivable'].queryset = (
-            scoped_receivables(user).exclude(status='CANCELLED').select_related('person')
+        scoped = (
+            scoped_receivables(user)
+            .exclude(status='CANCELLED')
+            .select_related('person', 'sale')
+            .prefetch_related('payments')
         )
+        receivables = list(scoped)
+        # Keep settled rows in the validation queryset so a stale/forged POST
+        # gets an explicit "already settled" error instead of "invalid choice".
+        self.fields['account_receivable'].queryset = (
+            AccountReceivable.objects.filter(pk__in=[rc.pk for rc in receivables])
+            .select_related('person', 'sale')
+            .prefetch_related('payments')
+        )
+        choices = [('', 'Select an account')]
+        for rc in receivables:
+            remaining = rc.remaining_balance
+            if remaining <= Decimal('0.00'):
+                continue
+            choices.append((
+                rc.pk,
+                f'{rc.person.name} — {rc.reference} · R$ {remaining:.2f} outstanding',
+            ))
+        self.fields['account_receivable'].widget.choices = choices
+        if not self.is_bound:
+            self.initial.setdefault('idempotency_key', uuid.uuid4().hex)
 
     class Meta:
         model = Payment
@@ -80,10 +122,32 @@ class PaymentForm(forms.ModelForm):
             }),
         }
 
+    def clean_idempotency_key(self):
+        key = (self.cleaned_data.get('idempotency_key') or '').strip()
+        if not key:
+            return uuid.uuid4().hex
+        if len(key) > 255:
+            raise forms.ValidationError('Invalid payment submission key.')
+        return key
+
+    def clean_account_receivable(self):
+        rc = self.cleaned_data.get('account_receivable')
+        if rc is None:
+            return rc
+        if rc.status == 'CANCELLED':
+            raise forms.ValidationError('This account is cancelled.')
+        if rc.remaining_balance <= Decimal('0.00'):
+            raise forms.ValidationError('This account is already settled.')
+        return rc
+
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
-        if amount is None or amount < Decimal('0.01'):
+        if amount is None:
+            return amount
+        if amount < Decimal('0.01'):
             raise forms.ValidationError('Minimum value is 0.01.')
+        if quantize_money(amount) != amount:
+            raise forms.ValidationError('Amount must have at most two decimal places.')
         rc = self.cleaned_data.get('account_receivable')
         if rc:
             bal = rc.remaining_balance

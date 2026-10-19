@@ -112,11 +112,12 @@ from .listsearch import (
     SALES_DEFAULT_SORT, SALES_SORT_FIELDS,
     paginate, resolve_page_size, sort_state,
 )
-from .models import AccountReceivable, Category, Payment, Sale, SaleItem
+from .models import (
+    AccountReceivable, Category, Payment, Sale, SaleItem, quantize_money,
+)
 
 COMPLETED = 'COMPLETED'
 CANCELLED = 'CANCELLED'
-CLOSED_RECEIVABLE_STATUSES = ('PAID', 'CANCELLED')
 
 PRESET_CHOICES = (
     ('today', 'Today'),
@@ -471,9 +472,9 @@ def sales_summary(filters: ReportFilters, report: ResolvedReport):
     prev_completed = sales_scope(filters, report.prev_start, report.prev_end, report.user).filter(
         status=COMPLETED,
     )
-    revenue = completed.aggregate(s=Sum('total'))['s'] or Decimal('0.00')
+    revenue = quantize_money(completed.aggregate(s=Sum('total'))['s'])
     transactions = completed.count()
-    prev_revenue = prev_completed.aggregate(s=Sum('total'))['s'] or Decimal('0.00')
+    prev_revenue = quantize_money(prev_completed.aggregate(s=Sum('total'))['s'])
     prev_transactions = prev_completed.count()
 
     units = item_scope(filters, report.start, report.end, report.user).aggregate(
@@ -487,13 +488,13 @@ def sales_summary(filters: ReportFilters, report: ResolvedReport):
     if transactions:
         avg_ticket = (revenue / transactions).quantize(Decimal('0.01'))
 
-    discounts = completed.aggregate(s=Sum('discount'))['s'] or Decimal('0.00')
+    discounts = quantize_money(completed.aggregate(s=Sum('discount'))['s'])
 
     cancelled = sales_scope(filters, report.start, report.end, report.user).filter(
         status=CANCELLED,
     ).aggregate(count=Count('pk'), amount=Sum('total'))
     cancelled_count = cancelled['count'] or 0
-    cancelled_amount = cancelled['amount'] or Decimal('0.00')
+    cancelled_amount = quantize_money(cancelled['amount'])
 
     status_rows = []
     total_rows = 0
@@ -502,7 +503,7 @@ def sales_summary(filters: ReportFilters, report: ResolvedReport):
             status=value,
         ).aggregate(count=Count('pk'), amount=Sum('total'))
         count = row['count'] or 0
-        amount = row['amount'] or Decimal('0.00')
+        amount = quantize_money(row['amount'])
         total_rows += count
         status_rows.append({
             'value': value, 'label': label, 'count': count, 'amount': amount,
@@ -558,7 +559,7 @@ def sales_trend(filters: ReportFilters, report: ResolvedReport):
     revenue_by_day = {}
     transactions_by_day = {}
     for row in sale_rows:
-        revenue_by_day[row['day']] = row['revenue'] or Decimal('0.00')
+        revenue_by_day[row['day']] = quantize_money(row['revenue'])
         transactions_by_day[row['day']] = row['transactions'] or 0
 
     unit_rows = (
@@ -603,10 +604,12 @@ def payment_mix(filters: ReportFilters, report: ResolvedReport):
         .order_by('-revenue', 'payment_method')
     )
     labels = dict(Sale.PAYMENT_METHODS)
-    total = sum((row['revenue'] or Decimal('0.00') for row in rows), Decimal('0.00'))
+    total = quantize_money(sum(
+        (row['revenue'] or Decimal('0.00') for row in rows), Decimal('0.00'),
+    ))
     mix = []
     for row in rows:
-        revenue = row['revenue'] or Decimal('0.00')
+        revenue = quantize_money(row['revenue'])
         mix.append({
             'value': row['payment_method'],
             'label': labels.get(row['payment_method'], row['payment_method']),
@@ -630,12 +633,12 @@ def product_performance(filters: ReportFilters, report: ResolvedReport):
         transactions=Count('sale_id', distinct=True),
         revenue=Sum('subtotal'),
     )
-    total_revenue = items.aggregate(s=Sum('subtotal'))['s'] or Decimal('0.00')
+    total_revenue = quantize_money(items.aggregate(s=Sum('subtotal'))['s'])
 
     def rows(queryset):
         result = []
         for row in queryset:
-            revenue = row['revenue'] or Decimal('0.00')
+            revenue = quantize_money(row['revenue'])
             result.append({
                 'product_id': row['product_id'],
                 'name': row['product__name'],
@@ -663,7 +666,7 @@ def product_performance(filters: ReportFilters, report: ResolvedReport):
         revenue=Sum('subtotal'),
         products=Count('product_id', distinct=True),
     ).order_by('-revenue', 'product__category__name'):
-        revenue = row['revenue'] or Decimal('0.00')
+        revenue = quantize_money(row['revenue'])
         category_rows.append({
             'name': row['product__category__name'],
             'units': row['units'] or 0,
@@ -678,24 +681,25 @@ def product_performance(filters: ReportFilters, report: ResolvedReport):
     costed = items.filter(product__cost_price__isnull=False).exclude(
         product__cost_price=0,
     )
-    costed_revenue = costed.aggregate(s=Sum('subtotal'))['s'] or Decimal('0.00')
+    costed_revenue = quantize_money(costed.aggregate(s=Sum('subtotal'))['s'])
     cost_basis = costed.aggregate(
         c=Sum(
             F('quantity') * F('product__cost_price'),
             output_field=DecimalField(max_digits=14, decimal_places=2),
         ),
     )['c'] or Decimal('0.00')
+    cost_basis = quantize_money(cost_basis)
     excluded = items.filter(
         Q(product__cost_price__isnull=True) | Q(product__cost_price=0),
     )
     excluded_lines = excluded.count()
-    excluded_revenue = excluded.aggregate(s=Sum('subtotal'))['s'] or Decimal('0.00')
+    excluded_revenue = quantize_money(excluded.aggregate(s=Sum('subtotal'))['s'])
 
     margin = None
     margin_pct = None
     cost_available = costed_revenue > 0
     if cost_available:
-        margin = costed_revenue - cost_basis
+        margin = quantize_money(costed_revenue - cost_basis)
         if costed_revenue > 0:
             margin_pct = (margin / costed_revenue * 100).quantize(Decimal('0.1'))
 
@@ -722,7 +726,7 @@ def financial_snapshot(filters: ReportFilters, report: ResolvedReport):
     received = scoped_payments(report.user).filter(
         payment_date__gte=report.start, payment_date__lte=report.end,
     )
-    received_total = received.aggregate(s=Sum('amount'))['s'] or Decimal('0.00')
+    received_total = quantize_money(received.aggregate(s=Sum('amount'))['s'])
     received_count = received.count()
     payment_labels = dict(Payment.PAYMENT_METHODS)
     received_by_method = []
@@ -731,26 +735,17 @@ def financial_snapshot(filters: ReportFilters, report: ResolvedReport):
     ).order_by('-amount', 'method'):
         received_by_method.append({
             'label': payment_labels.get(row['method'], row['method']),
-            'amount': row['amount'] or Decimal('0.00'),
+            'amount': quantize_money(row['amount']),
             'count': row['count'],
         })
 
-    paid_subquery = (
-        Payment.objects.filter(account_receivable=OuterRef('pk'))
-        .values('account_receivable')
-        .annotate(s=Sum('amount'))
-        .values('s')
-    )
-    open_accounts = list(
+    # The snapshot is derived from the ledger, not the status label: a stale
+    # PAID row that still has an outstanding balance must stay visible here.
+    # Exact Python sums avoid SQLite's float-derived SUM(DecimalField).
+    accounts = list(
         scoped_receivables(report.user)
-        .exclude(status__in=CLOSED_RECEIVABLE_STATUSES)
-        .annotate(
-            paid=Coalesce(
-                Subquery(paid_subquery, output_field=DecimalField(max_digits=12, decimal_places=2)),
-                Value(Decimal('0.00')),
-            ),
-        )
-        .values('id', 'status', 'original_amount', 'paid', 'due_date')
+        .exclude(status='CANCELLED')
+        .prefetch_related('payments')
     )
     today = timezone.localdate()
     outstanding = Decimal('0.00')
@@ -758,16 +753,20 @@ def financial_snapshot(filters: ReportFilters, report: ResolvedReport):
     aging_totals = {key: {'count': 0, 'balance': Decimal('0.00')} for key, _ in AGING_BUCKETS}
     overdue_balance = Decimal('0.00')
     overdue_count = 0
-    for account in open_accounts:
-        balance = max(account['original_amount'] - account['paid'], Decimal('0.00'))
+    open_count = 0
+    for account in accounts:
+        balance = account.remaining_balance
+        if balance <= Decimal('0.00'):
+            continue
+        open_count += 1
         outstanding += balance
-        entry = status_totals.setdefault(account['status'], {'count': 0, 'balance': Decimal('0.00')})
+        entry = status_totals.setdefault(account.status, {'count': 0, 'balance': Decimal('0.00')})
         entry['count'] += 1
         entry['balance'] += balance
-        if account['status'] == 'OVERDUE':
+        if account.status == 'OVERDUE':
             overdue_count += 1
             overdue_balance += balance
-        days_past_due = (today - account['due_date']).days
+        days_past_due = (today - account.due_date).days
         if days_past_due <= 0:
             key = 'current'
         elif days_past_due <= 30:
@@ -778,12 +777,18 @@ def financial_snapshot(filters: ReportFilters, report: ResolvedReport):
             key = '61+'
         aging_totals[key]['count'] += 1
         aging_totals[key]['balance'] += balance
+    outstanding = quantize_money(outstanding)
+    overdue_balance = quantize_money(overdue_balance)
 
     status_rows = []
     for value, label in AccountReceivable.RECEIVABLE_STATUSES:
-        if value in CLOSED_RECEIVABLE_STATUSES:
+        if value == 'CANCELLED':
             continue
         entry = status_totals.get(value, {'count': 0, 'balance': Decimal('0.00')})
+        if value == 'PAID' and entry['count'] == 0:
+            # Fully settled accounts are omitted; stale PAID rows with a
+            # remaining balance are reported above instead of hidden.
+            continue
         status_rows.append({
             'value': value, 'label': label, 'count': entry['count'], 'balance': entry['balance'],
         })
@@ -796,7 +801,7 @@ def financial_snapshot(filters: ReportFilters, report: ResolvedReport):
         'received_count': received_count,
         'received_by_method': received_by_method,
         'outstanding_total': outstanding,
-        'open_count': len(open_accounts),
+        'open_count': open_count,
         'overdue_total': overdue_balance,
         'overdue_count': overdue_count,
         'status_rows': status_rows,

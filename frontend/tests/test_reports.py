@@ -488,21 +488,23 @@ class FinancialTests(ReportTestBase):
         )
 
         finance = self.get_report(preset='today').context['finance']
-        self.assertEqual(finance['outstanding_total'], Decimal('105.00'))
-        self.assertEqual(finance['open_count'], 3)
+        # The PAID row above has no payments, so its balance is real money:
+        # the snapshot must keep it visible instead of trusting the label.
+        self.assertEqual(finance['outstanding_total'], Decimal('204.00'))
+        self.assertEqual(finance['open_count'], 4)
         self.assertEqual(finance['overdue_count'], 2)
         self.assertEqual(finance['overdue_total'], Decimal('75.00'))
         aging = {row['key']: row for row in finance['aging_rows']}
-        self.assertEqual(aging['current']['count'], 1)
-        self.assertEqual(aging['current']['balance'], Decimal('30.00'))
+        self.assertEqual(aging['current']['count'], 2)
+        self.assertEqual(aging['current']['balance'], Decimal('129.00'))
         self.assertEqual(aging['1-30']['count'], 1)
         self.assertEqual(aging['1-30']['balance'], Decimal('50.00'))
         self.assertEqual(aging['31-60']['count'], 0)
         self.assertEqual(aging['61+']['count'], 1)
         self.assertEqual(aging['61+']['balance'], Decimal('25.00'))
-        status_values = [row['value'] for row in finance['status_rows']]
-        self.assertNotIn('PAID', status_values)
-        self.assertNotIn('CANCELLED', status_values)
+        rows = {row['value']: row for row in finance['status_rows']}
+        self.assertEqual(rows['PAID']['balance'], Decimal('99.00'))
+        self.assertNotIn('CANCELLED', [row['value'] for row in finance['status_rows']])
         self.assertIsNotNone(paid.pk)
         self.assertIsNotNone(cancelled.pk)
 

@@ -4,7 +4,10 @@ from decimal import Decimal
 from django.db import transaction
 from django.utils import timezone
 from django.contrib.auth.models import User
-from .models import Product, Sale, SaleItem, StockMovement, AccountReceivable, Person
+from .models import (
+    MIN_RECEIVABLE_AMOUNT, AccountReceivable, Person, Product, Sale,
+    SaleItem, StockMovement,
+)
 
 
 class InsufficientStockError(ValueError):
@@ -168,7 +171,14 @@ def finalize_sale(sale: Sale, user: User = None):
         s.save(update_fields=['status', 'completed_at', 'responsible'])
         # If items not yet created (e.g. POS draft), create from existing data if any
         # Receivable on account
-        if s.payment_method == 'ON_ACCOUNT' and s.customer:
+        # A zero-value on-account sale has nothing to bill; the database
+        # constraint refuses receivables below R$ 0.01, so skip creation
+        # instead of crashing the finalize flow.
+        if (
+            s.payment_method == 'ON_ACCOUNT'
+            and s.customer
+            and s.total >= MIN_RECEIVABLE_AMOUNT
+        ):
             AccountReceivable.objects.get_or_create(
                 sale=s,
                 defaults={

@@ -696,6 +696,9 @@ class FinanceListSearchTests(TestCase):
         self.assertIn('No payments match your filters', self.payments(html))
         self.assertIn('0 results', html)
 
+        AccountReceivable.objects.filter(pk=self.r4.pk).update(
+            original_amount=Decimal('100.00'),
+        )
         for index in range(25):
             Payment.objects.create(
                 account_receivable=self.r4, amount=Decimal('1.00'), method='CASH',

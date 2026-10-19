@@ -151,7 +151,7 @@ class DashboardIsolationTests(AuthorizationTestBase):
         html, stats = self.get_stats(self.alice)
         self.assertEqual(stats['sales_today'], 1)
         self.assertEqual(stats['daily_revenue'], Decimal('20.00'))
-        self.assertEqual(stats['receivables_total'], Decimal('20.00'))
+        self.assertEqual(stats['receivables_total'], Decimal('15.00'))
         self.assertEqual(stats['receivables_open_count'], 1)
         self.assertEqual(stats['sales_chart']['units'][-1], 2)
         codes = [sale.code for sale in stats['recent_sales']]
@@ -163,14 +163,14 @@ class DashboardIsolationTests(AuthorizationTestBase):
         _, stats = self.get_stats(self.admin)
         self.assertEqual(stats['sales_today'], 3)
         self.assertEqual(stats['daily_revenue'], Decimal('50.00'))
-        self.assertEqual(stats['receivables_total'], Decimal('70.00'))
+        self.assertEqual(stats['receivables_total'], Decimal('58.00'))
         self.assertEqual(stats['receivables_open_count'], 3)
         self.assertEqual(stats['sales_chart']['units'][-1], 4)
 
     def test_viewer_permission_sees_every_record(self):
         _, stats = self.get_stats(self.viewer)
         self.assertEqual(stats['sales_today'], 3)
-        self.assertEqual(stats['receivables_total'], Decimal('70.00'))
+        self.assertEqual(stats['receivables_total'], Decimal('58.00'))
 
 
 class SalesListIsolationTests(AuthorizationTestBase):
@@ -221,7 +221,7 @@ class FinanceIsolationTests(AuthorizationTestBase):
         )
         self.assertNotIn('R$ 7.00', html)
         self.assertNotIn('R$ 30.00', html)
-        self.assertEqual(response.context['total_receivable'], Decimal('20.00'))
+        self.assertEqual(response.context['total_receivable'], Decimal('15.00'))
         self.assertEqual(response.context['pending_accounts'], 0)
 
     def test_global_user_sees_every_receivable_and_payment(self):
@@ -234,7 +234,7 @@ class FinanceIsolationTests(AuthorizationTestBase):
             {row.pk for row in response.context['payments']},
             {self.alice_payment.pk, self.bob_payment.pk},
         )
-        self.assertEqual(response.context['total_receivable'], Decimal('70.00'))
+        self.assertEqual(response.context['total_receivable'], Decimal('58.00'))
         self.assertEqual(response.context['pending_accounts'], 1)
 
     def test_payment_form_choices_are_scoped(self):

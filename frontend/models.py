@@ -1,8 +1,34 @@
-from django.db import models, transaction
+import time
+
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
+from django.db import IntegrityError, OperationalError, models, transaction
 from django.db.models import Sum
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator
-from decimal import Decimal
+from django.utils import timezone
+from decimal import Decimal, ROUND_HALF_UP
+
+
+# BRL currency policy: two decimal places, half-up rounding on the final cent.
+# Every financial comparison and displayed total goes through these helpers so
+# SQLite's float-derived aggregates (e.g. Decimal('80.3000000000000') or
+# Decimal('0E-13')) cannot leak excessive precision into decisions.
+CURRENCY_QUANTUM = Decimal('0.01')
+CURRENCY_ROUNDING = ROUND_HALF_UP
+MIN_RECEIVABLE_AMOUNT = Decimal('0.01')
+
+
+def quantize_money(value):
+    """Normalize a monetary value to BRL currency precision (2 decimals)."""
+    if value is None:
+        return Decimal('0.00')
+    return Decimal(value).quantize(CURRENCY_QUANTUM, rounding=CURRENCY_ROUNDING)
+
+
+def remaining_after(original_amount, paid_amount):
+    """Outstanding balance at currency precision, floored at zero."""
+    outstanding = quantize_money(Decimal(original_amount) - Decimal(paid_amount))
+    return outstanding if outstanding > Decimal('0.00') else Decimal('0.00')
 
 
 class Category(models.Model):
@@ -191,7 +217,10 @@ class AccountReceivable(models.Model):
     ]
     person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='receivables')
     sale = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True, blank=True, related_name='receivable')
-    original_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    original_amount = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        validators=[MinValueValidator(MIN_RECEIVABLE_AMOUNT)],
+    )
     due_date = models.DateField()
     status = models.CharField(max_length=20, choices=RECEIVABLE_STATUSES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -201,50 +230,197 @@ class AccountReceivable(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Account Receivable'
         verbose_name_plural = 'Accounts Receivable'
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(original_amount__gte=MIN_RECEIVABLE_AMOUNT),
+                name='receivable_amount_minimum',
+            ),
+        ]
 
     def __str__(self):
         due = self.due_date.strftime('%m/%d/%Y') if self.due_date else '—'
         return f'{self.person.name} — R$ {self.original_amount:.2f} (due {due})'
 
     @property
+    def reference(self):
+        """Human reference used in payment selectors and diagnostics."""
+        if self.sale_id:
+            return self.sale.code
+        return f'AR-{self.pk:05d}' if self.pk else 'AR'
+
+    @property
     def amount_paid(self):
-        result = self.payments.aggregate(s=Sum('amount'))['s']
-        return result or Decimal('0.00')
+        """Exact sum of recorded payments, normalized to currency precision.
+
+        Computed in Python from each stored Decimal instead of SQL ``SUM``:
+        SQLite aggregates DecimalField through binary floats, which produces
+        values like ``Decimal('80.3000000000000')``/``Decimal('0E-13')``.
+        """
+        paid = sum(
+            (payment.amount for payment in self.payments.all()),
+            Decimal('0.00'),
+        )
+        return quantize_money(paid)
 
     @property
     def remaining_balance(self):
-        paid = self.amount_paid or Decimal('0.00')
-        return max(self.original_amount - paid, Decimal('0.00'))
+        return remaining_after(self.original_amount, self.amount_paid)
 
     def update_status(self):
-        from django.utils import timezone
         if self.status == 'CANCELLED':
             return
-        if self.remaining_balance <= 0:
+        paid = self.amount_paid
+        balance = remaining_after(self.original_amount, paid)
+        if balance <= Decimal('0.00'):
             self.status = 'PAID'
-        elif self.due_date < timezone.now().date() and self.remaining_balance > 0:
+        elif self.due_date and self.due_date < timezone.now().date():
             self.status = 'OVERDUE'
-        elif self.amount_paid > 0:
+        elif paid > Decimal('0.00'):
             self.status = 'PARTIAL'
         else:
             self.status = 'PENDING'
 
 
-def register_payment(account_receivable: AccountReceivable, amount: Decimal, method: str = 'CASH', user: User = None, notes: str = '') -> Payment:
-    """Transactional payment registration; recalculates receivable afterwards."""
-    with transaction.atomic():
-        rc = AccountReceivable.objects.select_for_update().get(pk=account_receivable.pk)
-        if rc.status == 'CANCELLED':
-            raise ValueError('Cannot register payment for a cancelled receivable.')
-        if amount > rc.remaining_balance:
-            raise ValueError('Payment exceeds remaining balance.')
-        p = Payment.objects.create(
-            account_receivable=rc, amount=amount, method=method,
-            responsible_user=user, notes=notes
+class PaymentConflictError(ValueError):
+    """Raised when an idempotency key is reused for a different payment."""
+
+
+PAYMENT_RETRY_ATTEMPTS = 4
+PAYMENT_RETRY_DELAYS = (0.05, 0.10, 0.20)
+
+
+def validate_payment_amount(amount):
+    """Enforce positive, two-decimal BRL payment amounts."""
+    if not isinstance(amount, Decimal):
+        raise ValueError('Payment amount must be a decimal value.')
+    if amount < MIN_RECEIVABLE_AMOUNT:
+        raise ValueError('Payment amount must be at least R$ 0.01.')
+    if quantize_money(amount) != amount:
+        raise ValueError('Payment amount must have at most two decimal places.')
+
+
+def _lock_receivable(receivable_pk):
+    """Lock the receivable for the payment critical section.
+
+    ``select_for_update()`` is a no-op on SQLite, so the follow-up UPDATE
+    forces SQLite's database-level write lock *before* the payment ledger is
+    read. On PostgreSQL the SELECT ... FOR UPDATE row lock serializes the same
+    block. Either way the check-then-write sequence is protected.
+    """
+    rc = AccountReceivable.objects.select_for_update().get(pk=receivable_pk)
+    # Writing a value (updated_at) acquires SQLite's write lock; without it a
+    # deferred transaction could read a stale ledger before upgrading.
+    AccountReceivable.objects.filter(pk=receivable_pk).update(updated_at=timezone.now())
+    rc.refresh_from_db()
+    return rc
+
+
+def _available_balance(rc, exclude_payment_pk=None):
+    """Authoritative outstanding balance, optionally crediting one payment.
+
+    ``exclude_payment_pk`` is used when validating an existing payment edit:
+    its current amount is part of ``amount_paid`` but must not count against
+    the value being saved.
+    """
+    payments = rc.payments.all()
+    if exclude_payment_pk is not None:
+        payments = payments.exclude(pk=exclude_payment_pk)
+    paid = quantize_money(sum((p.amount for p in payments), Decimal('0.00')))
+    return remaining_after(rc.original_amount, paid)
+
+
+def _assert_payment_matches_request(existing, receivable_pk, amount, method, user):
+    if (
+        existing.account_receivable_id != receivable_pk
+        or quantize_money(existing.amount) != quantize_money(amount)
+        or existing.method != method
+        or existing.responsible_user_id != (user.pk if user else None)
+    ):
+        raise PaymentConflictError(
+            'This payment submission key was already used for a different request.'
         )
-        rc.update_status()
-        rc.save(update_fields=['status'])
-        return p
+
+
+def _register_payment_once(receivable_pk, amount, method, user, notes, idempotency_key):
+    try:
+        with transaction.atomic():
+            rc = _lock_receivable(receivable_pk)
+            if idempotency_key:
+                existing = (
+                    Payment.objects.filter(idempotency_key=idempotency_key)
+                    .select_related('account_receivable')
+                    .first()
+                )
+                if existing is not None:
+                    # A replay of an already-committed request resolves to the
+                    # original result instead of charging the account again.
+                    _assert_payment_matches_request(
+                        existing, receivable_pk, amount, method, user,
+                    )
+                    return existing
+            if rc.status == 'CANCELLED':
+                raise ValueError('Cannot register payment for a cancelled receivable.')
+            balance = rc.remaining_balance
+            if balance <= Decimal('0.00'):
+                raise ValueError('This account is already settled.')
+            if quantize_money(amount) > balance:
+                raise ValueError('Payment exceeds remaining balance.')
+            payment = Payment.objects.create(
+                account_receivable=rc, amount=quantize_money(amount), method=method,
+                responsible_user=user, notes=notes, idempotency_key=idempotency_key,
+            )
+            rc.update_status()
+            rc.save(update_fields=['status'])
+            return payment
+    except IntegrityError:
+        # Unique key raced with another transaction. The atomic block has
+        # rolled back; resolve the winner outside the broken transaction.
+        if not idempotency_key:
+            raise
+        existing = (
+            Payment.objects.filter(idempotency_key=idempotency_key)
+            .select_related('account_receivable')
+            .first()
+        )
+        if existing is None:
+            raise
+        _assert_payment_matches_request(existing, receivable_pk, amount, method, user)
+        return existing
+
+
+def register_payment(
+    account_receivable: AccountReceivable,
+    amount: Decimal,
+    method: str = 'CASH',
+    user: User = None,
+    notes: str = '',
+    idempotency_key: str = None,
+) -> Payment:
+    """Transactional, idempotent payment registration.
+
+    Eligibility is recalculated from the authoritative ledger inside the
+    locked critical section: cancelled and settled receivables reject new
+    payments, and an amount above the outstanding balance is refused. SQLite
+    write-lock conflicts are retried from a fresh transaction; a retry never
+    reuses a half-open ``atomic()`` block.
+    """
+    validate_payment_amount(amount)
+    if idempotency_key:
+        idempotency_key = str(idempotency_key).strip() or None
+        if idempotency_key and len(idempotency_key) > 255:
+            raise ValueError('Invalid payment submission key.')
+    receivable_pk = account_receivable.pk
+    for attempt in range(PAYMENT_RETRY_ATTEMPTS):
+        try:
+            return _register_payment_once(
+                receivable_pk, amount, method, user, notes, idempotency_key,
+            )
+        except OperationalError as exc:
+            message = str(exc).lower()
+            retryable = 'locked' in message or 'busy' in message
+            if not retryable or attempt == PAYMENT_RETRY_ATTEMPTS - 1:
+                raise
+            time.sleep(PAYMENT_RETRY_DELAYS[min(attempt, len(PAYMENT_RETRY_DELAYS) - 1)])
 
 
 class Payment(models.Model):
@@ -262,68 +438,81 @@ class Payment(models.Model):
     responsible_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    # Server-generated submission token (see register_payment). Nullable so
+    # historical payments and demo-data seeding remain compatible.
+    idempotency_key = models.CharField(
+        max_length=255, unique=True, null=True, blank=True, default=None,
+    )
 
     class Meta:
         verbose_name = 'Payment'
         verbose_name_plural = 'Payments'
 
+    def _old_row(self):
+        if self._state.adding or not self.pk:
+            return None
+        return Payment.objects.filter(pk=self.pk).first()
+
     def _is_new_or_reassigned(self):
         """True when this row would be inserted or moved to another receivable."""
         if self._state.adding:
             return True
-        if not self.pk:
-            return False
-        old_rc_id = (
-            Payment.objects.filter(pk=self.pk)
-            .values_list('account_receivable_id', flat=True)
-            .first()
-        )
-        return old_rc_id is not None and old_rc_id != self.account_receivable_id
+        old = self._old_row()
+        return old is not None and old.account_receivable_id != self.account_receivable_id
 
     def clean(self):
-        from django.core.exceptions import ValidationError
+        if not self.account_receivable_id:
+            return
+        rc = AccountReceivable.objects.get(pk=self.account_receivable_id)
+        old = self._old_row()
+        reassigned = old is None or old.account_receivable_id != self.account_receivable_id
+        if reassigned and rc.status == 'CANCELLED':
+            raise ValidationError('Cannot register payment for a cancelled receivable.')
+        if not isinstance(self.amount, Decimal):
+            raise ValidationError('Payment amount must be a decimal value.')
         try:
-            if self.account_receivable_id:
-                rc = AccountReceivable.objects.get(pk=self.account_receivable_id)
-                if self._is_new_or_reassigned() and rc.status == 'CANCELLED':
-                    raise ValidationError('Cannot register payment for a cancelled receivable.')
-                if isinstance(self.amount, Decimal):
-                    bal = rc.remaining_balance
-                    if bal is not None and self.amount > bal:
-                        raise ValidationError('Payment cannot exceed remaining balance.')
-        except TypeError:
-            pass  # form clean handles validation; avoid crash during instance init
+            validate_payment_amount(self.amount)
+        except ValueError as exc:
+            raise ValidationError(str(exc)) from exc
+        exclude_pk = self.pk if (old is not None and not reassigned) else None
+        available = _available_balance(rc, exclude_payment_pk=exclude_pk)
+        if reassigned and available <= Decimal('0.00'):
+            raise ValidationError('This account is already settled.')
+        if quantize_money(self.amount) > available:
+            raise ValidationError('Payment cannot exceed remaining balance.')
+
+    def _guard_and_save(self, old, *args, **kwargs):
+        """Validate against locked ledger state, then persist."""
+        is_new = old is None
+        rc_changed = is_new or old.account_receivable_id != self.account_receivable_id
+        try:
+            validate_payment_amount(self.amount)
+        except ValueError as exc:
+            raise ValidationError(str(exc)) from exc
+        with transaction.atomic():
+            rc = _lock_receivable(self.account_receivable_id)
+            if rc_changed and rc.status == 'CANCELLED':
+                raise ValidationError('Cannot register payment for a cancelled receivable.')
+            exclude_pk = None if rc_changed else self.pk
+            available = _available_balance(rc, exclude_payment_pk=exclude_pk)
+            if rc_changed and available <= Decimal('0.00'):
+                raise ValidationError('This account is already settled.')
+            if quantize_money(self.amount) > available:
+                raise ValidationError('Payment cannot exceed remaining balance.')
+            super().save(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        from django.core.exceptions import ValidationError
-        is_new = self._state.adding
-        old = None
-        if not is_new and self.pk:
-            try:
-                old = Payment.objects.get(pk=self.pk)
-            except Payment.DoesNotExist:
-                old = None
+        # ORM entry points bypass clean()/full_clean(); guard them here. The
+        # ledger is read only after the receivable lock is acquired so a
+        # concurrent payment cannot slip between validation and insert.
+        old = self._old_row()
         old_amount = old.amount if old is not None else None
-        reassigned = old is not None and old.account_receivable_id != self.account_receivable_id
-        # Model-save guard: ordinary create()/save() bypasses clean()/full_clean().
-        # Re-read the persisted receivable under a row lock and insert the payment
-        # inside the same atomic block so the lock is held until the write commits
-        # (when no outer transaction exists).
-        if (is_new or reassigned) and self.account_receivable_id:
-            with transaction.atomic():
-                status = (
-                    AccountReceivable.objects.select_for_update()
-                    .filter(pk=self.account_receivable_id)
-                    .values_list('status', flat=True)
-                    .first()
-                )
-                if status == 'CANCELLED':
-                    raise ValidationError('Cannot register payment for a cancelled receivable.')
-                super().save(*args, **kwargs)
+        if old is None or old.account_receivable_id != self.account_receivable_id or old_amount != self.amount:
+            self._guard_and_save(old, *args, **kwargs)
         else:
             super().save(*args, **kwargs)
         # Guarded hook: only recalc when amount actually changed or new record
-        if is_new or old_amount != self.amount:
+        if old is None or old_amount != self.amount:
             self.account_receivable.refresh_from_db()
             self.account_receivable.update_status()
             self.account_receivable.save(update_fields=['status'])

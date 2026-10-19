@@ -243,6 +243,7 @@
 
     <form method="post" action="{% url 'frontend:finance' %}" class="section-card payment-form" id="paymentForm">
         {% csrf_token %}
+        {{ form.idempotency_key }}
         <div class="card-body">
             <h3 class="card-title">Register Payment</h3>
             <div class="payment-form-grid">
