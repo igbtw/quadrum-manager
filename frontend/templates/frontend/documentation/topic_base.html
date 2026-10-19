@@ -1,7 +1,8 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}{{ topic.title }} · Documentation{% endblock %}
+{% block title %}{{ topic.title }} · {% trans "Documentation" %}{% endblock %}
 
 {% block content %}
 <div class="doc-layout">
@@ -9,9 +10,9 @@
         <details class="doc-toc" open>
             <summary class="doc-toc-summary">
                 <i data-lucide="list" aria-hidden="true"></i>
-                Topics
+                {% trans "Topics" %}
             </summary>
-            <nav class="doc-toc-nav" aria-label="Documentation topics">
+            <nav class="doc-toc-nav" aria-label="{% trans "Documentation topics" %}">
                 <ol class="doc-toc-list">
                     {% for entry in doc_topics %}
                     <li>
@@ -24,8 +25,8 @@
     </aside>
 
     <article class="doc-main">
-        <nav class="doc-breadcrumb" aria-label="Breadcrumb">
-            <a href="{% url 'frontend:documentation' %}">Documentation</a>
+        <nav class="doc-breadcrumb" aria-label="{% trans "Breadcrumb" %}">
+            <a href="{% url 'frontend:documentation' %}">{% trans "Documentation" %}</a>
             <span class="doc-breadcrumb-sep" aria-hidden="true">/</span>
             <span aria-current="page">{{ topic.title }}</span>
         </nav>
@@ -37,19 +38,19 @@
             {% block topic_content %}{% endblock %}
         </div>
 
-        <nav class="doc-pager" aria-label="Documentation navigation">
+        <nav class="doc-pager" aria-label="{% trans "Documentation navigation" %}">
             {% if prev_topic %}
             <a class="doc-pager-link" rel="prev" href="{% url 'frontend:documentation_topic' prev_topic.slug %}">
-                <span class="doc-pager-label">Previous</span>
+                <span class="doc-pager-label">{% trans "Previous" %}</span>
                 <span class="doc-pager-title">{{ prev_topic.title }}</span>
             </a>
             {% else %}
             <span class="doc-pager-spacer" aria-hidden="true"></span>
             {% endif %}
-            <a class="doc-pager-index" href="{% url 'frontend:documentation' %}">All topics</a>
+            <a class="doc-pager-index" href="{% url 'frontend:documentation' %}">{% trans "All topics" %}</a>
             {% if next_topic %}
             <a class="doc-pager-link doc-pager-next" rel="next" href="{% url 'frontend:documentation_topic' next_topic.slug %}">
-                <span class="doc-pager-label">Next</span>
+                <span class="doc-pager-label">{% trans "Next" %}</span>
                 <span class="doc-pager-title">{{ next_topic.title }}</span>
             </a>
             {% else %}

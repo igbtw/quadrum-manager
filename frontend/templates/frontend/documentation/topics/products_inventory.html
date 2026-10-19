@@ -1,46 +1,47 @@
 {% extends "frontend/documentation/topic_base.html" %}
+{% load i18n %}
 
 {% block topic_content %}
-<p>Products form the catalog that feeds the point of sale. The <a href="{% url 'frontend:products' %}">Products</a> page manages the catalog; the <a href="{% url 'frontend:inventory' %}">Inventory</a> page shows stock and records adjustments.</p>
+{% url 'frontend:products' as _u1 %} {% url 'frontend:inventory' as _u2 %} <p>{% blocktrans trimmed %}Products form the catalog that feeds the point of sale. The <a href="{{ _u1 }}">Products</a> page manages the catalog; the <a href="{{ _u2 }}">Inventory</a> page shows stock and records adjustments.{% endblocktrans %}</p>
 
-<h3>Product fields</h3>
+<h3>{% blocktrans trimmed %}Product fields{% endblocktrans %}</h3>
 <div class="doc-table-wrap">
     <table class="doc-table">
         <thead>
-            <tr><th>Field</th><th>Meaning</th></tr>
+            <tr><th>{% blocktrans trimmed %}Field{% endblocktrans %}</th><th>{% blocktrans trimmed %}Meaning{% endblocktrans %}</th></tr>
         </thead>
         <tbody>
-            <tr><td><code>name</code></td><td>The product name shown in the catalog and sale screens.</td></tr>
-            <tr><td><code>code</code></td><td>A unique short code used for lookup (for example, <code>COX-01</code>).</td></tr>
-            <tr><td><code>category</code></td><td>The grouping used to filter the catalog and the point-of-sale product picker.</td></tr>
-            <tr><td><code>price</code></td><td>Sale price (R$, two decimals). The POS always uses this stored price.</td></tr>
-            <tr><td><code>cost_price</code></td><td>Optional acquisition cost for reference.</td></tr>
-            <tr><td><code>stock_quantity</code></td><td>Current stock. Never allowed to be negative.</td></tr>
-            <tr><td><code>minimum_stock</code></td><td>Alert threshold used by the low-stock indicator.</td></tr>
-            <tr><td><code>active</code></td><td>Inactive products stay in history but are hidden from sale selection.</td></tr>
+            <tr><td><code>name</code></td><td>{% blocktrans trimmed %}The product name shown in the catalog and sale screens.{% endblocktrans %}</td></tr>
+            <tr><td><code>code</code></td><td>{% blocktrans trimmed %}A unique short code used for lookup (for example, <code>COX-01</code>).{% endblocktrans %}</td></tr>
+            <tr><td><code>category</code></td><td>{% blocktrans trimmed %}The grouping used to filter the catalog and the point-of-sale product picker.{% endblocktrans %}</td></tr>
+            <tr><td><code>price</code></td><td>{% blocktrans trimmed %}Sale price (R$, two decimals). The POS always uses this stored price.{% endblocktrans %}</td></tr>
+            <tr><td><code>cost_price</code></td><td>{% blocktrans trimmed %}Optional acquisition cost for reference.{% endblocktrans %}</td></tr>
+            <tr><td><code>stock_quantity</code></td><td>{% blocktrans trimmed %}Current stock. Never allowed to be negative.{% endblocktrans %}</td></tr>
+            <tr><td><code>minimum_stock</code></td><td>{% blocktrans trimmed %}Alert threshold used by the low-stock indicator.{% endblocktrans %}</td></tr>
+            <tr><td><code>active</code></td><td>{% blocktrans trimmed %}Inactive products stay in history but are hidden from sale selection.{% endblocktrans %}</td></tr>
         </tbody>
     </table>
 </div>
 
-<h3>Stock status indicators</h3>
+<h3>{% blocktrans trimmed %}Stock status indicators{% endblocktrans %}</h3>
 <ul>
-    <li><strong>Normal</strong> — stock is above the minimum.</li>
-    <li><strong>Low</strong> — stock is above zero but at or below the minimum stock threshold.</li>
-    <li><strong>Out of Stock</strong> — stock is exactly zero; the product cannot be sold.</li>
-    <li><strong>Inactive</strong> — the product is deactivated; its stock is not part of the active counts.</li>
+    <li>{% blocktrans trimmed %}<strong>Normal</strong> — stock is above the minimum.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Low</strong> — stock is above zero but at or below the minimum stock threshold.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Out of Stock</strong> — stock is exactly zero; the product cannot be sold.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Inactive</strong> — the product is deactivated; its stock is not part of the active counts.{% endblocktrans %}</li>
 </ul>
 
-<h3>Adjusting stock</h3>
+<h3>{% blocktrans trimmed %}Adjusting stock{% endblocktrans %}</h3>
 <ol>
-    <li>Open <a href="{% url 'frontend:inventory' %}">Inventory</a> and use the stock adjustment form.</li>
-    <li>Pick the product, enter the quantity — positive to add stock, negative to remove — and a reason.</li>
-    <li>Submit. The new stock level is saved together with a stock movement recording the signed quantity, the reason, and the responsible user.</li>
+    {% url 'frontend:inventory' as _u1 %} <li>{% blocktrans trimmed %}Open <a href="{{ _u1 }}">Inventory</a> and use the stock adjustment form.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Pick the product, enter the quantity — positive to add stock, negative to remove — and a reason.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Submit. The new stock level is saved together with a stock movement recording the signed quantity, the reason, and the responsible user.{% endblocktrans %}</li>
 </ol>
 <ul>
-    <li>Stock never goes negative: an adjustment that would remove more than the available quantity is rejected with an error message, and nothing is saved.</li>
-    <li>Every change is an append-only audit trail; sales produce negative movements, cancellations produce returns, and manual adjustments are recorded as adjustments.</li>
-    <li>Zero-quantity adjustments are rejected.</li>
+    <li>{% blocktrans trimmed %}Stock never goes negative: an adjustment that would remove more than the available quantity is rejected with an error message, and nothing is saved.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Every change is an append-only audit trail; sales produce negative movements, cancellations produce returns, and manual adjustments are recorded as adjustments.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Zero-quantity adjustments are rejected.{% endblocktrans %}</li>
 </ul>
 
-<p class="doc-note">Movement types, locking behavior, and the negative-stock constraint are detailed in <code>docs/business-flows.md</code> and <code>docs/data-model.md</code> (repository files, not served by the application).</p>
+<p class="doc-note">{% blocktrans trimmed %}Movement types, locking behavior, and the negative-stock constraint are detailed in <code>docs/business-flows.md</code> and <code>docs/data-model.md</code> (repository files, not served by the application).{% endblocktrans %}</p>
 {% endblock %}

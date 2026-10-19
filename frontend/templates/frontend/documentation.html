@@ -1,13 +1,14 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Documentation{% endblock %}
+{% block title %}{% trans "Documentation" %}{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Documentation</h1>
-        <p class="page-subtitle">Focused guides for everyday operation, plus developer references — each topic on its own page.</p>
+        <h1 class="page-title">{% blocktrans trimmed %}Documentation{% endblocktrans %}</h1>
+        <p class="page-subtitle">{% blocktrans trimmed %}Focused guides for everyday operation, plus developer references — each topic on its own page.{% endblocktrans %}</p>
     </div>
     <div class="page-actions">
         <form method="post" action="{% url 'frontend:onboarding_restart' %}">
@@ -15,7 +16,7 @@
             <input type="hidden" name="next" value="{{ request.path }}">
             <button type="submit" class="btn btn-secondary">
                 <i data-lucide="compass" style="width:16px;height:16px;stroke-width:2;"></i>
-                Show getting started guide
+                {% trans "Show getting started guide" %}
             </button>
         </form>
     </div>
@@ -24,24 +25,24 @@
 <div class="doc-index">
     <div class="doc-search" role="search">
         <i data-lucide="search" class="doc-search-icon" aria-hidden="true"></i>
-        <input type="search" id="docSearchInput" class="doc-search-input" placeholder="Search documentation topics..." aria-label="Search documentation topics" autocomplete="off">
+        <input type="search" id="docSearchInput" class="doc-search-input" placeholder="{% trans "Search documentation topics..." %}" aria-label="{% trans "Search documentation topics" %}" autocomplete="off">
         <p class="doc-search-status" id="docSearchStatus" role="status" aria-live="polite"></p>
     </div>
-    <p class="doc-empty" id="docSearchEmpty" hidden>No documentation topics match your search.</p>
+    <p class="doc-empty" id="docSearchEmpty" hidden>{% blocktrans trimmed %}No documentation topics match your search.{% endblocktrans %}</p>
 
     <div class="doc-callouts">
         <a class="doc-callout" href="{% url 'frontend:documentation_topic' 'getting-started' %}">
             <i data-lucide="compass" class="doc-callout-icon" aria-hidden="true"></i>
             <span>
-                <span class="doc-callout-title">New to Quadrum?</span>
-                <span class="doc-callout-text">Start with the Getting Started guide.</span>
+                <span class="doc-callout-title">{% trans "New to Quadrum?" %}</span>
+                <span class="doc-callout-text">{% trans "Start with the Getting Started guide." %}</span>
             </span>
         </a>
         <a class="doc-callout" href="{% url 'frontend:documentation_topic' 'search' %}">
             <i data-lucide="search" class="doc-callout-icon" aria-hidden="true"></i>
             <span>
-                <span class="doc-callout-title">Looking for something specific?</span>
-                <span class="doc-callout-text">Global search supports advanced prefixes — see Search and Advanced Queries.</span>
+                <span class="doc-callout-title">{% trans "Looking for something specific?" %}</span>
+                <span class="doc-callout-text">{% trans "Global search supports advanced prefixes — see Search and Advanced Queries." %}</span>
             </span>
         </a>
     </div>
@@ -66,6 +67,6 @@
         {% endfor %}
     </div>
 
-    <p class="doc-note">The repository files <code>README.md</code> and the <code>docs/</code> directory are the internal source of truth for the schema, business rules, and API contract. They are not served by the application; the pages above summarize them in-app.</p>
+    <p class="doc-note">{% blocktrans trimmed %}The repository files <code>README.md</code> and the <code>docs/</code> directory are the internal source of truth for the schema, business rules, and API contract. They are not served by the application; the pages above summarize them in-app.{% endblocktrans %}</p>
 </div>
 {% endblock %}

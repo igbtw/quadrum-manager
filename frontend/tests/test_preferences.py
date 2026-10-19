@@ -7,6 +7,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 PREFERENCE_OPTIONS = {
+    'quadrum-language': ['en', 'pt-br'],
     'quadrum-theme': ['system', 'light', 'dark'],
     'quadrum-accent': ['default', 'blue', 'violet', 'emerald'],
     'quadrum-density': ['comfortable', 'compact'],
@@ -20,6 +21,7 @@ PREFERENCE_OPTIONS = {
 }
 
 PREFERENCE_DEFAULTS = {
+    'quadrum-language': 'en',
     'quadrum-theme': 'system',
     'quadrum-accent': 'default',
     'quadrum-density': 'comfortable',
@@ -36,6 +38,7 @@ PREFERENCE_COUNT = len(PREFERENCE_OPTIONS)
 OPTION_COUNT = sum(len(values) for values in PREFERENCE_OPTIONS.values())
 
 SETTING_LABELS = {
+    'prefLanguageLabel': 'Interface language',
     'prefThemeLabel': 'Theme',
     'prefAccentLabel': 'Accent color',
     'prefDensityLabel': 'Interface density',
@@ -49,6 +52,7 @@ SETTING_LABELS = {
 }
 
 OPTION_LABELS = [
+    'English', 'Português (Brasil)',
     'System', 'Light', 'Dark',
     'Default', 'Blue', 'Violet', 'Emerald',
     'Comfortable', 'Compact',
@@ -97,9 +101,9 @@ class PreferencesMarkupTests(TestCase):
 
         self.assertEqual(
             re.findall(r'<h3 class="preference-group-title">([^<]+)</h3>', html),
-            ['Appearance', 'Navigation', 'Accessibility', 'Behavior'],
+            ['Language', 'Appearance', 'Navigation', 'Accessibility', 'Behavior'],
         )
-        self.assertEqual(html.count('data-preference-group'), 4)
+        self.assertEqual(html.count('data-preference-group'), 5)
         self.assertEqual(html.count('data-preference-row'), PREFERENCE_COUNT)
 
         for name, values in PREFERENCE_OPTIONS.items():
@@ -148,10 +152,10 @@ class PreferencesMarkupTests(TestCase):
         for name, default in PREFERENCE_DEFAULTS.items():
             matches = re.findall(
                 rf'<input type="radio" name="{name}" value="([^"]+)" '
-                rf'class="preference-radio"( checked)?>',
+                rf'class="preference-radio"([^>]*)>',
                 html,
             )
-            checked = [value for value, flag in matches if flag]
+            checked = [value for value, attrs in matches if 'checked' in attrs]
             self.assertEqual(checked, [default], msg=f'wrong default for {name}')
 
         for option in OPTION_LABELS:

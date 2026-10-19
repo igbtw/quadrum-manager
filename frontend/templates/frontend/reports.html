@@ -1,13 +1,14 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Reports — quadrum{% endblock %}
+{% block title %}{% trans "Reports" %} — quadrum{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Reports</h1>
-        <p class="page-subtitle">Operational analytics · {{ report.period_label }}</p>
+        <h1 class="page-title">{% trans "Reports" %}</h1>
+        <p class="page-subtitle">{% trans "Operational analytics" %} · {{ report.period_label }}</p>
     </div>
 </div>
 
@@ -16,44 +17,44 @@
     <div class="card-body">
         <form method="get" action="{% url 'frontend:reports' %}" class="report-filter-form" role="search">
             <div class="report-field">
-                <label for="report-preset">Period</label>
+                <label for="report-preset">{% trans "Period" %}</label>
                 {{ form.preset }}
             </div>
             <div class="report-field js-report-custom" id="report-custom-dates" style="{% if report.filters.preset != 'custom' %}display: none;{% endif %}">
-                <label for="report-date-from">From</label>
+                <label for="report-date-from">{% trans "From" %}</label>
                 {{ form.date_from }}
             </div>
             <div class="report-field js-report-custom" style="{% if report.filters.preset != 'custom' %}display: none;{% endif %}">
-                <label for="report-date-to">To</label>
+                <label for="report-date-to">{% trans "To" %}</label>
                 {{ form.date_to }}
             </div>
             <div class="report-field">
-                <label for="report-status">Status</label>
+                <label for="report-status">{% trans "Status" %}</label>
                 {{ form.status }}
             </div>
             <div class="report-field">
-                <label for="report-payment">Payment</label>
+                <label for="report-payment">{% trans "Payment" %}</label>
                 {{ form.payment_method }}
             </div>
             <div class="report-field">
-                <label for="report-category">Category</label>
+                <label for="report-category">{% trans "Category" %}</label>
                 {{ form.category }}
             </div>
             {% if form.responsible %}
             <div class="report-field">
-                <label for="report-responsible">Responsible</label>
+                <label for="report-responsible">{% trans "Responsible" %}</label>
                 {{ form.responsible }}
             </div>
             {% endif %}
             <div class="report-actions">
-                <button type="submit" class="btn btn-secondary">Apply</button>
-                <a class="btn btn-ghost" href="{% url 'frontend:reports' %}">Clear filters</a>
+                <button type="submit" class="btn btn-secondary">{% trans "Apply" %}</button>
+                <a class="btn btn-ghost" href="{% url 'frontend:reports' %}">{% trans "Clear filters" %}</a>
             </div>
         </form>
 
         {% if form.errors %}
         <div class="alert alert-warning alert-small" role="alert" style="margin-top: var(--space-3);">
-            <strong>Some filters could not be applied:</strong>
+            <strong>{% trans "Some filters could not be applied:" %}</strong>
             <ul style="margin: var(--space-1) 0 0 var(--space-4);">
                 {% for field, errors in form.errors.items %}
                 {% for error in errors %}<li>{{ error }}</li>{% endfor %}
@@ -72,36 +73,36 @@
 </div>
 
 <!-- KPI strip -->
-<div class="kpi-strip" aria-label="Sales summary">
+<div class="kpi-strip" aria-label="{% trans "Sales summary" %}">
     <div class="kpi">
-        <div class="kpi-label">Completed Revenue</div>
+        <div class="kpi-label">{% trans "Completed Revenue" %}</div>
         <div class="kpi-value">R$ {{ summary.revenue|floatformat:2 }}</div>
         <div class="kpi-meta"><span class="kpi-delta{% if summary.revenue_delta.class %} {{ summary.revenue_delta.class }}{% endif %}">{{ summary.revenue_delta.value }}</span> <span class="kpi-compare">{{ summary.revenue_delta.label }}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Completed Sales</div>
+        <div class="kpi-label">{% trans "Completed Sales" %}</div>
         <div class="kpi-value">{{ summary.transactions }}</div>
         <div class="kpi-meta"><span class="kpi-delta{% if summary.transactions_delta.class %} {{ summary.transactions_delta.class }}{% endif %}">{{ summary.transactions_delta.value }}</span> <span class="kpi-compare">{{ summary.transactions_delta.label }}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Average Ticket</div>
+        <div class="kpi-label">{% trans "Average Ticket" %}</div>
         <div class="kpi-value">{% if summary.avg_ticket is not None %}R$ {{ summary.avg_ticket|floatformat:2 }}{% else %}—{% endif %}</div>
-        <div class="kpi-meta"><span class="kpi-compare">{% if summary.avg_ticket is not None %}completed sales only{% else %}no completed sales in period{% endif %}</span></div>
+        <div class="kpi-meta"><span class="kpi-compare">{% if summary.avg_ticket is not None %}{% trans "completed sales only" %}{% else %}{% trans "no completed sales in period" %}{% endif %}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Units Sold</div>
+        <div class="kpi-label">{% trans "Units Sold" %}</div>
         <div class="kpi-value">{{ summary.units }}</div>
         <div class="kpi-meta"><span class="kpi-delta{% if summary.units_delta.class %} {{ summary.units_delta.class }}{% endif %}">{{ summary.units_delta.value }}</span> <span class="kpi-compare">{{ summary.units_delta.label }}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Discounts Granted</div>
+        <div class="kpi-label">{% trans "Discounts Granted" %}</div>
         <div class="kpi-value">R$ {{ summary.discounts|floatformat:2 }}</div>
-        <div class="kpi-meta"><span class="kpi-compare">recorded on completed sales</span></div>
+        <div class="kpi-meta"><span class="kpi-compare">{% trans "recorded on completed sales" %}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Cancelled Sales</div>
+        <div class="kpi-label">{% trans "Cancelled Sales" %}</div>
         <div class="kpi-value">{{ summary.cancelled_count }}</div>
-        <div class="kpi-meta"><span class="kpi-compare">{% if summary.cancelled_count %}R$ {{ summary.cancelled_amount|floatformat:2 }} excluded from revenue{% else %}none in period{% endif %}</span></div>
+        <div class="kpi-meta"><span class="kpi-compare">{% if summary.cancelled_count %}{% blocktrans with amount=summary.cancelled_amount|floatformat:2 %}R$ {{ amount }} excluded from revenue{% endblocktrans %}{% else %}{% trans "none in period" %}{% endif %}</span></div>
     </div>
 </div>
 
@@ -109,19 +110,19 @@
 <div class="reports-charts">
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Revenue <span class="panel-subtitle">{{ report.preset_label }}</span></h2>
+            <h2 class="panel-title">{% trans "Revenue" %} <span class="panel-subtitle">{{ report.preset_label }}</span></h2>
             {% if trend.has_data %}
-            <button type="button" class="chart-expand-btn" data-chart-expand="revenueChart" aria-label="Expand Revenue chart" aria-haspopup="dialog" aria-expanded="false" title="Expand chart"><i data-lucide="maximize-2" aria-hidden="true"></i></button>
+            <button type="button" class="chart-expand-btn" data-chart-expand="revenueChart" aria-label="{% trans "Expand Revenue chart" %}" aria-haspopup="dialog" aria-expanded="false" title="{% trans "Expand chart" %}"><i data-lucide="maximize-2" aria-hidden="true"></i></button>
             {% endif %}
         </div>
         <div class="panel-body">
             {% if trend.has_data %}
-            <div class="chart-area"><canvas id="revenueChart" aria-label="Revenue over time with previous period comparison" role="img"></canvas></div>
-            <div class="chart-caption">Completed sales revenue per {{ trend.granularity }} bucket. Dashed line: preceding {{ report.span_days }}-day period, aligned bucket by bucket.</div>
+            <div class="chart-area"><canvas id="revenueChart" aria-label="{% trans "Revenue over time with previous period comparison" %}" role="img"></canvas></div>
+            <div class="chart-caption">{% blocktrans with granularity=trend.granularity_label days=report.span_days %}Completed sales revenue per {{ granularity }} bucket. Dashed line: preceding {{ days }}-day period, aligned bucket by bucket.{% endblocktrans %}</div>
             {% else %}
             <div class="empty-state">
-                <div class="empty-state-title">No completed sales</div>
-                <div class="empty-state-description">There is no completed revenue in the selected period.</div>
+                <div class="empty-state-title">{% trans "No completed sales" %}</div>
+                <div class="empty-state-description">{% trans "There is no completed revenue in the selected period." %}</div>
             </div>
             {% endif %}
         </div>
@@ -129,19 +130,19 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Volume <span class="panel-subtitle">units sold per {{ trend.granularity }}</span></h2>
+            <h2 class="panel-title">{% trans "Volume" %} <span class="panel-subtitle">{% blocktrans with granularity=trend.granularity_label %}units sold per {{ granularity }}{% endblocktrans %}</span></h2>
             {% if trend.has_data %}
-            <button type="button" class="chart-expand-btn" data-chart-expand="volumeChart" aria-label="Expand Volume chart" aria-haspopup="dialog" aria-expanded="false" title="Expand chart"><i data-lucide="maximize-2" aria-hidden="true"></i></button>
+            <button type="button" class="chart-expand-btn" data-chart-expand="volumeChart" aria-label="{% trans "Expand Volume chart" %}" aria-haspopup="dialog" aria-expanded="false" title="{% trans "Expand chart" %}"><i data-lucide="maximize-2" aria-hidden="true"></i></button>
             {% endif %}
         </div>
         <div class="panel-body">
             {% if trend.has_data %}
-            <div class="chart-area"><canvas id="volumeChart" aria-label="Units sold over time" role="img"></canvas></div>
-            <div class="chart-caption">Units from sale items of completed sales. Tooltips also show the transaction count per bucket.</div>
+            <div class="chart-area"><canvas id="volumeChart" aria-label="{% trans "Units sold over time" %}" role="img"></canvas></div>
+            <div class="chart-caption">{% trans "Units from sale items of completed sales. Tooltips also show the transaction count per bucket." %}</div>
             {% else %}
             <div class="empty-state">
-                <div class="empty-state-title">No units sold</div>
-                <div class="empty-state-description">There are no completed sale items in the selected period.</div>
+                <div class="empty-state-title">{% trans "No units sold" %}</div>
+                <div class="empty-state-description">{% trans "There are no completed sale items in the selected period." %}</div>
             </div>
             {% endif %}
         </div>
@@ -149,19 +150,19 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Payment Mix <span class="panel-subtitle">completed revenue</span></h2>
+            <h2 class="panel-title">{% trans "Payment Mix" %} <span class="panel-subtitle">{% trans "completed revenue" %}</span></h2>
             {% if payment_mix.has_data %}
-            <button type="button" class="chart-expand-btn" data-chart-expand="paymentMixChart" aria-label="Expand Payment Mix chart" aria-haspopup="dialog" aria-expanded="false" title="Expand chart"><i data-lucide="maximize-2" aria-hidden="true"></i></button>
+            <button type="button" class="chart-expand-btn" data-chart-expand="paymentMixChart" aria-label="{% trans "Expand Payment Mix chart" %}" aria-haspopup="dialog" aria-expanded="false" title="{% trans "Expand chart" %}"><i data-lucide="maximize-2" aria-hidden="true"></i></button>
             {% endif %}
         </div>
         <div class="panel-body">
             {% if payment_mix.has_data %}
-            <div class="chart-area"><canvas id="paymentMixChart" aria-label="Completed revenue by payment method" role="img"></canvas></div>
-            <div class="chart-caption">Value paid per method on completed sales (On Account counts when the sale completes, not when it is later paid).</div>
+            <div class="chart-area"><canvas id="paymentMixChart" aria-label="{% trans "Completed revenue by payment method" %}" role="img"></canvas></div>
+            <div class="chart-caption">{% trans "Value paid per method on completed sales (On Account counts when the sale completes, not when it is later paid)." %}</div>
             {% else %}
             <div class="empty-state">
-                <div class="empty-state-title">No revenue to split</div>
-                <div class="empty-state-description">No completed sales match the active filters.</div>
+                <div class="empty-state-title">{% trans "No revenue to split" %}</div>
+                <div class="empty-state-description">{% trans "No completed sales match the active filters." %}</div>
             </div>
             {% endif %}
         </div>
@@ -169,14 +170,14 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Status Breakdown</h2>
+            <h2 class="panel-title">{% trans "Status Breakdown" %}</h2>
         </div>
         <div class="panel-body">
             {% if summary.total_rows %}
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                        <tr><th>Status</th><th class="numeric">Sales</th><th class="numeric">Amount</th></tr>
+                        <tr><th>{% trans "Status" %}</th><th class="numeric">{% trans "Sales" %}</th><th class="numeric">{% trans "Amount" %}</th></tr>
                     </thead>
                     <tbody>
                         {% for row in summary.status_rows %}
@@ -189,11 +190,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="chart-caption">Only completed sales count as revenue; cancelled amounts are shown for completeness and excluded from every revenue figure.</div>
+            <div class="chart-caption">{% trans "Only completed sales count as revenue; cancelled amounts are shown for completeness and excluded from every revenue figure." %}</div>
             {% else %}
             <div class="empty-state">
-                <div class="empty-state-title">No sales in period</div>
-                <div class="empty-state-description">No sales of any status match the active filters.</div>
+                <div class="empty-state-title">{% trans "No sales in period" %}</div>
+                <div class="empty-state-description">{% trans "No sales of any status match the active filters." %}</div>
             </div>
             {% endif %}
         </div>
@@ -204,14 +205,14 @@
 <div class="dashboard-grid-2col">
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Top Products <span class="panel-subtitle">by units sold</span></h2>
+            <h2 class="panel-title">{% trans "Top Products" %} <span class="panel-subtitle">{% trans "by units sold" %}</span></h2>
         </div>
         <div class="panel-body" style="padding: 0;">
             {% if products.by_units %}
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                        <tr><th>Product</th><th class="numeric">Units</th><th class="numeric">Sales</th><th class="numeric">Revenue</th></tr>
+                        <tr><th>{% trans "Product" %}</th><th class="numeric">{% trans "Units" %}</th><th class="numeric">{% trans "Sales" %}</th><th class="numeric">{% trans "Revenue" %}</th></tr>
                     </thead>
                     <tbody>
                         {% for row in products.by_units %}
@@ -225,11 +226,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">Ranked by total quantity; ties break alphabetically by product name. “Sales” counts distinct completed transactions containing the product.</div>
+            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">{% trans "Ranked by total quantity; ties break alphabetically by product name. “Sales” counts distinct completed transactions containing the product." %}</div>
             {% else %}
             <div class="empty-state" style="border: none;">
-                <div class="empty-state-title">No product sales</div>
-                <div class="empty-state-description">No completed sale items match the active filters.</div>
+                <div class="empty-state-title">{% trans "No product sales" %}</div>
+                <div class="empty-state-description">{% trans "No completed sale items match the active filters." %}</div>
             </div>
             {% endif %}
         </div>
@@ -237,14 +238,14 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Top Products <span class="panel-subtitle">by revenue</span></h2>
+            <h2 class="panel-title">{% trans "Top Products" %} <span class="panel-subtitle">{% trans "by revenue" %}</span></h2>
         </div>
         <div class="panel-body" style="padding: 0;">
             {% if products.by_revenue %}
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                        <tr><th>Product</th><th class="numeric">Revenue</th><th class="numeric">Units</th><th class="numeric">Share</th></tr>
+                        <tr><th>{% trans "Product" %}</th><th class="numeric">{% trans "Revenue" %}</th><th class="numeric">{% trans "Units" %}</th><th class="numeric">{% trans "Share" %}</th></tr>
                     </thead>
                     <tbody>
                         {% for row in products.by_revenue %}
@@ -258,11 +259,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">Ranked by item revenue (quantity × unit price at sale time, before any sale-level discount). Share uses total item revenue (R$ {{ products.total_item_revenue|floatformat:2 }}) as the denominator.</div>
+            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">{% blocktrans with total=products.total_item_revenue|floatformat:2 %}Ranked by item revenue (quantity × unit price at sale time, before any sale-level discount). Share uses total item revenue (R$ {{ total }}) as the denominator.{% endblocktrans %}</div>
             {% else %}
             <div class="empty-state" style="border: none;">
-                <div class="empty-state-title">No product revenue</div>
-                <div class="empty-state-description">No completed sale items match the active filters.</div>
+                <div class="empty-state-title">{% trans "No product revenue" %}</div>
+                <div class="empty-state-description">{% trans "No completed sale items match the active filters." %}</div>
             </div>
             {% endif %}
         </div>
@@ -272,19 +273,19 @@
 <div class="dashboard-grid-2col">
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Category Breakdown <span class="panel-subtitle">item revenue and units</span></h2>
+            <h2 class="panel-title">{% trans "Category Breakdown" %} <span class="panel-subtitle">{% trans "item revenue and units" %}</span></h2>
         </div>
         <div class="panel-body" style="padding: 0;">
             {% if products.categories %}
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                        <tr><th>Category</th><th class="numeric">Units</th><th class="numeric">Revenue</th><th class="numeric">Share</th></tr>
+                        <tr><th>{% trans "Category" %}</th><th class="numeric">{% trans "Units" %}</th><th class="numeric">{% trans "Revenue" %}</th><th class="numeric">{% trans "Share" %}</th></tr>
                     </thead>
                     <tbody>
                         {% for row in products.categories %}
                         <tr>
-                            <td>{{ row.name }} <span class="text-muted">({{ row.products }} product{{ row.products|pluralize }})</span></td>
+                            <td>{{ row.name }} <span class="text-muted">({% blocktrans count total=row.products %}{{ total }} product{% plural %}{{ total }} products{% endblocktrans %})</span></td>
                             <td class="numeric">{{ row.units }}</td>
                             <td class="numeric">R$ {{ row.revenue|floatformat:2 }}</td>
                             <td class="numeric">{% if row.share_pct is not None %}{{ row.share_pct }}%{% else %}—{% endif %}</td>
@@ -293,11 +294,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">Item-level aggregation: each sale item belongs to exactly one category. Category filters use the same item scope. Sale totals are never summed through item joins.</div>
+            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">{% trans "Item-level aggregation: each sale item belongs to exactly one category. Category filters use the same item scope. Sale totals are never summed through item joins." %}</div>
             {% else %}
             <div class="empty-state" style="border: none;">
-                <div class="empty-state-title">No category activity</div>
-                <div class="empty-state-description">No completed sale items match the active filters.</div>
+                <div class="empty-state-title">{% trans "No category activity" %}</div>
+                <div class="empty-state-description">{% trans "No completed sale items match the active filters." %}</div>
             </div>
             {% endif %}
         </div>
@@ -305,68 +306,68 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Estimated Margin <span class="panel-subtitle">recorded cost basis</span></h2>
+            <h2 class="panel-title">{% trans "Estimated Margin" %} <span class="panel-subtitle">{% trans "recorded cost basis" %}</span></h2>
         </div>
         <div class="panel-body">
             {% if products.margin.available %}
             <div class="stat-card" style="margin-bottom: var(--space-3);">
                 <div class="stat-value">R$ {{ products.margin.margin|floatformat:2 }}</div>
-                <div class="stat-label">Estimated margin ({{ products.margin.margin_pct }}% of costed item revenue)</div>
+                <div class="stat-label">{% blocktrans with pct=products.margin.margin_pct %}Estimated margin ({{ pct }}% of costed item revenue){% endblocktrans %}</div>
             </div>
             <div class="table-responsive">
                 <table class="table">
                     <tbody>
-                        <tr><td>Costed item revenue</td><td class="numeric">R$ {{ products.margin.revenue|floatformat:2 }}</td></tr>
-                        <tr><td>Recorded cost of goods</td><td class="numeric">R$ {{ products.margin.cost|floatformat:2 }}</td></tr>
+                        <tr><td>{% trans "Costed item revenue" %}</td><td class="numeric">R$ {{ products.margin.revenue|floatformat:2 }}</td></tr>
+                        <tr><td>{% trans "Recorded cost of goods" %}</td><td class="numeric">R$ {{ products.margin.cost|floatformat:2 }}</td></tr>
                     </tbody>
                 </table>
             </div>
-            <div class="chart-caption">Estimate only: uses each product's current recorded cost, not a cost snapshot from the moment of sale. Not profit.</div>
+            <div class="chart-caption">{% trans "Estimate only: uses each product's current recorded cost, not a cost snapshot from the moment of sale. Not profit." %}</div>
             {% else %}
-            <div class="chart-caption" style="margin-top: 0;">No completed items with recorded product cost match the active filters, so no margin is estimated.</div>
+            <div class="chart-caption" style="margin-top: 0;">{% trans "No completed items with recorded product cost match the active filters, so no margin is estimated." %}</div>
             {% endif %}
             {% if products.margin.excluded_lines %}
-            <div class="chart-caption">Excluded: {{ products.margin.excluded_lines }} item line{{ products.margin.excluded_lines|pluralize }} (R$ {{ products.margin.excluded_revenue|floatformat:2 }} of item revenue) whose products have no usable recorded cost.</div>
+            <div class="chart-caption">{% blocktrans count lines=products.margin.excluded_lines with revenue=products.margin.excluded_revenue|floatformat:2 %}Excluded: {{ lines }} item line (R$ {{ revenue }} of item revenue) whose products have no usable recorded cost.{% plural %}Excluded: {{ lines }} item lines (R$ {{ revenue }} of item revenue) whose products have no usable recorded cost.{% endblocktrans %}</div>
             {% endif %}
         </div>
     </div>
 </div>
 
 <!-- Financial analysis -->
-<div class="kpi-strip" aria-label="Financial summary">
+<div class="kpi-strip" aria-label="{% trans "Financial summary" %}">
     <div class="kpi">
-        <div class="kpi-label">Received in Period</div>
+        <div class="kpi-label">{% trans "Received in Period" %}</div>
         <div class="kpi-value">R$ {{ finance.received_total|floatformat:2 }}</div>
-        <div class="kpi-meta"><span class="kpi-compare">{{ finance.received_count }} payment{{ finance.received_count|pluralize }} recorded</span></div>
+        <div class="kpi-meta"><span class="kpi-compare">{% blocktrans count total=finance.received_count %}{{ total }} payment recorded{% plural %}{{ total }} payments recorded{% endblocktrans %}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Outstanding Balance</div>
+        <div class="kpi-label">{% trans "Outstanding Balance" %}</div>
         <div class="kpi-value">R$ {{ finance.outstanding_total|floatformat:2 }}</div>
-        <div class="kpi-meta"><span class="kpi-compare">{{ finance.open_count }} open account{{ finance.open_count|pluralize }} · current snapshot</span></div>
+        <div class="kpi-meta"><span class="kpi-compare">{% blocktrans count total=finance.open_count %}{{ total }} open account · current snapshot{% plural %}{{ total }} open accounts · current snapshot{% endblocktrans %}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Overdue Balance</div>
+        <div class="kpi-label">{% trans "Overdue Balance" %}</div>
         <div class="kpi-value">R$ {{ finance.overdue_total|floatformat:2 }}</div>
-        <div class="kpi-meta"><span class="kpi-compare">{{ finance.overdue_count }} overdue account{{ finance.overdue_count|pluralize }}</span></div>
+        <div class="kpi-meta"><span class="kpi-compare">{% blocktrans count total=finance.overdue_count %}{{ total }} overdue account{% plural %}{{ total }} overdue accounts{% endblocktrans %}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Revenue vs Received</div>
+        <div class="kpi-label">{% trans "Revenue vs Received" %}</div>
         <div class="kpi-value">R$ {{ summary.revenue|floatformat:2 }}</div>
-        <div class="kpi-meta"><span class="kpi-compare">sales revenue in period; payments received are tracked separately</span></div>
+        <div class="kpi-meta"><span class="kpi-compare">{% trans "sales revenue in period; payments received are tracked separately" %}</span></div>
     </div>
 </div>
 
 <div class="reports-charts">
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Payments Received <span class="panel-subtitle">by method</span></h2>
+            <h2 class="panel-title">{% trans "Payments Received" %} <span class="panel-subtitle">{% trans "by method" %}</span></h2>
         </div>
         <div class="panel-body" style="padding: 0;">
             {% if finance.received_by_method %}
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                        <tr><th>Method</th><th class="numeric">Payments</th><th class="numeric">Amount</th></tr>
+                        <tr><th>{% trans "Method" %}</th><th class="numeric">{% trans "Payments" %}</th><th class="numeric">{% trans "Amount" %}</th></tr>
                     </thead>
                     <tbody>
                         {% for row in finance.received_by_method %}
@@ -379,11 +380,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">Payments belong to receivables and are not filtered by the sales period filters, only by the report date range. Amounts are actual payments, never an account's original amount.</div>
+            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">{% trans "Payments belong to receivables and are not filtered by the sales period filters, only by the report date range. Amounts are actual payments, never an account's original amount." %}</div>
             {% else %}
             <div class="empty-state" style="border: none;">
-                <div class="empty-state-title">No payments received</div>
-                <div class="empty-state-description">No payments were recorded within the selected period.</div>
+                <div class="empty-state-title">{% trans "No payments received" %}</div>
+                <div class="empty-state-description">{% trans "No payments were recorded within the selected period." %}</div>
             </div>
             {% endif %}
         </div>
@@ -391,14 +392,14 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Receivable Accounts <span class="panel-subtitle">current snapshot</span></h2>
+            <h2 class="panel-title">{% trans "Receivable Accounts" %} <span class="panel-subtitle">{% trans "current snapshot" %}</span></h2>
         </div>
         <div class="panel-body" style="padding: 0;">
             {% if finance.open_count %}
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                        <tr><th>Status</th><th class="numeric">Accounts</th><th class="numeric">Balance</th></tr>
+                        <tr><th>{% trans "Status" %}</th><th class="numeric">{% trans "Accounts" %}</th><th class="numeric">{% trans "Balance" %}</th></tr>
                     </thead>
                     <tbody>
                         {% for row in finance.status_rows %}
@@ -411,11 +412,11 @@
                     </tbody>
                 </table>
             </div>
-            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">Open accounts only (paid and cancelled are excluded). Balances are original amount minus recorded payments — a partially paid account contributes only its remaining balance.</div>
+            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">{% trans "Open accounts only (paid and cancelled are excluded). Balances are original amount minus recorded payments — a partially paid account contributes only its remaining balance." %}</div>
             {% else %}
             <div class="empty-state" style="border: none;">
-                <div class="empty-state-title">No open accounts</div>
-                <div class="empty-state-description">All receivables are paid or cancelled.</div>
+                <div class="empty-state-title">{% trans "No open accounts" %}</div>
+                <div class="empty-state-description">{% trans "All receivables are paid or cancelled." %}</div>
             </div>
             {% endif %}
         </div>
@@ -423,13 +424,13 @@
 
     <div class="panel">
         <div class="panel-header">
-            <h2 class="panel-title">Receivable Aging <span class="panel-subtitle">by due date</span></h2>
+            <h2 class="panel-title">{% trans "Receivable Aging" %} <span class="panel-subtitle">{% trans "by due date" %}</span></h2>
         </div>
         <div class="panel-body" style="padding: 0;">
             <div class="table-responsive">
                 <table class="table">
                     <thead>
-                        <tr><th>Bucket</th><th class="numeric">Accounts</th><th class="numeric">Balance</th></tr>
+                        <tr><th>{% trans "Bucket" %}</th><th class="numeric">{% trans "Accounts" %}</th><th class="numeric">{% trans "Balance" %}</th></tr>
                     </thead>
                     <tbody>
                         {% for row in finance.aging_rows %}
@@ -442,7 +443,7 @@
                     </tbody>
                 </table>
             </div>
-            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">Days past the recorded due date, outstanding balances only. The ledger records no monetary refunds — cancellations restore stock through return movements.</div>
+            <div class="chart-caption" style="padding: 0 var(--space-4) var(--space-3);">{% trans "Days past the recorded due date, outstanding balances only. The ledger records no monetary refunds — cancellations restore stock through return movements." %}</div>
         </div>
     </div>
 </div>
@@ -452,12 +453,12 @@
     <div class="card-header list-header">
         <div class="list-toolbar">
             <p class="list-count" role="status">
-                {{ page_obj.paginator.count }} transaction{{ page_obj.paginator.count|pluralize }} in period
+                {% blocktrans count total=page_obj.paginator.count %}{{ total }} transaction in period{% plural %}{{ total }} transactions in period{% endblocktrans %}
             </p>
         </div>
         <div class="page-actions">
             <a class="btn btn-secondary" href="{% url 'frontend:reports_export' %}?{{ params }}" id="report-export">
-                Export CSV
+                {% trans "Export CSV" %}
             </a>
         </div>
     </div>
@@ -467,18 +468,18 @@
                 <thead>
                     <tr>
                         <th aria-sort="{{ txn_headers.code.aria_sort }}">
-                            <a class="sort-link" href="{{ txn_headers.code.url }}">Code{% if txn_headers.code.arrow %} <span class="sort-indicator" aria-hidden="true">{{ txn_headers.code.arrow }}</span>{% endif %}</a>
+                            <a class="sort-link" href="{{ txn_headers.code.url }}">{% trans "Code" %}{% if txn_headers.code.arrow %} <span class="sort-indicator" aria-hidden="true">{{ txn_headers.code.arrow }}</span>{% endif %}</a>
                         </th>
                         <th aria-sort="{{ txn_headers.created_at.aria_sort }}">
-                            <a class="sort-link" href="{{ txn_headers.created_at.url }}">Date/Time{% if txn_headers.created_at.arrow %} <span class="sort-indicator" aria-hidden="true">{{ txn_headers.created_at.arrow }}</span>{% endif %}</a>
+                            <a class="sort-link" href="{{ txn_headers.created_at.url }}">{% trans "Date/Time" %}{% if txn_headers.created_at.arrow %} <span class="sort-indicator" aria-hidden="true">{{ txn_headers.created_at.arrow }}</span>{% endif %}</a>
                         </th>
-                        <th>Customer</th>
-                        <th>Responsible</th>
-                        <th>Items / Units</th>
-                        <th>Payment</th>
-                        <th>Status</th>
+                        <th>{% trans "Customer" %}</th>
+                        <th>{% trans "Responsible" %}</th>
+                        <th>{% trans "Items / Units" %}</th>
+                        <th>{% trans "Payment" %}</th>
+                        <th>{% trans "Status" %}</th>
                         <th class="numeric" aria-sort="{{ txn_headers.total.aria_sort }}">
-                            <a class="sort-link" href="{{ txn_headers.total.url }}">Total{% if txn_headers.total.arrow %} <span class="sort-indicator" aria-hidden="true">{{ txn_headers.total.arrow }}</span>{% endif %}</a>
+                            <a class="sort-link" href="{{ txn_headers.total.url }}">{% trans "Total" %}{% if txn_headers.total.arrow %} <span class="sort-indicator" aria-hidden="true">{{ txn_headers.total.arrow }}</span>{% endif %}</a>
                         </th>
                     </tr>
                 </thead>
@@ -489,7 +490,7 @@
                         <td>{{ sale.created_at|date:"m/d/Y H:i" }}</td>
                         <td>{{ sale.customer.name|default:"Walk-in" }}</td>
                         <td>{% if sale.responsible %}{{ sale.responsible.get_full_name|default:sale.responsible.username }}{% else %}—{% endif %}</td>
-                        <td>{{ sale.items_count }} item{{ sale.items_count|pluralize:"s" }} · {{ sale.units }} unit{{ sale.units|pluralize }}</td>
+                        <td>{% blocktrans count total=sale.items_count %}{{ total }} item{% plural %}{{ total }} items{% endblocktrans %} · {% blocktrans count total=sale.units %}{{ total }} unit{% plural %}{{ total }} units{% endblocktrans %}</td>
                         <td>{{ sale.get_payment_method_display }}</td>
                         <td>
                             <span class="badge
@@ -505,15 +506,16 @@
                     {% empty %}
                     <tr>
                         <td colspan="8" class="empty-state">
-                            <div class="empty-state-title">No transactions match these filters</div>
-                            <div class="empty-state-description">Try a different period or clear the filters. <a href="{% url 'frontend:reports' %}">Clear filters</a></div>
+                            <div class="empty-state-title">{% trans "No transactions match these filters" %}</div>
+                            <div class="empty-state-description">{% trans "Try a different period or clear the filters." %} <a href="{% url 'frontend:reports' %}">{% trans "Clear filters" %}</a></div>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=params page_param="page" aria_label="Report transactions pagination" %}
+        {% trans "Report transactions pagination" as pagination_label %}
+        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=params page_param="page" aria_label=pagination_label %}
     </div>
 </div>
 {% endblock %}
@@ -585,7 +587,7 @@
                         labels: trend.labels,
                         datasets: [
                             {
-                                label: 'Revenue',
+                                label: quadrum.t('chart.revenue', 'Revenue'),
                                 data: trend.revenue,
                                 borderColor: '#606060',
                                 backgroundColor: 'rgba(96,96,96,0.08)',
@@ -598,7 +600,7 @@
                                 borderWidth: 1.5
                             },
                             {
-                                label: 'Previous period',
+                                label: quadrum.t('chart.previousPeriod', 'Previous period'),
                                 data: trend.revenue_prev,
                                 borderColor: 'rgba(96,96,96,0.55)',
                                 borderDash: [6, 4],
@@ -620,9 +622,9 @@
                                 callbacks: {
                                     label: function (ctx) {
                                         if (ctx.datasetIndex === 1) {
-                                            return 'Previous (' + (trend.prev_labels[ctx.dataIndex] || '') + '): ' + money(ctx.parsed.y);
+                                            return quadrum.t('chart.previousTooltip', 'Previous (%(label)s): %(amount)s', { label: trend.prev_labels[ctx.dataIndex] || '', amount: money(ctx.parsed.y) });
                                         }
-                                        return 'Revenue (' + trend.labels[ctx.dataIndex] + '): ' + money(ctx.parsed.y);
+                                        return quadrum.t('chart.revenueTooltip', 'Revenue (%(label)s): %(amount)s', { label: trend.labels[ctx.dataIndex], amount: money(ctx.parsed.y) });
                                     }
                                 }
                             }
@@ -640,7 +642,7 @@
                     data: {
                         labels: trend.labels,
                         datasets: [{
-                            label: 'Units',
+                            label: quadrum.t('chart.units', 'Units'),
                             data: trend.units,
                             backgroundColor: 'rgba(96,96,96,0.35)',
                             borderColor: '#606060',
@@ -657,7 +659,9 @@
                                 callbacks: {
                                     label: function (ctx) {
                                         const txn = trend.transactions[ctx.dataIndex];
-                                        return 'Units: ' + ctx.parsed.y + ' · ' + txn + ' transaction' + (txn === 1 ? '' : 's');
+                                        return quadrum.t(txn === 1 ? 'chart.unitsTooltipOne' : 'chart.unitsTooltipMany',
+                                            txn === 1 ? 'Units: %(units)s · %(count)s transaction' : 'Units: %(units)s · %(count)s transactions',
+                                            { units: ctx.parsed.y, count: txn });
                                     }
                                 }
                             }
@@ -680,7 +684,7 @@
                     data: {
                         labels: mix.rows.map(function (row) { return row.label; }),
                         datasets: [{
-                            label: 'Revenue',
+                            label: quadrum.t('chart.revenue', 'Revenue'),
                             data: mix.rows.map(function (row) { return row.revenue; }),
                             backgroundColor: 'rgba(96,96,96,0.35)',
                             borderColor: '#606060',
@@ -699,7 +703,9 @@
                                     label: function (ctx) {
                                         const row = mix.rows[ctx.dataIndex];
                                         const share = row.share_pct === null ? '—' : Number(row.share_pct).toFixed(1) + '%';
-                                        return money(ctx.parsed.x) + ' · ' + row.transactions + ' sale' + (row.transactions === 1 ? '' : 's') + ' · ' + share + ' of revenue';
+                                        return quadrum.t(row.transactions === 1 ? 'chart.paymentTooltipOne' : 'chart.paymentTooltipMany',
+                                            row.transactions === 1 ? '%(amount)s · %(count)s sale · %(share)s of revenue' : '%(amount)s · %(count)s sales · %(share)s of revenue',
+                                            { amount: money(ctx.parsed.x), count: row.transactions, share: share });
                                     }
                                 }
                             }

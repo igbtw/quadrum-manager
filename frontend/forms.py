@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
+from django.utils.translation import gettext, gettext_lazy as _
 from decimal import Decimal
 from .authorization import scoped_receivables
 from .models import (
@@ -15,6 +16,17 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ['name', 'code', 'category', 'price', 'cost_price', 'stock_quantity', 'minimum_stock', 'description', 'active']
+        labels = {
+            'name': _('Product name'),
+            'code': _('Code'),
+            'category': _('Category'),
+            'price': _('Price'),
+            'cost_price': _('Cost price'),
+            'stock_quantity': _('Inventory'),
+            'minimum_stock': _('Minimum inventory'),
+            'description': _('Description'),
+            'active': _('Active'),
+        }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'input'}),
             'code': forms.TextInput(attrs={'class': 'input'}),
@@ -29,13 +41,13 @@ class ProductForm(forms.ModelForm):
     def clean_price(self):
         price = self.cleaned_data.get('price')
         if price is not None and price < Decimal('0.00'):
-            raise forms.ValidationError('Price cannot be negative.')
+            raise forms.ValidationError(_('Price cannot be negative.'))
         return price
 
     def clean_stock_quantity(self):
         qty = self.cleaned_data.get('stock_quantity')
         if qty is not None and qty < 0:
-            raise forms.ValidationError('Stock cannot be negative.')
+            raise forms.ValidationError(_('Stock cannot be negative.'))
         return qty
 
 
@@ -43,6 +55,14 @@ class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = ['name', 'doc_id', 'person_type', 'email', 'phone', 'active']
+        labels = {
+            'name': _('Name'),
+            'doc_id': _('Registration'),
+            'person_type': _('Type'),
+            'email': _('Email'),
+            'phone': _('Phone'),
+            'active': _('Active'),
+        }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'input'}),
             'doc_id': forms.TextInput(attrs={'class': 'input'}),
@@ -75,7 +95,7 @@ class PaymentForm(forms.ModelForm):
     account_receivable = forms.ModelChoiceField(
         queryset=AccountReceivable.objects.none(),
         widget=forms.Select(attrs={'class': 'select'}),
-        empty_label='Select an account',
+        empty_label=_('Select an account'),
     )
 
     def __init__(self, *args, user, **kwargs):
@@ -96,14 +116,17 @@ class PaymentForm(forms.ModelForm):
             .select_related('person', 'sale')
             .prefetch_related('payments')
         )
-        choices = [('', 'Select an account')]
+        choices = [('', gettext('Select an account'))]
         for rc in receivables:
             remaining = rc.remaining_balance
             if remaining <= Decimal('0.00'):
                 continue
             choices.append((
                 rc.pk,
-                f'{rc.person.name} — {rc.reference} · R$ {remaining:.2f} outstanding',
+                gettext('%(name)s — %(reference)s · R$ %(balance)s outstanding') % {
+                    'name': rc.person.name, 'reference': rc.reference,
+                    'balance': f'{remaining:.2f}',
+                },
             ))
         self.fields['account_receivable'].widget.choices = choices
         if not self.is_bound:
@@ -112,13 +135,19 @@ class PaymentForm(forms.ModelForm):
     class Meta:
         model = Payment
         fields = ['account_receivable', 'amount', 'method', 'notes']
+        labels = {
+            'account_receivable': _('Account'),
+            'amount': _('Amount'),
+            'method': _('Payment method'),
+            'notes': _('Notes'),
+        }
         widgets = {
             'amount': forms.NumberInput(attrs={'class': 'input', 'step': '0.01', 'min': '0.01'}),
             'method': forms.Select(attrs={'class': 'select'}),
             'notes': forms.Textarea(attrs={
                 'class': 'textarea',
                 'rows': 3,
-                'placeholder': 'Optional reference',
+                'placeholder': _('Optional reference'),
             }),
         }
 
@@ -127,7 +156,7 @@ class PaymentForm(forms.ModelForm):
         if not key:
             return uuid.uuid4().hex
         if len(key) > 255:
-            raise forms.ValidationError('Invalid payment submission key.')
+            raise forms.ValidationError(_('Invalid payment submission key.'))
         return key
 
     def clean_account_receivable(self):
@@ -135,9 +164,9 @@ class PaymentForm(forms.ModelForm):
         if rc is None:
             return rc
         if rc.status == 'CANCELLED':
-            raise forms.ValidationError('This account is cancelled.')
+            raise forms.ValidationError(_('This account is cancelled.'))
         if rc.remaining_balance <= Decimal('0.00'):
-            raise forms.ValidationError('This account is already settled.')
+            raise forms.ValidationError(_('This account is already settled.'))
         return rc
 
     def clean_amount(self):
@@ -145,14 +174,14 @@ class PaymentForm(forms.ModelForm):
         if amount is None:
             return amount
         if amount < Decimal('0.01'):
-            raise forms.ValidationError('Minimum value is 0.01.')
+            raise forms.ValidationError(_('Minimum value is 0.01.'))
         if quantize_money(amount) != amount:
-            raise forms.ValidationError('Amount must have at most two decimal places.')
+            raise forms.ValidationError(_('Amount must have at most two decimal places.'))
         rc = self.cleaned_data.get('account_receivable')
         if rc:
             bal = rc.remaining_balance
             if bal is not None and amount > bal:
-                raise forms.ValidationError('Payment exceeds remaining balance.')
+                raise forms.ValidationError(_('Payment exceeds remaining balance.'))
         return amount
 
 
@@ -162,19 +191,21 @@ class LoginForm(AuthenticationForm):
 
     username = forms.CharField(
         max_length=150,
+        label=_('Username'),
         widget=forms.TextInput(attrs={
             'class': 'input',
             'autocomplete': 'username',
             'autofocus': True,
-            'placeholder': 'Your username',
+            'placeholder': _('Your username'),
         }),
     )
     password = forms.CharField(
         strip=False,
+        label=_('Password'),
         widget=forms.PasswordInput(attrs={
             'class': 'input',
             'autocomplete': 'current-password',
-            'placeholder': 'Your password',
+            'placeholder': _('Your password'),
         }),
     )
 
@@ -195,7 +226,7 @@ class RegisterForm(UserCreationForm):
                 'class': 'input',
                 'autocomplete': 'username',
                 'autofocus': True,
-                'placeholder': 'Choose a username',
+                'placeholder': _('Choose a username'),
             }),
         }
 

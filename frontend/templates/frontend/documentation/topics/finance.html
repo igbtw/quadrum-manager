@@ -1,49 +1,50 @@
 {% extends "frontend/documentation/topic_base.html" %}
+{% load i18n %}
 
 {% block topic_content %}
-<p>Finance tracks money owed by people through <strong>accounts receivable</strong> and the <strong>payments</strong> applied against them. Everything happens on the <a href="{% url 'frontend:finance' %}">Finance</a> page.</p>
+{% url 'frontend:finance' as _u1 %} <p>{% blocktrans trimmed %}Finance tracks money owed by people through <strong>accounts receivable</strong> and the <strong>payments</strong> applied against them. Everything happens on the <a href="{{ _u1 }}">Finance</a> page.{% endblocktrans %}</p>
 
-<h3>Where receivables come from</h3>
+<h3>{% blocktrans trimmed %}Where receivables come from{% endblocktrans %}</h3>
 <ul>
-    <li>A receivable is created when a sale is finalized as <strong>On Account</strong> with a customer attached. Its original amount is the sale total and its due date is the completion date.</li>
-    <li>An On Account sale without a customer completes but creates no receivable.</li>
-    <li>Each receivable belongs to one person and lists its original amount, remaining balance, due date, status, and registered payments.</li>
+    <li>{% blocktrans trimmed %}A receivable is created when a sale is finalized as <strong>On Account</strong> with a customer attached. Its original amount is the sale total and its due date is the completion date.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}An On Account sale without a customer completes but creates no receivable.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Each receivable belongs to one person and lists its original amount, remaining balance, due date, status, and registered payments.{% endblocktrans %}</li>
 </ul>
 
-<h3>Receivable statuses</h3>
+<h3>{% blocktrans trimmed %}Receivable statuses{% endblocktrans %}</h3>
 <div class="doc-table-wrap">
     <table class="doc-table">
         <thead>
-            <tr><th>Status</th><th>Meaning</th></tr>
+            <tr><th>{% blocktrans trimmed %}Status{% endblocktrans %}</th><th>{% blocktrans trimmed %}Meaning{% endblocktrans %}</th></tr>
         </thead>
         <tbody>
-            <tr><td>Pending</td><td>Created and awaiting payment.</td></tr>
-            <tr><td>Partial</td><td>Some payments registered; a balance remains.</td></tr>
-            <tr><td>Paid</td><td>Fully settled.</td></tr>
-            <tr><td>Overdue</td><td>Past the due date with a balance remaining.</td></tr>
-            <tr><td>Cancelled</td><td>Closed — no further payments are accepted.</td></tr>
+            <tr><td>{% blocktrans trimmed %}Pending{% endblocktrans %}</td><td>{% blocktrans trimmed %}Created and awaiting payment.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Partial{% endblocktrans %}</td><td>{% blocktrans trimmed %}Some payments registered; a balance remains.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Paid{% endblocktrans %}</td><td>{% blocktrans trimmed %}Fully settled.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Overdue{% endblocktrans %}</td><td>{% blocktrans trimmed %}Past the due date with a balance remaining.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Cancelled{% endblocktrans %}</td><td>{% blocktrans trimmed %}Closed — no further payments are accepted.{% endblocktrans %}</td></tr>
         </tbody>
     </table>
 </div>
-<p class="doc-note">Statuses are recalculated when payments are registered or a sale is cancelled; there is no background job that moves records to Overdue on its own, so a stored status reflects the last recalculation.</p>
+<p class="doc-note">{% blocktrans trimmed %}Statuses are recalculated when payments are registered or a sale is cancelled; there is no background job that moves records to Overdue on its own, so a stored status reflects the last recalculation.{% endblocktrans %}</p>
 
-<h3>Registering payments</h3>
+<h3>{% blocktrans trimmed %}Registering payments{% endblocktrans %}</h3>
 <ol>
-    <li>Open <a href="{% url 'frontend:finance' %}">Finance</a> and pick the receivable.</li>
-    <li>Enter the amount and the method: <strong>Cash</strong>, <strong>Debit</strong>, <strong>Credit</strong>, <strong>PIX</strong>, or <strong>Transfer</strong>.</li>
-    <li>Optionally add notes, then submit. The balance and status update together.</li>
+    {% url 'frontend:finance' as _u1 %} <li>{% blocktrans trimmed %}Open <a href="{{ _u1 }}">Finance</a> and pick the receivable.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Enter the amount and the method: <strong>Cash</strong>, <strong>Debit</strong>, <strong>Credit</strong>, <strong>PIX</strong>, or <strong>Transfer</strong>.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Optionally add notes, then submit. The balance and status update together.{% endblocktrans %}</li>
 </ol>
 <ul>
-    <li>A payment cannot exceed the remaining balance and cannot be zero or negative.</li>
-    <li>Payments on cancelled receivables are refused.</li>
+    <li>{% blocktrans trimmed %}A payment cannot exceed the remaining balance and cannot be zero or negative.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Payments on cancelled receivables are refused.{% endblocktrans %}</li>
 </ul>
 
-<h3>Cancellation rules</h3>
+<h3>{% blocktrans trimmed %}Cancellation rules{% endblocktrans %}</h3>
 <ul>
-    <li>Cancelling a sale marks its receivable as <strong>Cancelled</strong> (the record is never deleted) and it disappears from the payment selector.</li>
-    <li>A sale whose receivable already has registered payments cannot be cancelled — the payments are a hard block.</li>
-    <li>A cancelled receivable is terminal: it is never reopened to Pending or Partial.</li>
+    <li>{% blocktrans trimmed %}Cancelling a sale marks its receivable as <strong>Cancelled</strong> (the record is never deleted) and it disappears from the payment selector.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}A sale whose receivable already has registered payments cannot be cancelled — the payments are a hard block.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}A cancelled receivable is terminal: it is never reopened to Pending or Partial.{% endblocktrans %}</li>
 </ul>
 
-<p class="doc-note">Monetary values are stored with two decimal places and displayed in R$. The exact transactional rules and lock ordering are documented in <code>docs/business-flows.md</code> (repository file, not served by the application).</p>
+<p class="doc-note">{% blocktrans trimmed %}Monetary values are stored with two decimal places and displayed in R$. The exact transactional rules and lock ordering are documented in <code>docs/business-flows.md</code> (repository file, not served by the application).{% endblocktrans %}</p>
 {% endblock %}

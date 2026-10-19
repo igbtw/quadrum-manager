@@ -1,3 +1,4 @@
+{% load i18n %}
 {% comment %}
 Shared Product form fields; pass `form` (create or edit binding).
 {% endcomment %}
@@ -7,14 +8,14 @@ Shared Product form fields; pass `form` (create or edit binding).
 <div class="row">
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.name.id_for_label }}">Product name</label>
+            <label class="form-label" for="{{ form.name.id_for_label }}">{% trans "Product name" %}</label>
             {{ form.name }}
             {{ form.name.errors }}
         </div>
     </div>
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.category.id_for_label }}">Category</label>
+            <label class="form-label" for="{{ form.category.id_for_label }}">{% trans "Category" %}</label>
             {{ form.category }}
             {{ form.category.errors }}
         </div>
@@ -23,14 +24,14 @@ Shared Product form fields; pass `form` (create or edit binding).
 <div class="row">
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.code.id_for_label }}">Code</label>
+            <label class="form-label" for="{{ form.code.id_for_label }}">{% trans "Code" %}</label>
             {{ form.code }}
             {{ form.code.errors }}
         </div>
     </div>
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.price.id_for_label }}">Price</label>
+            <label class="form-label" for="{{ form.price.id_for_label }}">{% trans "Price" %}</label>
             {{ form.price }}
             {{ form.price.errors }}
         </div>
@@ -39,14 +40,14 @@ Shared Product form fields; pass `form` (create or edit binding).
 <div class="row">
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.cost_price.id_for_label }}">Cost price</label>
+            <label class="form-label" for="{{ form.cost_price.id_for_label }}">{% trans "Cost price" %}</label>
             {{ form.cost_price }}
             {{ form.cost_price.errors }}
         </div>
     </div>
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.stock_quantity.id_for_label }}">Inventory</label>
+            <label class="form-label" for="{{ form.stock_quantity.id_for_label }}">{% trans "Inventory" %}</label>
             {{ form.stock_quantity }}
             {{ form.stock_quantity.errors }}
         </div>
@@ -55,15 +56,15 @@ Shared Product form fields; pass `form` (create or edit binding).
 <div class="row">
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.minimum_stock.id_for_label }}">Minimum inventory</label>
+            <label class="form-label" for="{{ form.minimum_stock.id_for_label }}">{% trans "Minimum inventory" %}</label>
             {{ form.minimum_stock }}
             {{ form.minimum_stock.errors }}
         </div>
     </div>
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.active.id_for_label }}">Status</label>
-            <label class="checkbox-inline">{{ form.active }} Active</label>
+            <label class="form-label" for="{{ form.active.id_for_label }}">{% trans "Status" %}</label>
+            <label class="checkbox-inline">{{ form.active }} {% trans "Active" %}</label>
             {{ form.active.errors }}
         </div>
     </div>
@@ -71,7 +72,7 @@ Shared Product form fields; pass `form` (create or edit binding).
 <div class="row">
     <div class="col-span-2">
         <div class="form-group">
-            <label class="form-label" for="{{ form.description.id_for_label }}">Description</label>
+            <label class="form-label" for="{{ form.description.id_for_label }}">{% trans "Description" %}</label>
             {{ form.description }}
             {{ form.description.errors }}
         </div>

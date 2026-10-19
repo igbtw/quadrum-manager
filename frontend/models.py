@@ -4,8 +4,11 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import IntegrityError, OperationalError, models, transaction
 from django.db.models import Sum
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from decimal import Decimal, ROUND_HALF_UP
 
 
@@ -40,8 +43,8 @@ class Category(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Category'
-        verbose_name_plural = 'Categories'
+        verbose_name = _('Category')
+        verbose_name_plural = _('Categories')
 
     def __str__(self):
         return self.name
@@ -62,8 +65,8 @@ class Product(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Product'
-        verbose_name_plural = 'Products'
+        verbose_name = _('Product')
+        verbose_name_plural = _('Products')
         constraints = [
             models.CheckConstraint(check=models.Q(stock_quantity__gte=0), name='stock_non_negative'),
         ]
@@ -82,13 +85,13 @@ class Product(models.Model):
 
 class Person(models.Model):
     PERSON_TYPES = [
-        ('STUDENT', 'Student'),
-        ('TEACHER', 'Teacher'),
-        ('STAFF', 'Staff'),
-        ('VISITOR', 'Visitor'),
+        ('STUDENT', _('Student')),
+        ('TEACHER', _('Teacher')),
+        ('STAFF', _('Staff')),
+        ('VISITOR', _('Visitor')),
     ]
     name = models.CharField(max_length=200)
-    doc_id = models.CharField(max_length=50, blank=True, verbose_name='Record/Doc')
+    doc_id = models.CharField(max_length=50, blank=True, verbose_name=_('Record/Doc'))
     person_type = models.CharField(max_length=20, choices=PERSON_TYPES, default='STUDENT')
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=30, blank=True)
@@ -98,12 +101,12 @@ class Person(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Person'
-        verbose_name_plural = 'People'
+        verbose_name = _('Person')
+        verbose_name_plural = _('People')
         permissions = [
             (
                 'manage_master_data',
-                'Can manage master data (people, products, categories)',
+                _('Can manage master data (people, products, categories)'),
             ),
         ]
 
@@ -113,16 +116,16 @@ class Person(models.Model):
 
 class Sale(models.Model):
     SALE_STATUSES = [
-        ('PENDING', 'Pending'),
-        ('COMPLETED', 'Completed'),
-        ('CANCELLED', 'Cancelled'),
+        ('PENDING', _('Pending')),
+        ('COMPLETED', _('Completed')),
+        ('CANCELLED', _('Cancelled')),
     ]
     PAYMENT_METHODS = [
-        ('CASH', 'Cash'),
-        ('DEBIT', 'Debit'),
-        ('CREDIT', 'Credit'),
+        ('CASH', _('Cash')),
+        ('DEBIT', _('Debit')),
+        ('CREDIT', _('Credit')),
         ('PIX', 'PIX'),
-        ('ON_ACCOUNT', 'On Account'),
+        ('ON_ACCOUNT', _('On Account')),
     ]
     code = models.CharField(max_length=20, unique=True, blank=True)
     idempotency_key = models.CharField(max_length=255, unique=True, blank=True, null=True, db_index=True, default=None)
@@ -140,12 +143,12 @@ class Sale(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Sale'
-        verbose_name_plural = 'Sales'
+        verbose_name = _('Sale')
+        verbose_name_plural = _('Sales')
         permissions = [
             (
                 'view_all_responsible_data',
-                'Can view every responsible user\'s sales, receivables and payments',
+                _('Can view every responsible user\'s sales, receivables and payments'),
             ),
         ]
 
@@ -177,8 +180,8 @@ class SaleItem(models.Model):
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     class Meta:
-        verbose_name = 'Sale Item'
-        verbose_name_plural = 'Sale Items'
+        verbose_name = _('Sale Item')
+        verbose_name_plural = _('Sale Items')
 
     def save(self, *args, **kwargs):
         self.subtotal = Decimal(str(self.quantity)) * self.unit_price
@@ -187,11 +190,11 @@ class SaleItem(models.Model):
 
 class StockMovement(models.Model):
     MOVEMENT_TYPES = [
-        ('ENTRY', 'Entry'),
-        ('EXIT', 'Exit'),
-        ('ADJUSTMENT', 'Adjustment'),
-        ('SALE', 'Sale'),
-        ('RETURN', 'Return'),
+        ('ENTRY', _('Entry')),
+        ('EXIT', _('Exit')),
+        ('ADJUSTMENT', _('Adjustment')),
+        ('SALE', _('Sale')),
+        ('RETURN', _('Return')),
     ]
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='movements')
     movement_type = models.CharField(max_length=20, choices=MOVEMENT_TYPES, default='ADJUSTMENT')
@@ -203,17 +206,17 @@ class StockMovement(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Stock Movement'
-        verbose_name_plural = 'Stock Movements'
+        verbose_name = _('Stock Movement')
+        verbose_name_plural = _('Stock Movements')
 
 
 class AccountReceivable(models.Model):
     RECEIVABLE_STATUSES = [
-        ('PENDING', 'Pending'),
-        ('PARTIAL', 'Partial'),
-        ('PAID', 'Paid'),
-        ('OVERDUE', 'Overdue'),
-        ('CANCELLED', 'Cancelled'),
+        ('PENDING', _('Pending')),
+        ('PARTIAL', _('Partial')),
+        ('PAID', _('Paid')),
+        ('OVERDUE', _('Overdue')),
+        ('CANCELLED', _('Cancelled')),
     ]
     person = models.ForeignKey(Person, on_delete=models.PROTECT, related_name='receivables')
     sale = models.ForeignKey(Sale, on_delete=models.SET_NULL, null=True, blank=True, related_name='receivable')
@@ -228,8 +231,8 @@ class AccountReceivable(models.Model):
 
     class Meta:
         ordering = ['-created_at']
-        verbose_name = 'Account Receivable'
-        verbose_name_plural = 'Accounts Receivable'
+        verbose_name = _('Account Receivable')
+        verbose_name_plural = _('Accounts Receivable')
         constraints = [
             models.CheckConstraint(
                 check=models.Q(original_amount__gte=MIN_RECEIVABLE_AMOUNT),
@@ -292,11 +295,11 @@ PAYMENT_RETRY_DELAYS = (0.05, 0.10, 0.20)
 def validate_payment_amount(amount):
     """Enforce positive, two-decimal BRL payment amounts."""
     if not isinstance(amount, Decimal):
-        raise ValueError('Payment amount must be a decimal value.')
+        raise ValueError(_('Payment amount must be a decimal value.'))
     if amount < MIN_RECEIVABLE_AMOUNT:
-        raise ValueError('Payment amount must be at least R$ 0.01.')
+        raise ValueError(_('Payment amount must be at least R$ 0.01.'))
     if quantize_money(amount) != amount:
-        raise ValueError('Payment amount must have at most two decimal places.')
+        raise ValueError(_('Payment amount must have at most two decimal places.'))
 
 
 def _lock_receivable(receivable_pk):
@@ -337,7 +340,7 @@ def _assert_payment_matches_request(existing, receivable_pk, amount, method, use
         or existing.responsible_user_id != (user.pk if user else None)
     ):
         raise PaymentConflictError(
-            'This payment submission key was already used for a different request.'
+            _('This payment submission key was already used for a different request.')
         )
 
 
@@ -359,12 +362,12 @@ def _register_payment_once(receivable_pk, amount, method, user, notes, idempoten
                     )
                     return existing
             if rc.status == 'CANCELLED':
-                raise ValueError('Cannot register payment for a cancelled receivable.')
+                raise ValueError(_('Cannot register payment for a cancelled receivable.'))
             balance = rc.remaining_balance
             if balance <= Decimal('0.00'):
-                raise ValueError('This account is already settled.')
+                raise ValueError(_('This account is already settled.'))
             if quantize_money(amount) > balance:
-                raise ValueError('Payment exceeds remaining balance.')
+                raise ValueError(_('Payment exceeds remaining balance.'))
             payment = Payment.objects.create(
                 account_receivable=rc, amount=quantize_money(amount), method=method,
                 responsible_user=user, notes=notes, idempotency_key=idempotency_key,
@@ -408,7 +411,7 @@ def register_payment(
     if idempotency_key:
         idempotency_key = str(idempotency_key).strip() or None
         if idempotency_key and len(idempotency_key) > 255:
-            raise ValueError('Invalid payment submission key.')
+            raise ValueError(_('Invalid payment submission key.'))
     receivable_pk = account_receivable.pk
     for attempt in range(PAYMENT_RETRY_ATTEMPTS):
         try:
@@ -425,11 +428,11 @@ def register_payment(
 
 class Payment(models.Model):
     PAYMENT_METHODS = [
-        ('CASH', 'Cash'),
-        ('DEBIT', 'Debit'),
-        ('CREDIT', 'Credit'),
+        ('CASH', _('Cash')),
+        ('DEBIT', _('Debit')),
+        ('CREDIT', _('Credit')),
         ('PIX', 'PIX'),
-        ('TRANSFER', 'Transfer'),
+        ('TRANSFER', _('Transfer')),
     ]
     account_receivable = models.ForeignKey(AccountReceivable, on_delete=models.PROTECT, related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.01'))])
@@ -445,8 +448,8 @@ class Payment(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Payment'
-        verbose_name_plural = 'Payments'
+        verbose_name = _('Payment')
+        verbose_name_plural = _('Payments')
 
     def _old_row(self):
         if self._state.adding or not self.pk:
@@ -467,9 +470,9 @@ class Payment(models.Model):
         old = self._old_row()
         reassigned = old is None or old.account_receivable_id != self.account_receivable_id
         if reassigned and rc.status == 'CANCELLED':
-            raise ValidationError('Cannot register payment for a cancelled receivable.')
+            raise ValidationError(_('Cannot register payment for a cancelled receivable.'))
         if not isinstance(self.amount, Decimal):
-            raise ValidationError('Payment amount must be a decimal value.')
+            raise ValidationError(_('Payment amount must be a decimal value.'))
         try:
             validate_payment_amount(self.amount)
         except ValueError as exc:
@@ -477,9 +480,9 @@ class Payment(models.Model):
         exclude_pk = self.pk if (old is not None and not reassigned) else None
         available = _available_balance(rc, exclude_payment_pk=exclude_pk)
         if reassigned and available <= Decimal('0.00'):
-            raise ValidationError('This account is already settled.')
+            raise ValidationError(_('This account is already settled.'))
         if quantize_money(self.amount) > available:
-            raise ValidationError('Payment cannot exceed remaining balance.')
+            raise ValidationError(_('Payment cannot exceed remaining balance.'))
 
     def _guard_and_save(self, old, *args, **kwargs):
         """Validate against locked ledger state, then persist."""
@@ -492,13 +495,13 @@ class Payment(models.Model):
         with transaction.atomic():
             rc = _lock_receivable(self.account_receivable_id)
             if rc_changed and rc.status == 'CANCELLED':
-                raise ValidationError('Cannot register payment for a cancelled receivable.')
+                raise ValidationError(_('Cannot register payment for a cancelled receivable.'))
             exclude_pk = None if rc_changed else self.pk
             available = _available_balance(rc, exclude_payment_pk=exclude_pk)
             if rc_changed and available <= Decimal('0.00'):
-                raise ValidationError('This account is already settled.')
+                raise ValidationError(_('This account is already settled.'))
             if quantize_money(self.amount) > available:
-                raise ValidationError('Payment cannot exceed remaining balance.')
+                raise ValidationError(_('Payment cannot exceed remaining balance.'))
             super().save(*args, **kwargs)
 
     def save(self, *args, **kwargs):
@@ -528,8 +531,8 @@ class OnboardingProgress(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        verbose_name = 'Onboarding Progress'
-        verbose_name_plural = 'Onboarding Progress'
+        verbose_name = _('Onboarding Progress')
+        verbose_name_plural = _('Onboarding Progress')
 
     def __str__(self):
         state = 'pending'
@@ -542,3 +545,37 @@ class OnboardingProgress(models.Model):
     @property
     def is_pending(self):
         return self.completed_at is None and self.skipped_at is None
+
+
+class UserProfile(models.Model):
+    """Minimal per-user application preferences.
+
+    Currently only the UI language; kept deliberately small. The post_save
+    signal creates a default row for new users, while pre-existing users
+    without a profile safely default to English and get a row only when they
+    explicitly save a language from Preferences.
+    """
+
+    LANGUAGE_CHOICES = (
+        ('en', 'English'),
+        ('pt-br', 'Português (Brasil)'),
+    )
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    language = models.CharField(
+        max_length=10, choices=LANGUAGE_CHOICES, default='en',
+    )
+
+    class Meta:
+        verbose_name = _('User Profile')
+        verbose_name_plural = _('User Profiles')
+
+    def __str__(self):
+        return f'{self.user.username} — {self.language}'
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    """Create the default profile once, for newly created accounts only."""
+    if created:
+        UserProfile.objects.get_or_create(user=instance)

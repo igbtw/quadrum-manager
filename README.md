@@ -55,6 +55,7 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env       # Adjust if needed
 python manage.py migrate
+python manage.py compile_translations
 python manage.py runserver
 ```
 
@@ -64,7 +65,8 @@ Access the app at `http://localhost:8000`.
 
 ## Testing
 
-Run the full test suite (487 verified tests):
+Run the full test suite (538 verified tests; the JavaScript regression tests
+run automatically when `node` is available and otherwise skip):
 
 ```bash
 python manage.py test
@@ -74,6 +76,7 @@ Other useful checks:
 
 ```bash
 python manage.py check
+python manage.py compile_translations --check
 python manage.py check --deploy   # Review production-style warnings
 python manage.py collectstatic --noinput --dry-run
 ```
@@ -140,6 +143,7 @@ Deployment instructions, reverse proxy configuration (nginx/Apache), HTTPS setup
   restores the classic radii. "Records per page" is deliberately server-backed:
   it is stored in the signed-in user's session via `/preferences/per-page/`
   so pagination stays consistent on every list page.
+- Localization: English is the default and Brazilian Portuguese (`pt-br`) is available. Signed-out visitors can switch from the login/registration pages (session-backed); signed-in users switch under Preferences, where the choice is saved to their account (`UserProfile.language`) and applied on every visit. Interface copy, flash messages, validation errors, charts, the POS, the documentation portal, and all server-rendered pages are translated. Both selectors reload the current page after saving; the auth selector keeps the login/register route (including a safe `next`), and Preferences keeps the full current URL with filters, sorting, and pagination. The hand-maintained catalog lives at `locale/pt_BR/LC_MESSAGES/django.po`; compile it with `python manage.py compile_translations` (no system gettext binaries required). CSV export headers stay in English by design.
 - Health endpoint (`/health/`) returning `{"status":"ok","service":"quadrum"}`
 - First-run onboarding guide for newly registered accounts (server-side `OnboardingProgress` state; skip, complete, and replay supported; the current step persists across page navigation)
 - Global search palette (`Ctrl+K`): browse tabs (All, Pages, Docs, Products, People, Sales) when the field is empty, live search while typing, and advanced prefixes `page:`, `doc:`, `product:`, `person:`, `sale:` that scope the query to one resource type. Results always link to real destinations — documentation results open the dedicated topic page, people results open the People listing pre-filtered by the matched name (`/people/?q=...`), and product/sale results deep-link to their lists pre-filtered by code or name (`/products/?q=...`, `/sales/?q=...`). The syntax is documented in the Documentation portal's "Search and Advanced Queries" topic.

@@ -126,6 +126,19 @@ class EmptyDatasetTests(ReportTestBase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0][0], 'Code')
 
+    def test_csv_headers_and_values_stay_english_with_portuguese_ui(self):
+        self.user.profile.language = 'pt-br'
+        self.user.profile.save(update_fields=['language'])
+        self.make_sale(self.today, items=[(self.p_a, 1)])
+
+        response = self.client.get(reverse('frontend:reports_export'))
+        rows = list(csv.reader(io.StringIO(response.content.decode())))
+
+        self.assertEqual(rows[0][0], 'Code')
+        self.assertEqual(rows[0][6], 'Payment Method')
+        self.assertEqual(rows[1][6], 'Cash')
+        self.assertEqual(rows[1][7], 'Completed')
+
 
 class SalesSummaryTests(ReportTestBase):
     def test_presets_scope_the_window(self):

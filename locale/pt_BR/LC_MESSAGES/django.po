@@ -1,0 +1,3532 @@
+# Portuguese (Brazil) translation of Quadrum.
+# This catalog is maintained by hand because the build environment has no
+# gettext binaries. Compile it with: python manage.py compile_translations
+msgid ""
+msgstr ""
+"Project-Id-Version: Quadrum\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-19 00:00-0300\n"
+"PO-Revision-Date: 2026-10-19 00:00-0300\n"
+"Last-Translator: Quadrum maintainers\n"
+"Language-Team: Portuguese (Brazil)\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: P:frontend/i18n.py
+msgid "%(amount)s · %(count)s sale · %(share)s of revenue"
+msgstr "%(amount)s · %(count)s venda · %(share)s da receita"
+
+#: P:frontend/i18n.py
+msgid "%(amount)s · %(count)s sales · %(share)s of revenue"
+msgstr "%(amount)s · %(count)s vendas · %(share)s da receita"
+
+#: P:frontend/views.py
+msgid "%(count)s in stock"
+msgstr "%(count)s em estoque"
+
+#: P:frontend/i18n.py
+msgid "%(count)s result"
+msgstr "%(count)s resultado"
+
+#: P:frontend/i18n.py
+msgid "%(count)s results"
+msgstr "%(count)s resultados"
+
+#: P:frontend/i18n.py
+msgid "%(name)s added to cart"
+msgstr "%(name)s adicionado ao carrinho"
+
+#: P:frontend/forms.py
+msgid "%(name)s — %(reference)s · R$ %(balance)s outstanding"
+msgstr "%(name)s — %(reference)s · R$ %(balance)s em aberto"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "%(total)s item"
+msgid_plural "%(total)s items"
+msgstr[0] "%(total)s item"
+msgstr[1] "%(total)s itens"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "%(total)s open account"
+msgid_plural "%(total)s open accounts"
+msgstr[0] "%(total)s conta em aberto"
+msgstr[1] "%(total)s contas em aberto"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "%(total)s open account · current snapshot"
+msgid_plural "%(total)s open accounts · current snapshot"
+msgstr[0] "%(total)s conta em aberto · visão atual"
+msgstr[1] "%(total)s contas em aberto · visão atual"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "%(total)s overdue account"
+msgid_plural "%(total)s overdue accounts"
+msgstr[0] "%(total)s conta vencida"
+msgstr[1] "%(total)s contas vencidas"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "%(total)s payment recorded"
+msgid_plural "%(total)s payments recorded"
+msgstr[0] "%(total)s pagamento registrado"
+msgstr[1] "%(total)s pagamentos registrados"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "%(total)s product"
+msgid_plural "%(total)s products"
+msgstr[0] "%(total)s produto"
+msgstr[1] "%(total)s produtos"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "%(total)s result"
+msgid_plural "%(total)s results"
+msgstr[0] "%(total)s resultado"
+msgstr[1] "%(total)s resultados"
+
+#: T:frontend/templates/frontend/people.html
+msgid "%(total)s result matching “%(term)s”"
+msgid_plural "%(total)s results matching “%(term)s”"
+msgstr[0] "%(total)s resultado para “%(term)s”"
+msgstr[1] "%(total)s resultados para “%(term)s”"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "%(total)s transaction in period"
+msgid_plural "%(total)s transactions in period"
+msgstr[0] "%(total)s transação no período"
+msgstr[1] "%(total)s transações no período"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "%(total)s unit"
+msgid_plural "%(total)s units"
+msgstr[0] "%(total)s unidade"
+msgstr[1] "%(total)s unidades"
+
+#: T:frontend/templates/frontend/register.html
+msgid "150 characters or fewer — letters, digits and @/./+/-/_ only."
+msgstr "150 caracteres ou menos — apenas letras, dígitos e @/./+/-/_."
+
+#: P:frontend/reporting.py
+msgid "1–30 days overdue"
+msgstr "1–30 dias vencidos"
+
+#: P:frontend/reporting.py
+msgid "31–60 days overdue"
+msgstr "31–60 dias vencidos"
+
+#: P:frontend/reporting.py
+msgid "61+ days overdue"
+msgstr "61+ dias vencidos"
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<a href=\"%(_u1)s\">Dashboard</a> — sales and revenue for today, receivables, low-stock alerts, and recent activity."
+msgstr "<a href=\"%(_u1)s\">Painel</a> — vendas e receita de hoje, contas a receber, alertas de estoque baixo e atividade recente."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<a href=\"%(_u1)s\">Finance</a> — outstanding accounts receivable and payment registration."
+msgstr "<a href=\"%(_u1)s\">Financeiro</a> — contas a receber em aberto e registro de pagamentos."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<a href=\"%(_u1)s\">Inventory</a> — current stock per product, status indicators, and manual stock adjustments."
+msgstr "<a href=\"%(_u1)s\">Estoque</a> — estoque atual por produto, indicadores de status e ajustes manuais de estoque."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<a href=\"%(_u1)s\">New Sale</a> — the point of sale used to build a cart and finalize a sale."
+msgstr "<a href=\"%(_u1)s\">Nova Venda</a> — o ponto de venda usado para montar um carrinho e finalizar uma venda."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<a href=\"%(_u1)s\">People</a> — students, teachers, staff, and visitors that can be selected as sale customers."
+msgstr "<a href=\"%(_u1)s\">Pessoas</a> — alunos, professores, funcionários e visitantes que podem ser selecionados como clientes de venda."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<a href=\"%(_u1)s\">Products</a> — the catalog of items with category, price, cost, and minimum stock."
+msgstr "<a href=\"%(_u1)s\">Produtos</a> — o catálogo de itens com categoria, preço, custo e estoque mínimo."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<a href=\"%(_u1)s\">Reports</a> — operational summaries by period."
+msgstr "<a href=\"%(_u1)s\">Relatórios</a> — resumos operacionais por período."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<a href=\"%(_u1)s\">Sales</a> — history of recorded sales with status, totals, customer, and responsible user."
+msgstr "<a href=\"%(_u1)s\">Vendas</a> — histórico de vendas registradas com status, totais, cliente e usuário responsável."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "<code>GET /api/search/?q=term</code> searches pages, documentation topics, products, people, and sales, returning up to five results per group."
+msgstr "<code>GET /api/search/?q=term</code> pesquisa páginas, tópicos de documentação, produtos, pessoas e vendas, retornando até cinco resultados por grupo."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "<code>Tab</code> and the arrow keys move between category tabs when a tab is focused."
+msgstr "<code>Tab</code> e as setas movem entre as abas de categoria quando uma aba está focada."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "<code>customer_id</code> provided but no active person matches."
+msgstr "<code>customer_id</code> informado, mas nenhuma pessoa ativa corresponde."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "<code>docs/architecture.md</code> — project layout and request flow."
+msgstr "<code>docs/architecture.md</code> — estrutura do projeto e fluxo da requisição."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "<code>docs/business-flows.md</code> — the workflows that read and write these entities."
+msgstr "<code>docs/business-flows.md</code> — os fluxos de trabalho que leem e gravam essas entidades."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "<code>docs/data-model.md</code> — full schema, relationships, constraints, and migration practices."
+msgstr "<code>docs/data-model.md</code> — esquema completo, relacionamentos, restrições e práticas de migração."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "<code>product_id</code> and <code>quantity</code> must be positive JSON integers — booleans, floats (including <code>2.0</code>), strings, <code>null</code>, zero, and negatives are rejected with 400. A missing quantity is rejected."
+msgstr "<code>product_id</code> e <code>quantity</code> devem ser inteiros JSON positivos — booleanos, decimais (incluindo <code>2.0</code>), strings, <code>null</code>, zero e negativos são rejeitados com 400. A ausência de quantity é rejeitada."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "<code>↑</code>/<code>↓</code> move through results, <code>Enter</code> opens the highlighted result, and <code>Esc</code> closes the palette."
+msgstr "<code>↑</code>/<code>↓</code> percorrem os resultados, <code>Enter</code> abre o resultado destacado e <code>Esc</code> fecha a paleta."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<strong>Adjust stock.</strong> Open Inventory and use the stock adjustment form. Enter a positive quantity to add stock or a negative quantity to remove it, and include a reason. Every adjustment is stored as a stock movement. See <a href=\"%(_u1)s\">Products and Inventory</a>."
+msgstr "<strong>Ajuste o estoque.</strong> Abra Estoque e use o formulário de ajuste. Informe uma quantidade positiva para adicionar estoque ou negativa para removê-lo, e inclua um motivo. Todo ajuste é armazenado como movimentação de estoque. Consulte <a href=\"%(_u1)s\">Produtos e Estoque</a>."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "<strong>All types</strong> and <strong>All statuses</strong> selects narrow the visible rows by person type and active status."
+msgstr "<strong>Todos os tipos</strong> e <strong>Todos os status</strong> restringem as linhas visíveis por tipo de pessoa e status ativo."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "<strong>Can't cancel a sale?</strong> A sale whose receivable already has registered payments cannot be cancelled, and only Completed sales can be cancelled."
+msgstr "<strong>Não consegue cancelar uma venda?</strong> Uma venda cuja conta a receber já tem pagamentos registrados não pode ser cancelada, e apenas vendas Concluídas podem ser canceladas."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "<strong>Cancelled</strong> — a cancelled sale remains visible in history; when applicable, stock is restored and its receivable is closed. See <code>docs/business-flows.md</code> for the exact cancellation restrictions (for example, a receivable that already has payments blocks cancellation)."
+msgstr "<strong>Cancelada</strong> — uma venda cancelada permanece visível no histórico; quando aplicável, o estoque é restaurado e sua conta a receber é encerrada. Consulte <code>docs/business-flows.md</code> para as restrições exatas de cancelamento (por exemplo, uma conta a receber que já tem pagamentos bloqueia o cancelamento)."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "<strong>Cash</strong>, <strong>Debit</strong>, <strong>Credit</strong>, and <strong>PIX</strong> close the sale immediately."
+msgstr "<strong>Dinheiro</strong>, <strong>Débito</strong>, <strong>Crédito</strong> e <strong>PIX</strong> encerram a venda imediatamente."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "<strong>Completed</strong> — finalized; stock was deducted and the total recorded. Completed sales keep their history."
+msgstr "<strong>Concluída</strong> — finalizada; o estoque foi deduzido e o total registrado. Vendas concluídas mantêm seu histórico."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "<strong>Inactive</strong> — the product is deactivated; its stock is not part of the active counts."
+msgstr "<strong>Inativo</strong> — o produto está desativado; seu estoque não faz parte das contagens ativas."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "<strong>Low stock</strong> — the number of active products whose stock is at or below their minimum stock, but still above zero."
+msgstr "<strong>Estoque baixo</strong> — o número de produtos ativos cujo estoque está igual ou abaixo do mínimo, mas ainda acima de zero."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "<strong>Low-stock list</strong> — active products with stock at or below the minimum threshold, with their current quantities."
+msgstr "<strong>Lista de estoque baixo</strong> — produtos ativos com estoque igual ou abaixo do limite mínimo, com suas quantidades atuais."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "<strong>Low</strong> — stock is above zero but at or below the minimum stock threshold."
+msgstr "<strong>Baixo</strong> — o estoque está acima de zero, mas igual ou abaixo do limite mínimo."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "<strong>Normal</strong> — stock is above the minimum."
+msgstr "<strong>Normal</strong> — o estoque está acima do mínimo."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "<strong>On Account</strong> records the sale and, when the sale has a customer attached, creates an account receivable for that person — managed on <a href=\"%(_u1)s\">Finance</a>. An On Account sale without a customer completes but creates no receivable."
+msgstr "<strong>A prazo</strong> registra a venda e, quando a venda tem um cliente vinculado, cria uma conta a receber para essa pessoa — gerenciada em <a href=\"%(_u1)s\">Financeiro</a>. Uma venda A prazo sem cliente é concluída, mas não cria conta a receber."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "<strong>Open receivables</strong> — the sum of the <em>original</em> amounts of receivables currently in Pending, Partial, or Overdue state (not the remaining balance after payments)."
+msgstr "<strong>Contas a receber em aberto</strong> — a soma dos valores <em>originais</em> das contas atualmente em estado Pendente, Parcial ou Vencido (não o saldo restante após pagamentos)."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "<strong>Out of Stock</strong> — stock is exactly zero; the product cannot be sold."
+msgstr "<strong>Sem estoque</strong> — o estoque é exatamente zero; o produto não pode ser vendido."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "<strong>Out-of-stock count</strong> — active products with zero stock; these cannot be sold until restocked."
+msgstr "<strong>Contagem de sem estoque</strong> — produtos ativos com estoque zero; não podem ser vendidos até a reposição."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "<strong>Payment rejected?</strong> The amount exceeds the remaining balance, or the receivable is cancelled. Overpayment is blocked at the form and service layers."
+msgstr "<strong>Pagamento rejeitado?</strong> O valor excede o saldo restante, ou a conta a receber está cancelada. O pagamento em excesso é bloqueado nas camadas de formulário e de serviço."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "<strong>Pending</strong> — created but not finalized (not the normal outcome of the checkout flow)."
+msgstr "<strong>Pendente</strong> — criada, mas não finalizada (não é o resultado normal do fluxo de checkout)."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "<strong>Person missing from the listing?</strong> The listing shows active records; a record that was deactivated stays in history but is not listed."
+msgstr "<strong>Pessoa ausente da listagem?</strong> A listagem mostra registros ativos; um registro desativado permanece no histórico, mas não é listado."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "<strong>Product missing from the sale picker?</strong> Inactive products are hidden from selection but remain in history."
+msgstr "<strong>Produto ausente do seletor de venda?</strong> Produtos inativos ficam ocultos na seleção, mas permanecem no histórico."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "<strong>Recent sales</strong> — the five most recent sales with their code, total, and status. The full history is on the <a href=\"%(_u1)s\">Sales</a> page."
+msgstr "<strong>Vendas recentes</strong> — as cinco vendas mais recentes com código, total e status. O histórico completo está na página <a href=\"%(_u1)s\">Vendas</a>."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<strong>Record a sale.</strong> Open New Sale, pick products by category, and adjust quantities. Choose the payment method (Cash, Debit, Credit, PIX, or On Account), then select Finalize Sale. The sale is recorded as Completed and stock is deducted. See <a href=\"%(_u1)s\">Sales and Point of Sale</a>."
+msgstr "<strong>Registre uma venda.</strong> Abra Nova Venda, escolha produtos por categoria e ajuste as quantidades. Escolha a forma de pagamento (Dinheiro, Débito, Crédito, PIX ou A prazo) e selecione Finalizar Venda. A venda é registrada como Concluída e o estoque é deduzido. Consulte <a href=\"%(_u1)s\">Vendas e Ponto de Venda</a>."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<strong>Register a payment.</strong> Open Finance, pick the receivable, and enter the amount and method. A payment cannot exceed the remaining balance; the receivable status updates automatically. See <a href=\"%(_u1)s\">Finance and Receivables</a>."
+msgstr "<strong>Registre um pagamento.</strong> Abra Financeiro, escolha a conta a receber e informe o valor e a forma. Um pagamento não pode exceder o saldo restante; o status da conta é atualizado automaticamente. Consulte <a href=\"%(_u1)s\">Financeiro e Contas a Receber</a>."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "<strong>Revenue today</strong> — the sum of the totals of those Completed sales, shown in R$ with two decimals."
+msgstr "<strong>Receita de hoje</strong> — a soma dos totais dessas vendas Concluídas, exibida em R$ com duas casas decimais."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "<strong>Review results.</strong> Use the <a href=\"%(_u1)s\">Dashboard</a> for the current picture and <a href=\"%(_u2)s\">Reports</a> for period summaries."
+msgstr "<strong>Revise os resultados.</strong> Use o <a href=\"%(_u1)s\">Painel</a> para a visão atual e <a href=\"%(_u2)s\">Relatórios</a> para resumos por período."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "<strong>Sales today</strong> — the number of <em>Completed</em> sales created today."
+msgstr "<strong>Vendas de hoje</strong> — o número de vendas <em>Concluídas</em> criadas hoje."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "<strong>Signed out unexpectedly?</strong> Sessions expire after a period of inactivity. Sign in again; saved data is not affected."
+msgstr "<strong>Saiu inesperadamente?</strong> As sessões expiram após um período de inatividade. Entre novamente; os dados salvos não são afetados."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "<strong>Something else?</strong> The Help control in the header always returns to the documentation index."
+msgstr "<strong>Outra dúvida?</strong> O controle Ajuda no cabeçalho sempre retorna ao índice da documentação."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "<strong>Stock adjustment rejected?</strong> Stock cannot go negative. Reduce the quantity to remove or restock first."
+msgstr "<strong>Ajuste de estoque rejeitado?</strong> O estoque não pode ficar negativo. Reduza a quantidade a remover ou reponha primeiro."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "<strong>Student</strong>, <strong>Teacher</strong>, <strong>Staff</strong>, and <strong>Visitor</strong> — the record type is shown as a badge in the listing and in payment details."
+msgstr "<strong>Aluno</strong>, <strong>Professor</strong>, <strong>Funcionário</strong> e <strong>Visitante</strong> — o tipo de registro aparece como selo na listagem e nos detalhes do pagamento."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "<strong>Want the tour again?</strong> Use <strong>Show getting started guide</strong> on the <a href=\"%(_u1)s\">Documentation index</a>."
+msgstr "<strong>Quer refazer o tour?</strong> Use <strong>Mostrar guia de primeiros passos</strong> no <a href=\"%(_u1)s\">índice da documentação</a>."
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "A cancelled receivable is terminal: it is never reopened to Pending or Partial."
+msgstr "Uma conta a receber cancelada é definitiva: ela nunca volta a Pendente ou Parcial."
+
+#: P:frontend/search.py
+msgid "A compact map of the entities and the invariants the application enforces."
+msgstr "Um mapa compacto das entidades e das invariantes que a aplicação aplica."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "A completed sale keeps its captured prices; later catalog changes do not rewrite its history."
+msgstr "Uma venda concluída mantém os preços capturados; alterações posteriores no catálogo não reescrevem seu histórico."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "A payment applied to a receivable."
+msgstr "Um pagamento aplicado a uma conta a receber."
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "A payment cannot exceed the remaining balance and cannot be zero or negative."
+msgstr "Um pagamento não pode exceder o saldo restante e não pode ser zero ou negativo."
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "A receivable is created when a sale is finalized as <strong>On Account</strong> with a customer attached. Its original amount is the sale total and its due date is the completion date."
+msgstr "Uma conta a receber é criada quando uma venda é finalizada como <strong>A prazo</strong> com um cliente vinculado. Seu valor original é o total da venda e seu vencimento é a data de conclusão."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "A recognized prefix with no term yet shows a prompt explaining what can be searched (for example, <code>person:</code> asks for a name or document)."
+msgstr "Um prefixo reconhecido sem termo ainda mostra uma dica explicando o que pode ser pesquisado (por exemplo, <code>person:</code> pede um nome ou documento)."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "A sale that would consume more stock than available is rejected and nothing is saved — stock never goes negative."
+msgstr "Uma venda que consumiria mais estoque do que o disponível é rejeitada e nada é salvo — o estoque nunca fica negativo."
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "A sale whose receivable already has registered payments cannot be cancelled — the payments are a hard block."
+msgstr "Uma venda cuja conta a receber já tem pagamentos registrados não pode ser cancelada — os pagamentos são um bloqueio rígido."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "A short identifier (for example, a student number) usable for lookup."
+msgstr "Um identificador curto (por exemplo, número de matrícula) utilizável para consulta."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "A unique short code used for lookup (for example, <code>COX-01</code>)."
+msgstr "Um código curto exclusivo usado para consulta (por exemplo, <code>COX-01</code>)."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "A valid id that matches no active product returns 404; client-supplied prices are ignored."
+msgstr "Um id válido que não corresponde a nenhum produto ativo retorna 404; preços enviados pelo cliente são ignorados."
+
+#: P:frontend/search.py
+msgid "API Reference"
+msgstr "Referência da API"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Accent color"
+msgstr "Cor de destaque"
+
+#: T:frontend/templates/403.html
+msgid "Access denied"
+msgstr "Acesso negado"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Accessibility"
+msgstr "Acessibilidade"
+
+#: P:frontend/forms.py
+msgid "Account"
+msgstr "Conta"
+
+#: P:frontend/models.py
+msgid "Account Receivable"
+msgstr "Conta a Receber"
+
+#: P:frontend/views.py
+msgid "Account created. Sign in to continue."
+msgstr "Conta criada. Entre para continuar."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Accounts"
+msgstr "Contas"
+
+#: P:frontend/models.py
+msgid "Accounts Receivable"
+msgstr "Contas a Receber"
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "Accounts and access"
+msgstr "Contas e acesso"
+
+#: P:frontend/search.py
+msgid "Accounts receivable states, registering payments, cancellation rules, and monetary handling."
+msgstr "Estados das contas a receber, registro de pagamentos, regras de cancelamento e tratamento monetário."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Action"
+msgstr "Ação"
+
+#: P:frontend/forms.py
+msgid "Active"
+msgstr "Ativo"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Active / Inactive badge"
+msgstr "Selo Ativo / Inativo"
+
+#: P:frontend/i18n.py
+msgid "Add products before finalizing"
+msgstr "Adicione produtos antes de finalizar"
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Add products by clicking on them"
+msgstr "Adicione produtos clicando neles"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Add products to track inventory and low-stock alerts."
+msgstr "Adicione produtos para controlar estoque e alertas de estoque baixo."
+
+#: P:frontend/i18n.py
+msgid "Added"
+msgstr "Adicionado"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Adjust"
+msgstr "Ajustar"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Adjust inventory for %(name)s"
+msgstr "Ajustar estoque de %(name)s"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Adjust spacing in panels, tables, and forms."
+msgstr "Ajuste o espaçamento em painéis, tabelas e formulários."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Adjusting stock"
+msgstr "Ajustando estoque"
+
+#: P:frontend/models.py
+msgid "Adjustment"
+msgstr "Ajuste"
+
+#: P:frontend/views.py
+msgid "Adjustment error: %(error)s"
+msgstr "Erro no ajuste: %(error)s"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Adjustment reason"
+msgstr "Motivo do ajuste"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Advanced prefixes"
+msgstr "Prefixos avançados"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Advanced:"
+msgstr "Avançado:"
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Alert threshold used by the low-stock indicator."
+msgstr "Limite de alerta usado pelo indicador de estoque baixo."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "Alerts and activity"
+msgstr "Alertas e atividade"
+
+#: P:frontend/i18n.py
+msgid "All"
+msgstr "Todos"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "All accounts are up to date"
+msgstr "Todas as contas estão em dia"
+
+#: P:frontend/reporting.py
+msgid "All categories"
+msgstr "Todas as categorias"
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "All dashboard figures are computed from the database at page load; there is no caching layer to refresh."
+msgstr "Todos os números do painel são calculados a partir do banco de dados no carregamento da página; não há camada de cache para atualizar."
+
+#: P:frontend/i18n.py
+msgid "All items removed"
+msgstr "Todos os itens removidos"
+
+#: P:frontend/reporting.py
+msgid "All methods"
+msgstr "Todas as formas"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "All products have adequate stock — no urgent replenishment."
+msgstr "Todos os produtos têm estoque adequado — nenhuma reposição urgente."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "All receivables are paid or cancelled."
+msgstr "Todas as contas a receber estão pagas ou canceladas."
+
+#: P:frontend/reporting.py
+msgid "All responsibles"
+msgstr "Todos os responsáveis"
+
+#: P:frontend/reporting.py
+msgid "All statuses"
+msgstr "Todos os status"
+
+#: T:frontend/templates/frontend/documentation/topic_base.html
+msgid "All topics"
+msgstr "Todos os tópicos"
+
+#: T:frontend/templates/frontend/people.html
+msgid "All types"
+msgstr "Todos os tipos"
+
+#: T:frontend/templates/frontend/register.html
+msgid "Already have an account?"
+msgstr "Já tem uma conta?"
+
+#: P:frontend/i18n.py
+msgid "Always %(theme)s, regardless of system setting."
+msgstr "Sempre %(theme)s, independentemente da configuração do sistema."
+
+#: P:frontend/forms.py
+msgid "Amount"
+msgstr "Valor"
+
+#: P:frontend/forms.py
+msgid "Amount must have at most two decimal places."
+msgstr "O valor deve ter no máximo duas casas decimais."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Amount owed by a person for an On Account sale."
+msgstr "Valor devido por uma pessoa em uma venda A prazo."
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "An On Account sale without a customer completes but creates no receivable."
+msgstr "Uma venda A prazo sem cliente é concluída, mas não cria conta a receber."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "Any successfully registered account can access the operational pages: Dashboard, Sales, Products, Inventory, People, Finance, and Reports. There are no additional roles inside the application."
+msgstr "Qualquer conta registrada com sucesso pode acessar as páginas operacionais: Painel, Vendas, Produtos, Estoque, Pessoas, Financeiro e Relatórios. Não há papéis adicionais dentro da aplicação."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Appearance"
+msgstr "Aparência"
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Append-only audit log of every stock change (sale, return, adjustment), with optional sale and user links."
+msgstr "Registro de auditoria somente de acréscimo de cada alteração de estoque (venda, devolução, ajuste), com links opcionais para venda e usuário."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "Application areas"
+msgstr "Áreas da aplicação"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Application pages by name or keyword."
+msgstr "Páginas da aplicação por nome ou palavra-chave."
+
+#: T:frontend/templates/frontend/partials/language_switcher.html
+msgid "Apply"
+msgstr "Aplicar"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Are you sure you want to sign out of Quadrum?"
+msgstr "Deseja realmente sair do Quadrum?"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Ask before deletes or removals that cannot be undone."
+msgstr "Pedir confirmação antes de exclusões ou remoções irreversíveis."
+
+#: T:frontend/templates/frontend/register.html
+msgid "At least 8 characters — avoid common or entirely numeric passwords."
+msgstr "Pelo menos 8 caracteres — evite senhas comuns ou totalmente numéricas."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Authentication, methods, and CSRF"
+msgstr "Autenticação, métodos e CSRF"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Available preferences"
+msgstr "Preferências disponíveis"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Average Ticket"
+msgstr "Ticket Médio"
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Back"
+msgstr "Voltar"
+
+#: T:frontend/templates/400.html
+msgid "Back to Dashboard"
+msgstr "Voltar ao Painel"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Balance"
+msgstr "Saldo"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Balance column"
+msgstr "Coluna de saldo"
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "Because the open-receivables card uses original amounts, it can exceed the money actually still owed once payments are registered. The remaining balance per receivable is visible on <a href=\"%(_u1)s\">Finance</a>."
+msgstr "Como o cartão de contas em aberto usa valores originais, ele pode exceder o dinheiro realmente devido após o registro de pagamentos. O saldo restante por conta a receber é exibido em <a href=\"%(_u1)s\">Financeiro</a>."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Behavior"
+msgstr "Comportamento"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Blue"
+msgstr "Azul"
+
+#: T:frontend/templates/frontend/documentation/topic_base.html
+msgid "Breadcrumb"
+msgstr "Trilha de navegação"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Browse mode"
+msgstr "Modo de navegação"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Bucket"
+msgstr "Faixa"
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Business rules the application enforces"
+msgstr "Regras de negócio aplicadas pela aplicação"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "CODE"
+msgstr "CÓDIGO"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Calculate a cart total from stored product data (read-only)."
+msgstr "Calcular o total do carrinho a partir dos dados armazenados do produto (somente leitura)."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Calculate total"
+msgstr "Calcular total"
+
+#: P:frontend/models.py
+msgid "Can manage master data (people, products, categories)"
+msgstr "Pode gerenciar dados mestres (pessoas, produtos, categorias)"
+
+#: P:frontend/models.py
+msgid "Can view every responsible user's sales, receivables and payments"
+msgstr "Pode ver vendas, contas a receber e pagamentos de todos os usuários responsáveis"
+
+#: P:frontend/i18n.py
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Cancellation rules"
+msgstr "Regras de cancelamento"
+
+#: P:frontend/models.py
+msgid "Cancelled"
+msgstr "Cancelada"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Cancelled Sales"
+msgstr "Vendas Canceladas"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Cancelling a sale marks its receivable as <strong>Cancelled</strong> (the record is never deleted) and it disappears from the payment selector."
+msgstr "Cancelar uma venda marca sua conta a receber como <strong>Cancelada</strong> (o registro nunca é excluído) e ela desaparece do seletor de pagamento."
+
+#: P:frontend/services.py
+msgid "Cannot cancel: recorded payments exist on the receivable account."
+msgstr "Não é possível cancelar: existem pagamentos registrados na conta a receber."
+
+#: T:frontend/templates/frontend/people.html
+msgid "Cannot delete person"
+msgstr "Não é possível excluir a pessoa"
+
+#: T:frontend/templates/frontend/products.html
+msgid "Cannot delete product"
+msgstr "Não é possível excluir o produto"
+
+#: P:frontend/i18n.py
+msgid "Cannot delete record"
+msgstr "Não é possível excluir o registro"
+
+#: P:frontend/views.py
+msgid "Cannot delete “%(name)s” because protected records reference it."
+msgstr "Não é possível excluir “%(name)s” porque há registros protegidos que o referenciam."
+
+#: P:frontend/views.py
+msgid "Cannot delete “%(name)s” because protected records reference them."
+msgstr "Não é possível excluir “%(name)s” porque há registros protegidos que os referenciam."
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Cart"
+msgstr "Carrinho"
+
+#: P:frontend/i18n.py
+msgid "Cart cleared"
+msgstr "Carrinho limpo"
+
+#: P:frontend/i18n.py
+msgid "Cart empty"
+msgstr "Carrinho vazio"
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Cart is empty"
+msgstr "O carrinho está vazio"
+
+#: P:frontend/models.py
+msgid "Cash"
+msgstr "Dinheiro"
+
+#: P:frontend/models.py
+msgid "Categories"
+msgstr "Categorias"
+
+#: P:frontend/forms.py
+msgid "Category"
+msgstr "Categoria"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Category Breakdown"
+msgstr "Distribuição por Categoria"
+
+#: P:frontend/reporting.py
+msgid "Category: %(label)s"
+msgstr "Categoria: %(label)s"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Chart"
+msgstr "Gráfico"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Chart legend"
+msgstr "Legenda do gráfico"
+
+#: P:frontend/reporting.py
+msgid "Choose \"Custom range\" to use start and end dates."
+msgstr "Escolha \"Intervalo personalizado\" para usar as datas de início e fim."
+
+#: P:frontend/forms.py
+msgid "Choose a username"
+msgstr "Escolha um nome de usuário"
+
+#: T:frontend/templates/frontend/register.html
+msgid "Choose a username and password to start using quadrum."
+msgstr "Escolha um nome de usuário e uma senha para começar a usar o quadrum."
+
+#: P:frontend/reporting.py
+msgid "Choose both a start and an end date for a custom range."
+msgstr "Escolha uma data de início e uma de fim para um intervalo personalizado."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Choose the default desktop navigation layout."
+msgstr "Escolha o layout padrão de navegação no desktop."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Choose the payment method and select Finalize Sale."
+msgstr "Escolha a forma de pagamento e selecione Finalizar Venda."
+
+#: T:frontend/templates/frontend/people.html
+msgid "Clear"
+msgstr "Limpar"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Clear filters"
+msgstr "Limpar filtros"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Clear the search"
+msgstr "Limpar a busca"
+
+#: T:frontend/templates/frontend/products.html
+msgid "Click \"New Product\" to get started"
+msgstr "Clique em \"Novo Produto\" para começar"
+
+#: P:frontend/i18n.py
+msgid "Close"
+msgstr "Fechar"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Close (Esc)"
+msgstr "Fechar (Esc)"
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Close and review later"
+msgstr "Fechar e revisar depois"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Close expanded chart"
+msgstr "Fechar gráfico expandido"
+
+#: P:frontend/i18n.py
+msgid "Close navigation"
+msgstr "Fechar navegação"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Close preferences"
+msgstr "Fechar preferências"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Closed — no further payments are accepted."
+msgstr "Fechada — novos pagamentos não são aceitos."
+
+#: P:frontend/forms.py
+msgid "Code"
+msgstr "Código"
+
+#: P:frontend/i18n.py
+msgid "Code %(code)s copied"
+msgstr "Código %(code)s copiado"
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "Code or customer"
+msgstr "Código ou cliente"
+
+#: P:frontend/i18n.py
+msgid "Code: %(code)s"
+msgstr "Código: %(code)s"
+
+#: P:frontend/i18n.py
+msgid "Collapse sidebar"
+msgstr "Recolher barra lateral"
+
+#: P:frontend/i18n.py
+msgid "Collapse sidebar (Ctrl+B)"
+msgstr "Recolher barra lateral (Ctrl+B)"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Comfortable"
+msgstr "Confortável"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Comfortable or Compact spacing in panels, tables, and forms."
+msgstr "Espaçamento Confortável ou Compacto em painéis, tabelas e formulários."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Compact"
+msgstr "Compacto"
+
+#: P:frontend/models.py
+msgid "Completed"
+msgstr "Concluída"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Completed Revenue"
+msgstr "Receita Concluída"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Completed Sales"
+msgstr "Vendas Concluídas"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Completed revenue by payment method"
+msgstr "Receita concluída por forma de pagamento"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Completed sales revenue per %(granularity)s bucket. Dashed line: preceding %(days)s-day period, aligned bucket by bucket."
+msgstr "Receita de vendas concluídas por intervalo de %(granularity)s. Linha tracejada: período anterior de %(days)s dias, alinhado intervalo a intervalo."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Confirm destructive actions"
+msgstr "Confirmar ações destrutivas"
+
+#: T:frontend/templates/frontend/register.html
+msgid "Confirm password"
+msgstr "Confirmar senha"
+
+#: P:frontend/i18n.py
+msgid "Copied"
+msgstr "Copiado"
+
+#: T:frontend/templates/frontend/products.html
+msgid "Copy code"
+msgstr "Copiar código"
+
+#: T:frontend/templates/frontend/products.html
+msgid "Copy code of %(name)s"
+msgstr "Copiar código de %(name)s"
+
+#: P:frontend/i18n.py
+msgid "Copy failed"
+msgstr "Falha ao copiar"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Copy registration"
+msgstr "Copiar cadastro"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Copy registration of %(name)s"
+msgstr "Copiar cadastro de %(name)s"
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "Copy sale code"
+msgstr "Copiar código da venda"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Corner style"
+msgstr "Estilo dos cantos"
+
+#: P:frontend/forms.py
+msgid "Cost price"
+msgstr "Preço de custo"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Costed item revenue"
+msgstr "Receita de itens com custo"
+
+#: P:frontend/i18n.py
+msgid "Could not save records per page."
+msgstr "Não foi possível salvar registros por página."
+
+#: P:frontend/i18n.py
+msgid "Could not save the language preference."
+msgstr "Não foi possível salvar a preferência de idioma."
+
+#: P:frontend/views.py
+msgid "Create account"
+msgstr "Criar conta"
+
+#: T:frontend/templates/frontend/login.html
+msgid "Create an account"
+msgstr "Criar uma conta"
+
+#: T:frontend/templates/frontend/register.html
+msgid "Create your account"
+msgstr "Crie sua conta"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Created and awaiting payment."
+msgstr "Criada e aguardando pagamento."
+
+#: P:frontend/models.py
+msgid "Credit"
+msgstr "Crédito"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Ctrl"
+msgstr "Ctrl"
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Current stock. Never allowed to be negative."
+msgstr "Estoque atual. Nunca pode ser negativo."
+
+#: P:frontend/reporting.py
+msgid "Custom range"
+msgstr "Intervalo personalizado"
+
+#: P:frontend/reporting.py
+msgid "Custom ranges are limited to %(days)s days."
+msgstr "Intervalos personalizados são limitados a %(days)s dias."
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Customer"
+msgstr "Cliente"
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Customer registry with type, record/doc, contact fields, and active flag."
+msgstr "Cadastro de clientes com tipo, cadastro/documento, campos de contato e indicador ativo."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "Daily workflows"
+msgstr "Fluxos diários"
+
+#: P:frontend/i18n.py
+msgid "Dark"
+msgstr "Escuro"
+
+#: P:frontend/search.py
+msgid "Dashboard"
+msgstr "Painel"
+
+#: P:frontend/search.py
+msgid "Data Models and Business Rules"
+msgstr "Modelos de Dados e Regras de Negócio"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Date"
+msgstr "Data"
+
+#: P:frontend/reporting.py
+msgid "Date/Time"
+msgstr "Data/Hora"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Days past the recorded due date, outstanding balances only. The ledger records no monetary refunds — cancellations restore stock through return movements."
+msgstr "Dias após o vencimento registrado, somente saldos em aberto. O livro-razão não registra estornos monetários — cancelamentos restauram o estoque por movimentações de devolução."
+
+#: P:frontend/models.py
+msgid "Debit"
+msgstr "Débito"
+
+#: P:frontend/i18n.py
+msgid "Decrease quantity"
+msgstr "Diminuir quantidade"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Default"
+msgstr "Padrão"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Default, Blue, Violet, Emerald — tints buttons, links, focus rings, and selected items."
+msgstr "Padrão, Azul, Violeta, Esmeralda — tinge botões, links, anéis de foco e itens selecionados."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Delete"
+msgstr "Excluir"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Delete %(name)s"
+msgstr "Excluir %(name)s"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Delete %(name)s (blocked: referenced by history)"
+msgstr "Excluir %(name)s (bloqueado: referenciado pelo histórico)"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Delete person?"
+msgstr "Excluir pessoa?"
+
+#: T:frontend/templates/frontend/products.html
+msgid "Delete product?"
+msgstr "Excluir produto?"
+
+#: P:frontend/i18n.py
+msgid "Delete record?"
+msgstr "Excluir registro?"
+
+#: P:frontend/forms.py
+msgid "Description"
+msgstr "Descrição"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Desktop sidebar"
+msgstr "Barra lateral do desktop"
+
+#: P:frontend/search.py
+msgid "Developer references"
+msgstr "Referências para desenvolvedores"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Disabled"
+msgstr "Desabilitado"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Discounts Granted"
+msgstr "Descontos Concedidos"
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Do this later"
+msgstr "Fazer isso depois"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Docs"
+msgstr "Documentação"
+
+#: P:frontend/i18n.py
+msgid "Documentation"
+msgstr "Documentação"
+
+#: T:frontend/templates/frontend/documentation/topic_base.html
+msgid "Documentation navigation"
+msgstr "Navegação da documentação"
+
+#: T:frontend/templates/frontend/documentation/topic_base.html
+msgid "Documentation topics"
+msgstr "Tópicos de documentação"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Documentation topics."
+msgstr "Tópicos de documentação."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Due Date"
+msgstr "Vencimento"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Due from"
+msgstr "Vencimento de"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Due to"
+msgstr "Vencimento até"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Each receivable belongs to one person and lists its original amount, remaining balance, due date, status, and registered payments."
+msgstr "Cada conta a receber pertence a uma pessoa e lista seu valor original, saldo restante, vencimento, status e pagamentos registrados."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Each resource type returns up to five results, and sensitive fields — like people's email and phone — are never included."
+msgstr "Cada tipo de recurso retorna até cinco resultados, e campos sensíveis — como e-mail e telefone das pessoas — nunca são incluídos."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Each row has a copy action that puts the registration value on the clipboard."
+msgstr "Cada linha tem uma ação de copiar que coloca o valor do cadastro na área de transferência."
+
+#: T:frontend/templates/frontend/people.html
+msgid "Edit"
+msgstr "Editar"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Edit %(name)s"
+msgstr "Editar %(name)s"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Edit Person"
+msgstr "Editar Pessoa"
+
+#: T:frontend/templates/frontend/products.html
+msgid "Edit Product"
+msgstr "Editar Produto"
+
+#: P:frontend/forms.py
+msgid "Email"
+msgstr "E-mail"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Emerald"
+msgstr "Esmeralda"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Empty cart, malformed items, invalid payment method, or invalid idempotency key."
+msgstr "Carrinho vazio, itens malformados, forma de pagamento inválida ou chave de idempotência inválida."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Enabled"
+msgstr "Habilitado"
+
+#: P:frontend/search.py
+msgid "End-user guides"
+msgstr "Guias do usuário final"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Endpoint overview"
+msgstr "Visão geral dos endpoints"
+
+#: T:frontend/templates/frontend/base.html
+msgid "English"
+msgstr "English"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Enter the amount and the method: <strong>Cash</strong>, <strong>Debit</strong>, <strong>Credit</strong>, <strong>PIX</strong>, or <strong>Transfer</strong>."
+msgstr "Informe o valor e a forma: <strong>Dinheiro</strong>, <strong>Débito</strong>, <strong>Crédito</strong>, <strong>PIX</strong> ou <strong>Transferência</strong>."
+
+#: T:frontend/templates/frontend/login.html
+msgid "Enter your credentials to continue to quadrum."
+msgstr "Entre com suas credenciais para continuar no quadrum."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Entities"
+msgstr "Entidades"
+
+#: P:frontend/models.py
+msgid "Entry"
+msgstr "Entrada"
+
+#: P:frontend/i18n.py
+msgid "Error"
+msgstr "Erro"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Error summary (finalize)"
+msgstr "Resumo de erros (finalização)"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Estimate only: uses each product's current recorded cost, not a cost snapshot from the moment of sale. Not profit."
+msgstr "Apenas estimativa: usa o custo atual registrado de cada produto, não um instantâneo de custo do momento da venda. Não é lucro."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Estimated Margin"
+msgstr "Margem Estimada"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Estimated margin (%(pct)s%% of costed item revenue)"
+msgstr "Margem estimada (%(pct)s%% da receita de itens com custo)"
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Every change is an append-only audit trail; sales produce negative movements, cancellations produce returns, and manual adjustments are recorded as adjustments."
+msgstr "Toda alteração é uma trilha de auditoria somente de acréscimo; vendas geram movimentações negativas, cancelamentos geram devoluções e ajustes manuais são registrados como ajustes."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Every endpoint is protected by sign-in; an anonymous request is redirected to <code>/login/</code> (302), not answered with a 401/403."
+msgstr "Todo endpoint é protegido por login; uma requisição anônima é redirecionada para <code>/login/</code> (302), não respondida com 401/403."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Example"
+msgstr "Exemplo"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Excluded: %(lines)s item line (R$ %(revenue)s of item revenue) whose products have no usable recorded cost."
+msgid_plural "Excluded: %(lines)s item lines (R$ %(revenue)s of item revenue) whose products have no usable recorded cost."
+msgstr[0] "Excluído: %(lines)s linha de item (R$ %(revenue)s de receita do item) cujos produtos não têm custo registrado utilizável."
+msgstr[1] "Excluídos: %(lines)s linhas de item (R$ %(revenue)s de receita do item) cujos produtos não têm custo registrado utilizável."
+
+#: P:frontend/models.py
+msgid "Exit"
+msgstr "Sair"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Expand Payment Mix chart"
+msgstr "Expandir gráfico de Formas de Pagamento"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Expand Revenue chart"
+msgstr "Expandir gráfico de Receita"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Expand Volume chart"
+msgstr "Expandir gráfico de Volume"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Expand chart"
+msgstr "Expandir gráfico"
+
+#: P:frontend/i18n.py
+msgid "Expand sidebar"
+msgstr "Expandir barra lateral"
+
+#: P:frontend/i18n.py
+msgid "Expand sidebar (Ctrl+B)"
+msgstr "Expandir barra lateral (Ctrl+B)"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Expanded"
+msgstr "Expandido"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Expanded or Icon-only."
+msgstr "Expandido ou Somente ícones."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Export CSV"
+msgstr "Exportar CSV"
+
+#: P:frontend/i18n.py
+msgid "Failed to finalize"
+msgstr "Falha ao finalizar"
+
+#: P:frontend/i18n.py
+msgid "Failed to finalize sale."
+msgstr "Falha ao finalizar a venda."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Field"
+msgstr "Campo"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Filtering and lookup"
+msgstr "Filtragem e consulta"
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Finalize Sale"
+msgstr "Finalizar Venda"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Finalize a sale atomically, with idempotency."
+msgstr "Finalizar uma venda de forma atômica, com idempotência."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Finalize sale"
+msgstr "Finalizar venda"
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Finalizing uses an <strong>idempotency key</strong>: if the same submission is retried (for example after a network hiccup), the existing sale is returned instead of creating a duplicate. Reusing a key with different contents is rejected with a conflict."
+msgstr "A finalização usa uma <strong>chave de idempotência</strong>: se o mesmo envio for repetido (por exemplo, após uma falha de rede), a venda existente é retornada em vez de criar uma duplicata. Reutilizar uma chave com conteúdo diferente é rejeitado com conflito."
+
+#: P:frontend/search.py
+msgid "Finance"
+msgstr "Financeiro"
+
+#: P:frontend/search.py
+msgid "Finance and Receivables"
+msgstr "Financeiro e Contas a Receber"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Finance tracks money owed by people through <strong>accounts receivable</strong> and the <strong>payments</strong> applied against them. Everything happens on the <a href=\"%(_u1)s\">Finance</a> page."
+msgstr "O Financeiro acompanha o dinheiro devido pelas pessoas por meio de <strong>contas a receber</strong> e dos <strong>pagamentos</strong> aplicados a elas. Tudo acontece na página <a href=\"%(_u1)s\">Financeiro</a>."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Financial summary"
+msgstr "Resumo financeiro"
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Finish guide"
+msgstr "Concluir guia"
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "First-run guide"
+msgstr "Guia de primeiros passos"
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "First-run guide state per account, including the resume step."
+msgstr "Estado do guia de primeiros passos por conta, incluindo a etapa de retomada."
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "Focused guides for everyday operation, plus developer references — each topic on its own page."
+msgstr "Guias focados na operação diária, além de referências para desenvolvedores — cada tópico em sua própria página."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Follow the system or choose a fixed theme."
+msgstr "Siga o sistema ou escolha um tema fixo."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Follow the system or reduce non-essential animation."
+msgstr "Siga o sistema ou reduza animações não essenciais."
+
+#: P:frontend/i18n.py
+msgid "Following system setting — currently %(theme)s."
+msgstr "Seguindo a configuração do sistema — atualmente %(theme)s."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "From"
+msgstr "De"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Fully settled."
+msgstr "Totalmente quitada."
+
+#: P:frontend/search.py
+msgid "Getting Started"
+msgstr "Primeiros Passos"
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "Getting around"
+msgstr "Navegação"
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Getting started"
+msgstr "Primeiros passos"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Global search"
+msgstr "Busca global"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Global search opens with <code>Ctrl+K</code> (or <code>Cmd+K</code> on macOS) from any page. It has two modes: with an empty field it <strong>browses</strong> destinations by category tab; once you type at least two characters it <strong>searches</strong> real data live."
+msgstr "A busca global abre com <code>Ctrl+K</code> (ou <code>Cmd+K</code> no macOS) em qualquer página. Ela tem dois modos: com o campo vazio, <strong>navega</strong> pelos destinos por abas de categoria; ao digitar pelo menos dois caracteres, <strong>pesquisa</strong> dados reais ao vivo."
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "Global search supports advanced prefixes — see Search and Advanced Queries."
+msgstr "A busca global oferece prefixos avançados — consulte Busca e Consultas Avançadas."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Global search used by the command palette."
+msgstr "Busca global usada pela paleta de comandos."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Groups products; referenced with <code>PROTECT</code> so a category in use cannot be deleted."
+msgstr "Agrupa produtos; referenciada com <code>PROTECT</code> para que uma categoria em uso não possa ser excluída."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Guides for the areas involved: <a href=\"%(_u1)s\">Products and Inventory</a> · <a href=\"%(_u2)s\">Finance and Receivables</a> · <a href=\"%(_u3)s\">People and Customers</a>."
+msgstr "Guias para as áreas envolvidas: <a href=\"%(_u1)s\">Produtos e Estoque</a> · <a href=\"%(_u2)s\">Financeiro e Contas a Receber</a> · <a href=\"%(_u3)s\">Pessoas e Clientes</a>."
+
+#: T:frontend/templates/frontend/people.html
+msgid "Has history — deactivate instead"
+msgstr "Tem histórico — desative em vez disso"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Help and documentation"
+msgstr "Ajuda e documentação"
+
+#: T:frontend/templates/frontend/base.html
+msgid "High contrast"
+msgstr "Alto contraste"
+
+#: P:frontend/search.py
+msgid "How global search works and every supported prefix, with real examples."
+msgstr "Como a busca global funciona e cada prefixo suportado, com exemplos reais."
+
+#: T:frontend/templates/frontend/base.html
+msgid "How many rows list pages show before paginating (10 to 40)."
+msgstr "Quantas linhas as páginas de listagem mostram antes de paginar (10 a 40)."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Icon-only"
+msgstr "Somente ícones"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Idempotency and retries"
+msgstr "Idempotência e novas tentativas"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Idempotency key belongs to another user."
+msgstr "A chave de idempotência pertence a outro usuário."
+
+#: P:frontend/views.py
+msgid "Inactive"
+msgstr "Inativo"
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Inactive products stay in history but are hidden from sale selection."
+msgstr "Produtos inativos permanecem no histórico, mas ficam ocultos na seleção de venda."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Inactive records stay in history but are excluded from the active listing."
+msgstr "Registros inativos permanecem no histórico, mas são excluídos da listagem ativa."
+
+#: P:frontend/i18n.py
+msgid "Increase quantity"
+msgstr "Aumentar quantidade"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Insufficient stock is a business conflict (409 <code>{\"error\": \"Insufficient stock\"}</code>), not a server error; every write rolls back, so stock never goes negative."
+msgstr "Estoque insuficiente é um conflito de negócio (409 <code>{\"error\": \"Insufficient stock\"}</code>), não um erro de servidor; toda gravação é revertida, então o estoque nunca fica negativo."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Interface density"
+msgstr "Densidade da interface"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Interface language"
+msgstr "Idioma da interface"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Interface preferences are stored in this browser only (localStorage key <code>quadrum.preferences.v1</code>) and apply immediately. They never sync across devices or accounts."
+msgstr "As preferências de interface são armazenadas apenas neste navegador (chave localStorage <code>quadrum.preferences.v1</code>) e aplicadas imediatamente. Elas nunca sincronizam entre dispositivos ou contas."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Interface settings for this browser."
+msgstr "Configurações de interface deste navegador."
+
+#: T:frontend/templates/500.html
+msgid "Internal error"
+msgstr "Erro interno"
+
+#: P:frontend/forms.py
+msgid "Invalid payment submission key."
+msgstr "Chave de envio de pagamento inválida."
+
+#: T:frontend/templates/400.html
+msgid "Invalid request"
+msgstr "Requisição inválida"
+
+#: P:frontend/forms.py
+msgid "Inventory"
+msgstr "Estoque"
+
+#: P:frontend/views.py
+msgid "Inventory adjusted."
+msgstr "Estoque ajustado."
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Inventory control"
+msgstr "Controle de estoque"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Inventory pagination"
+msgstr "Paginação do estoque"
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Inventory: %(stock)s | Min: %(minimum)s"
+msgstr "Estoque: %(stock)s | Mín.: %(minimum)s"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Item-level aggregation: each sale item belongs to exactly one category. Category filters use the same item scope. Sale totals are never summed through item joins."
+msgstr "Agregação no nível do item: cada item de venda pertence a exatamente uma categoria. Os filtros de categoria usam o mesmo escopo de item. Os totais de venda nunca são somados por junções de itens."
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "Items"
+msgstr "Itens"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Items / Units"
+msgstr "Itens / Unidades"
+
+#: T:frontend/templates/frontend/base.html
+msgid "K"
+msgstr "K"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Key conflict (different contents), incomplete prior attempt, or insufficient stock."
+msgstr "Conflito de chave (conteúdo diferente), tentativa anterior incompleta ou estoque insuficiente."
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Key indicators"
+msgstr "Indicadores-chave"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Keyboard use"
+msgstr "Uso do teclado"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "LOW"
+msgstr "BAIXO"
+
+#: P:frontend/i18n.py
+msgid "Language"
+msgstr "Idioma"
+
+#: P:frontend/i18n.py
+msgid "Language updated."
+msgstr "Idioma atualizado."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Large"
+msgstr "Grande"
+
+#: P:frontend/reporting.py
+msgid "Last 30 days"
+msgstr "Últimos 30 dias"
+
+#: P:frontend/reporting.py
+msgid "Last 7 days"
+msgstr "Últimos 7 dias"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Last 7 days — units sold per day (Y axis: units). The trend indicates operational volume, not revenue."
+msgstr "Últimos 7 dias — unidades vendidas por dia (eixo Y: unidades). A tendência indica volume operacional, não receita."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Legacy aliases of the two POS endpoints, kept for compatibility."
+msgstr "Aliases legados dos dois endpoints de PDV, mantidos por compatibilidade."
+
+#: P:frontend/i18n.py
+msgid "Light"
+msgstr "Claro"
+
+#: P:frontend/views.py
+msgid "Login"
+msgstr "Entrar"
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "Looking for something specific?"
+msgstr "Procurando algo específico?"
+
+#: P:frontend/views.py
+msgid "Low"
+msgstr "Baixo"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Low Inventory"
+msgstr "Estoque Baixo"
+
+#: T:frontend/templates/frontend/sidebar.html
+msgid "Main"
+msgstr "Principal"
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "Make the first sale at the POS"
+msgstr "Faça a primeira venda no PDV"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Meaning"
+msgstr "Significado"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Method"
+msgstr "Forma"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Method and path"
+msgstr "Método e caminho"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Minimum"
+msgstr "Mínimo"
+
+#: P:frontend/forms.py
+msgid "Minimum inventory"
+msgstr "Estoque mínimo"
+
+#: P:frontend/forms.py
+msgid "Minimum value is 0.01."
+msgstr "O valor mínimo é 0,01."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Model"
+msgstr "Modelo"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Monetary values are stored with two decimal places and displayed in R$. The exact transactional rules and lock ordering are documented in <code>docs/business-flows.md</code> (repository file, not served by the application)."
+msgstr "Valores monetários são armazenados com duas casas decimais e exibidos em R$. As regras transacionais exatas e a ordem de bloqueio estão documentadas em <code>docs/business-flows.md</code> (arquivo do repositório, não servido pela aplicação)."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Monetary values keep two decimal places."
+msgstr "Valores monetários mantêm duas casas decimais."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Motion"
+msgstr "Movimento"
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Movement types, locking behavior, and the negative-stock constraint are detailed in <code>docs/business-flows.md</code> and <code>docs/data-model.md</code> (repository files, not served by the application)."
+msgstr "Tipos de movimentação, comportamento de bloqueio e a restrição de estoque negativo estão detalhados em <code>docs/business-flows.md</code> e <code>docs/data-model.md</code> (arquivos do repositório, não servidos pela aplicação)."
+
+#: P:frontend/forms.py
+msgid "Name"
+msgstr "Nome"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Name or code"
+msgstr "Nome ou código"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Name or registration"
+msgstr "Nome ou cadastro"
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Name, code, category, price, cost, stock, minimum stock, and active flag."
+msgstr "Nome, código, categoria, preço, custo, estoque, estoque mínimo e indicador ativo."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Navigation"
+msgstr "Navegação"
+
+#: P:frontend/services.py
+msgid "Negative stock for %(name)s: %(remaining)s"
+msgstr "Estoque negativo para %(name)s: %(remaining)s"
+
+#: P:frontend/reporting.py
+msgid "New"
+msgstr "Novo"
+
+#: T:frontend/templates/frontend/products.html
+msgid "New Product"
+msgstr "Novo Produto"
+
+#: T:frontend/templates/frontend/people.html
+msgid "New Registration"
+msgstr "Novo Cadastro"
+
+#: P:frontend/search.py
+msgid "New Sale"
+msgstr "Nova Venda"
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "New to Quadrum?"
+msgstr "Novo no Quadrum?"
+
+#: T:frontend/templates/frontend/login.html
+msgid "New to quadrum?"
+msgstr "Novo no quadrum?"
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "Newly registered accounts see the getting started guide once. You can skip it or finish it; either way it will not appear again on its own while a guide is pending."
+msgstr "Contas recém-registradas veem o guia de primeiros passos uma vez. Você pode pulá-lo ou concluí-lo; de qualquer forma, ele não aparecerá novamente sozinho enquanto um guia estiver pendente."
+
+#: T:frontend/templates/frontend/documentation/topic_base.html
+msgid "Next"
+msgstr "Próximo"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "No account registered"
+msgstr "Nenhuma conta registrada"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No category activity"
+msgstr "Nenhuma atividade de categoria"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No completed items with recorded product cost match the active filters, so no margin is estimated."
+msgstr "Nenhum item concluído com custo de produto registrado corresponde aos filtros ativos, portanto nenhuma margem é estimada."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No completed sale items match the active filters."
+msgstr "Nenhum item de venda concluída corresponde aos filtros ativos."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No completed sales"
+msgstr "Nenhuma venda concluída"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No completed sales match the active filters."
+msgstr "Nenhuma venda concluída corresponde aos filtros ativos."
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "No documentation topics match your search."
+msgstr "Nenhum tópico de documentação corresponde à sua busca."
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "No inventory items match your filters"
+msgstr "Nenhum item de estoque corresponde aos seus filtros"
+
+#: T:frontend/templates/frontend/base.html
+msgid "No notifications at this time"
+msgstr "Nenhuma notificação no momento"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No open accounts"
+msgstr "Nenhuma conta em aberto"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "No payment recorded"
+msgstr "Nenhum pagamento registrado"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "No payments match your filters"
+msgstr "Nenhum pagamento corresponde aos seus filtros"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No payments received"
+msgstr "Nenhum pagamento recebido"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No payments were recorded within the selected period."
+msgstr "Nenhum pagamento foi registrado no período selecionado."
+
+#: T:frontend/templates/frontend/people.html
+msgid "No people match your search"
+msgstr "Nenhuma pessoa corresponde à sua busca"
+
+#: T:frontend/templates/frontend/people.html
+msgid "No people registered"
+msgstr "Nenhuma pessoa registrada"
+
+#: T:frontend/templates/frontend/base.html
+msgid "No preferences match your search."
+msgstr "Nenhuma preferência corresponde à sua busca."
+
+#: T:frontend/templates/frontend/products.html
+msgid "No product registered"
+msgstr "Nenhum produto registrado"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No product revenue"
+msgstr "Nenhuma receita de produto"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No product sales"
+msgstr "Nenhuma venda de produto"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "No products"
+msgstr "Nenhum produto"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "No products found"
+msgstr "Nenhum produto encontrado"
+
+#: T:frontend/templates/frontend/products.html
+msgid "No products match your filters"
+msgstr "Nenhum produto corresponde aos seus filtros"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "No receivables match your filters"
+msgstr "Nenhuma conta a receber corresponde aos seus filtros"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "No recent sales"
+msgstr "Nenhuma venda recente"
+
+#: P:frontend/i18n.py
+msgid "No results"
+msgstr "Nenhum resultado"
+
+#: P:frontend/i18n.py
+msgid "No results for “%(query)s”."
+msgstr "Nenhum resultado para “%(query)s”."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No revenue to split"
+msgstr "Nenhuma receita para dividir"
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "No sale registered"
+msgstr "Nenhuma venda registrada"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No sales in period"
+msgstr "Nenhuma venda no período"
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "No sales match your filters"
+msgstr "Nenhuma venda corresponde aos seus filtros"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No sales of any status match the active filters."
+msgstr "Nenhuma venda de qualquer status corresponde aos filtros ativos."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No transactions match these filters"
+msgstr "Nenhuma transação corresponde a esses filtros"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "No units sold"
+msgstr "Nenhuma unidade vendida"
+
+#: P:frontend/views.py
+msgid "Normal"
+msgstr "Normal"
+
+#: P:frontend/reporting.py
+msgid "Not yet due"
+msgstr "Ainda não venceu"
+
+#: P:frontend/forms.py
+msgid "Notes"
+msgstr "Observações"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Nothing found for the active query or filters."
+msgstr "Nada encontrado para a consulta ou os filtros ativos."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Notifications"
+msgstr "Notificações"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "OUT OF STOCK"
+msgstr "SEM ESTOQUE"
+
+#: P:frontend/models.py
+msgid "On Account"
+msgstr "A prazo"
+
+#: P:frontend/models.py
+msgid "Onboarding Progress"
+msgstr "Progresso de Integração"
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "One line of a sale with the captured unit price at sale time."
+msgstr "Uma linha de uma venda com o preço unitário capturado no momento da venda."
+
+#: P:frontend/services.py
+msgid "Only completed sales can be cancelled."
+msgstr "Apenas vendas concluídas podem ser canceladas."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Only completed sales count as revenue; cancelled amounts are shown for completeness and excluded from every revenue figure."
+msgstr "Apenas vendas concluídas contam como receita; valores cancelados são exibidos para fins de completude e excluídos de todos os números de receita."
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Open <a href=\"%(_u1)s\">Finance</a> and pick the receivable."
+msgstr "Abra <a href=\"%(_u1)s\">Financeiro</a> e escolha a conta a receber."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Open <a href=\"%(_u1)s\">Inventory</a> and use the stock adjustment form."
+msgstr "Abra <a href=\"%(_u1)s\">Estoque</a> e use o formulário de ajuste de estoque."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Open <a href=\"%(_u1)s\">New Sale</a> and pick products by category with the quantity controls."
+msgstr "Abra <a href=\"%(_u1)s\">Nova Venda</a> e escolha produtos por categoria com os controles de quantidade."
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Open Dashboard"
+msgstr "Abrir Painel"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Open accounts"
+msgstr "Contas em aberto"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Open accounts only (paid and cancelled are excluded). Balances are original amount minus recorded payments — a partially paid account contributes only its remaining balance."
+msgstr "Somente contas em aberto (pagas e canceladas são excluídas). Os saldos são o valor original menos os pagamentos registrados — uma conta parcialmente paga contribui apenas com seu saldo restante."
+
+#: P:frontend/i18n.py
+msgid "Open navigation"
+msgstr "Abrir navegação"
+
+#: P:frontend/i18n.py
+msgid "Open search (%(shortcut)s+K)"
+msgstr "Abrir busca (%(shortcut)s+K)"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Open search (Ctrl+K)"
+msgstr "Abrir busca (Ctrl+K)"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Open the Preferences dialog from the header or search inside it; clearing the search shows all settings again. There is no “save” button — changes apply immediately. A stored preference is not the cause of data disappearing; clearing browser storage resets the interface to defaults."
+msgstr "Abra o diálogo de Preferências no cabeçalho ou pesquise dentro dele; limpar a busca mostra todas as configurações novamente. Não há botão de “salvar” — as alterações são aplicadas imediatamente. Uma preferência armazenada não é a causa de dados desaparecendo; limpar o armazenamento do navegador redefine a interface para o padrão."
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Operation overview"
+msgstr "Visão geral da operação"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Operational analytics"
+msgstr "Análises operacionais"
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Optional acquisition cost for reference."
+msgstr "Custo de aquisição opcional para referência."
+
+#: P:frontend/forms.py
+msgid "Optional reference"
+msgstr "Referência opcional"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Optionally add notes, then submit. The balance and status update together."
+msgstr "Opcionalmente adicione observações e envie. O saldo e o status são atualizados juntos."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Options"
+msgstr "Opções"
+
+#: P:frontend/views.py
+msgid "Out of Stock"
+msgstr "Sem Estoque"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Outstanding Balance"
+msgstr "Saldo em Aberto"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Outstanding amount from open receivables. Negative values (red) mean the person owes money."
+msgstr "Valor em aberto das contas a receber. Valores negativos (vermelho) significam que a pessoa deve dinheiro."
+
+#: P:frontend/models.py
+msgid "Overdue"
+msgstr "Vencida"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Overdue Accounts"
+msgstr "Contas Vencidas"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Overdue Balance"
+msgstr "Saldo Vencido"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Overdue accounts need immediate follow-up to avoid cash flow impact."
+msgstr "Contas vencidas exigem acompanhamento imediato para evitar impacto no fluxo de caixa."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "Overview cards"
+msgstr "Cartões de visão geral"
+
+#: P:frontend/search.py
+msgid "POS and search JSON endpoints: authentication, CSRF, request payloads, and error responses."
+msgstr "Endpoints JSON de PDV e busca: autenticação, CSRF, payloads de requisição e respostas de erro."
+
+#: T:frontend/templates/frontend/partials/pagination.html
+msgid "Page %(number)s of %(total)s"
+msgstr "Página %(number)s de %(total)s"
+
+#: T:frontend/templates/404.html
+msgid "Page not found"
+msgstr "Página não encontrada"
+
+#: P:frontend/i18n.py
+msgid "Pages"
+msgstr "Páginas"
+
+#: T:frontend/templates/frontend/partials/pagination.html
+msgid "Pagination"
+msgstr "Paginação"
+
+#: P:frontend/models.py
+msgid "Paid"
+msgstr "Paga"
+
+#: P:frontend/models.py
+msgid "Partial"
+msgstr "Parcial"
+
+#: P:frontend/forms.py
+msgid "Password"
+msgstr "Senha"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Past the due date with a balance remaining."
+msgstr "Após o vencimento com saldo restante."
+
+#: P:frontend/models.py
+msgid "Payment"
+msgstr "Pagamento"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Payment Mix"
+msgstr "Formas de Pagamento"
+
+#: P:frontend/forms.py
+msgid "Payment exceeds remaining balance."
+msgstr "O pagamento excede o saldo restante."
+
+#: P:frontend/forms.py
+msgid "Payment method"
+msgstr "Forma de pagamento"
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Payment methods"
+msgstr "Formas de pagamento"
+
+#: P:frontend/views.py
+msgid "Payment registered."
+msgstr "Pagamento registrado."
+
+#: P:frontend/reporting.py
+msgid "Payment: %(label)s"
+msgstr "Pagamento: %(label)s"
+
+#: P:frontend/models.py
+msgid "Payments"
+msgstr "Pagamentos"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Payments Received"
+msgstr "Pagamentos Recebidos"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Payments belong to receivables and are not filtered by the sales period filters, only by the report date range. Amounts are actual payments, never an account's original amount."
+msgstr "Pagamentos pertencem a contas a receber e não são filtrados pelos filtros de período de vendas, apenas pelo intervalo de datas do relatório. Os valores são pagamentos reais, nunca o valor original de uma conta."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Payments never exceed the outstanding balance, and cancelled receivables refuse new payments at multiple layers."
+msgstr "Pagamentos nunca excedem o saldo em aberto, e contas a receber canceladas recusam novos pagamentos em várias camadas."
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Payments on cancelled receivables are refused."
+msgstr "Pagamentos em contas a receber canceladas são recusados."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Payments pagination"
+msgstr "Paginação de pagamentos"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Payments will appear here"
+msgstr "Os pagamentos aparecerão aqui"
+
+#: P:frontend/models.py
+msgid "Pending"
+msgstr "Pendente"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Pending Accounts"
+msgstr "Contas Pendentes"
+
+#: P:frontend/i18n.py
+msgid "People"
+msgstr "Pessoas"
+
+#: T:frontend/templates/frontend/people.html
+msgid "People List"
+msgstr "Lista de Pessoas"
+
+#: P:frontend/search.py
+msgid "People and Customers"
+msgstr "Pessoas e Clientes"
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "People and Finance"
+msgstr "Pessoas e Financeiro"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "People are the customer records used by sales and finance: students, teachers, staff, and visitors. The <a href=\"%(_u1)s\">People</a> page lists and filters them."
+msgstr "Pessoas são os registros de clientes usados por vendas e finanças: alunos, professores, funcionários e visitantes. A página <a href=\"%(_u1)s\">Pessoas</a> os lista e filtra."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "People by name or registration/record number."
+msgstr "Pessoas por nome ou número de matrícula/cadastro."
+
+#: T:frontend/templates/frontend/people.html
+msgid "People pagination"
+msgstr "Paginação de pessoas"
+
+#: T:frontend/templates/frontend/people.html
+msgid "People registration and lookup"
+msgstr "Cadastro e consulta de pessoas"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "People results are matched on name and record/doc and never include email or phone fields."
+msgstr "Os resultados de pessoas são comparados por nome e cadastro/documento e nunca incluem campos de e-mail ou telefone."
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "People stores students, teachers, staff, and visitors used as sale customers. Finance tracks outstanding accounts and registers payments, updating each receivable's status automatically. Reports summarizes operational activity."
+msgstr "Pessoas armazena alunos, professores, funcionários e visitantes usados como clientes de venda. O Financeiro acompanha contas em aberto e registra pagamentos, atualizando automaticamente o status de cada conta a receber. Relatórios resume a atividade operacional."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Period"
+msgstr "Período"
+
+#: P:frontend/models.py
+msgid "Person"
+msgstr "Pessoa"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Person or reference"
+msgstr "Pessoa ou referência"
+
+#: P:frontend/views.py
+msgid "Person saved."
+msgstr "Pessoa salva."
+
+#: P:frontend/views.py
+msgid "Person “%(name)s” deleted."
+msgstr "Pessoa “%(name)s” excluída."
+
+#: P:frontend/views.py
+msgid "Person “%(name)s” updated."
+msgstr "Pessoa “%(name)s” atualizada."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Person, sale code, or note"
+msgstr "Pessoa, código da venda ou observação"
+
+#: P:frontend/forms.py
+msgid "Phone"
+msgstr "Telefone"
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Pick the product, enter the quantity — positive to add stock, negative to remove — and a reason."
+msgstr "Escolha o produto, informe a quantidade — positiva para adicionar estoque, negativa para remover — e um motivo."
+
+#: P:frontend/views.py
+msgid "Please check the fields."
+msgstr "Verifique os campos."
+
+#: P:frontend/views.py
+msgid "Please verify the payment."
+msgstr "Verifique o pagamento."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Português (Brasil)"
+msgstr "Português (Brasil)"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Preference"
+msgstr "Preferência"
+
+#: P:frontend/i18n.py
+msgid "Preferences"
+msgstr "Preferências"
+
+#: P:frontend/search.py
+msgid "Preferences and Troubleshooting"
+msgstr "Preferências e Solução de Problemas"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Prefix"
+msgstr "Prefixo"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Prefixes are case-insensitive and tolerate surrounding whitespace: <code>PRODUCT: rice</code> works like <code>product:rice</code>."
+msgstr "Os prefixos não diferenciam maiúsculas de minúsculas e toleram espaços ao redor: <code>PRODUCT: rice</code> funciona como <code>product:rice</code>."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Press <code>Ctrl+K</code> and type a name or registration number — matching people appear under the People category."
+msgstr "Pressione <code>Ctrl+K</code> e digite um nome ou número de matrícula — as pessoas correspondentes aparecem na categoria Pessoas."
+
+#: T:frontend/templates/frontend/documentation/topic_base.html
+msgid "Previous"
+msgstr "Anterior"
+
+#: P:frontend/i18n.py
+msgid "Previous (%(label)s): %(amount)s"
+msgstr "Anterior (%(label)s): %(amount)s"
+
+#: P:frontend/i18n.py
+msgid "Previous period"
+msgstr "Período anterior"
+
+#: P:frontend/forms.py
+msgid "Price"
+msgstr "Preço"
+
+#: P:frontend/forms.py
+msgid "Price cannot be negative."
+msgstr "O preço não pode ser negativo."
+
+#: P:frontend/models.py
+msgid "Product"
+msgstr "Produto"
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Product and person records referenced by sales are protected from deletion (<code>PROTECT</code>); the sale keeps a nullable link if a customer is removed (<code>SET_NULL</code>)."
+msgstr "Registros de produtos e pessoas referenciados por vendas são protegidos contra exclusão (<code>PROTECT</code>); a venda mantém um vínculo anulável se um cliente for removido (<code>SET_NULL</code>)."
+
+#: T:frontend/templates/frontend/products.html
+msgid "Product catalog"
+msgstr "Catálogo de produtos"
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Product fields"
+msgstr "Campos do produto"
+
+#: P:frontend/search.py
+msgid "Product fields, stock values and thresholds, and how catalog and inventory adjustments work."
+msgstr "Campos do produto, valores e limites de estoque e como funcionam o catálogo e os ajustes de estoque."
+
+#: P:frontend/forms.py
+msgid "Product name"
+msgstr "Nome do produto"
+
+#: P:frontend/views.py
+msgid "Product saved."
+msgstr "Produto salvo."
+
+#: P:frontend/views.py
+msgid "Product “%(name)s” deleted."
+msgstr "Produto “%(name)s” excluído."
+
+#: P:frontend/views.py
+msgid "Product “%(name)s” updated."
+msgstr "Produto “%(name)s” atualizado."
+
+#: P:frontend/i18n.py
+msgid "Products"
+msgstr "Produtos"
+
+#: P:frontend/search.py
+msgid "Products and Inventory"
+msgstr "Produtos e Estoque"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Products by Status"
+msgstr "Produtos por Status"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Products by name or code."
+msgstr "Produtos por nome ou código."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Products form the catalog that feeds the point of sale. The <a href=\"%(_u1)s\">Products</a> page manages the catalog; the <a href=\"%(_u2)s\">Inventory</a> page shows stock and records adjustments."
+msgstr "Produtos formam o catálogo que alimenta o ponto de venda. A página <a href=\"%(_u1)s\">Produtos</a> gerencia o catálogo; a página <a href=\"%(_u2)s\">Estoque</a> mostra o estoque e registra ajustes."
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Products holds the catalog (price, cost, minimum stock). Inventory shows current stock and the manual adjustment form: enter a positive quantity to add stock or a negative quantity to remove it, with a reason. Every change is logged as a stock movement."
+msgstr "Produtos mantém o catálogo (preço, custo, estoque mínimo). Estoque mostra o estoque atual e o formulário de ajuste manual: informe uma quantidade positiva para adicionar estoque ou negativa para removê-lo, com um motivo. Toda alteração é registrada como movimentação de estoque."
+
+#: T:frontend/templates/frontend/products.html
+msgid "Products pagination"
+msgstr "Paginação de produtos"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Purpose"
+msgstr "Finalidade"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Qty (+ / -)"
+msgstr "Qtd. (+ / -)"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Quadrum exposes JSON endpoints used by the point of sale and the global search. They live in <code>frontend/views.py</code> and are registered in <code>frontend/urls.py</code>. All of them require an authenticated session."
+msgstr "O Quadrum expõe endpoints JSON usados pelo ponto de venda e pela busca global. Eles ficam em <code>frontend/views.py</code> e são registrados em <code>frontend/urls.py</code>. Todos exigem uma sessão autenticada."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "Quadrum is a Django-based <strong>Simple Management System</strong> for product inventory, point-of-sale (POS) sales, accounts receivable, and basic reporting. This page covers the basics of signing in, finding your way around, and the everyday workflows."
+msgstr "O Quadrum é um <strong>Sistema Simples de Gestão</strong> baseado em Django para estoque de produtos, vendas no ponto de venda (PDV), contas a receber e relatórios básicos. Esta página cobre o básico para entrar, navegar e executar os fluxos diários."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Quantities must be positive whole numbers; invalid items are rejected before anything is written."
+msgstr "As quantidades devem ser números inteiros positivos; itens inválidos são rejeitados antes de qualquer gravação."
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Quantity"
+msgstr "Quantidade"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Quantity change"
+msgstr "Alteração de quantidade"
+
+#: P:frontend/services.py
+msgid "Quantity must be a positive integer."
+msgstr "A quantidade deve ser um inteiro positivo."
+
+#: P:frontend/views.py
+msgid "Quantity zero"
+msgstr "Quantidade zero"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "R$ %(amount)s excluded from revenue"
+msgstr "R$ %(amount)s excluídos da receita"
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "R$ 0.00"
+msgstr "R$ 0.00"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Ranked by item revenue (quantity × unit price at sale time, before any sale-level discount). Share uses total item revenue (R$ %(total)s) as the denominator."
+msgstr "Classificado por receita do item (quantidade × preço unitário no momento da venda, antes de qualquer desconto no nível da venda). A participação usa a receita total dos itens (R$ %(total)s) como denominador."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Ranked by total quantity; ties break alphabetically by product name. “Sales” counts distinct completed transactions containing the product."
+msgstr "Classificado pela quantidade total; empates são desempatados alfabeticamente pelo nome do produto. “Vendas” conta transações concluídas distintas que contêm o produto."
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Reason"
+msgstr "Motivo"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Receivable"
+msgstr "Conta a receber"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Receivable Accounts"
+msgstr "Contas a Receber"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Receivable Aging"
+msgstr "Envelhecimento de Contas a Receber"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Receivable statuses"
+msgstr "Status das contas a receber"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Receivables"
+msgstr "Contas a receber"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Receivables and payments"
+msgstr "Contas a receber e pagamentos"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Receivables pagination"
+msgstr "Paginação de contas a receber"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Received in Period"
+msgstr "Recebido no Período"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Recent Sales"
+msgstr "Vendas Recentes"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Record / Doc"
+msgstr "Cadastro / Documento"
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Record a sale"
+msgstr "Registrar uma venda"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Record fields"
+msgstr "Campos do registro"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Record types"
+msgstr "Tipos de registro"
+
+#: P:frontend/models.py
+msgid "Record/Doc"
+msgstr "Cadastro/Documento"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Recorded cost of goods"
+msgstr "Custo registrado dos bens"
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Recording a sale"
+msgstr "Registrando uma venda"
+
+#: P:frontend/search.py
+msgid "Recording a sale at the point of sale: cart, payment methods, finalization, and safe retries."
+msgstr "Registrar uma venda no ponto de venda: carrinho, formas de pagamento, finalização e novas tentativas seguras."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Records per page"
+msgstr "Registros por página"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Reduced"
+msgstr "Reduzido"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Reference"
+msgstr "Referência"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Register"
+msgstr "Cadastrar"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Register Payment"
+msgstr "Registrar Pagamento"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Register payment for %(name)s"
+msgstr "Registrar pagamento para %(name)s"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Register products in the Products section"
+msgstr "Cadastre produtos na seção Produtos"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Registering payments"
+msgstr "Registrando pagamentos"
+
+#: P:frontend/forms.py
+msgid "Registration"
+msgstr "Cadastro"
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "Registration never grants Django staff or superuser privileges. Application access and administrative privileges are separate."
+msgstr "O cadastro nunca concede privilégios de staff ou superusuário do Django. O acesso à aplicação e os privilégios administrativos são separados."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Related repository documents"
+msgstr "Documentos relacionados do repositório"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Remaining"
+msgstr "Restante"
+
+#: P:frontend/i18n.py
+msgid "Remove item"
+msgstr "Remover item"
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Reopen this guide anytime from Help &rarr; Documentation."
+msgstr "Reabra este guia a qualquer momento em Ajuda &rarr; Documentação."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "Replay it any time with <strong>Show getting started guide</strong> on the <a href=\"%(_u1)s\">Documentation index</a>."
+msgstr "Repita-o a qualquer momento com <strong>Mostrar guia de primeiros passos</strong> no <a href=\"%(_u1)s\">índice da documentação</a>."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Report transactions pagination"
+msgstr "Paginação de transações do relatório"
+
+#: P:frontend/search.py
+msgid "Reports"
+msgstr "Relatórios"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Request fields: <code>items</code> (non-empty), optional <code>customer_id</code> (must be an active person), optional <code>payment_method</code> (exactly one of <code>CASH</code>, <code>DEBIT</code>, <code>CREDIT</code>, <code>PIX</code>, <code>ON_ACCOUNT</code>), and a required <code>idempotency_key</code> (1–255 characters, letters, digits, <code>_</code> and <code>-</code>)."
+msgstr "Campos da requisição: <code>items</code> (não vazio), <code>customer_id</code> opcional (deve ser uma pessoa ativa), <code>payment_method</code> opcional (exatamente um de <code>CASH</code>, <code>DEBIT</code>, <code>CREDIT</code>, <code>PIX</code>, <code>ON_ACCOUNT</code>) e um <code>idempotency_key</code> obrigatório (1–255 caracteres, letras, dígitos, <code>_</code> e <code>-</code>)."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Request: <code>{\"items\": [{\"product_id\": 12, \"quantity\": 2}]}</code>."
+msgstr "Requisição: <code>{\"items\": [{\"product_id\": 12, \"quantity\": 2}]}</code>."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Responsible"
+msgstr "Responsável"
+
+#: P:frontend/reporting.py
+msgid "Responsible: %(label)s"
+msgstr "Responsável: %(label)s"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Results always link to a real destination: pages open the page, documentation opens the topic page, products open the Products listing, people open the People listing already filtered by the matched name, and sales open the Sales history."
+msgstr "Os resultados sempre levam a um destino real: páginas abrem a página, documentação abre o tópico, produtos abrem a listagem de Produtos, pessoas abrem a listagem de Pessoas já filtrada pelo nome correspondente e vendas abrem o histórico de Vendas."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Retrying with the same key and equivalent contents returns the original sale code with 200 and writes nothing new."
+msgstr "Repetir com a mesma chave e conteúdo equivalente retorna o código da venda original com 200 e não grava nada novo."
+
+#: P:frontend/models.py
+msgid "Return"
+msgstr "Devolução"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Reusing a key with different contents returns 409; a key owned by another user returns 403."
+msgstr "Reutilizar uma chave com conteúdo diferente retorna 409; uma chave pertencente a outro usuário retorna 403."
+
+#: P:frontend/i18n.py
+msgid "Revenue"
+msgstr "Receita"
+
+#: P:frontend/i18n.py
+msgid "Revenue (%(label)s): %(amount)s"
+msgstr "Receita (%(label)s): %(amount)s"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Revenue over time with previous period comparison"
+msgstr "Receita ao longo do tempo com comparação ao período anterior"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Revenue vs Received"
+msgstr "Receita vs Recebido"
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Review the cart total. Prices and totals are always calculated from the stored product price."
+msgstr "Revise o total do carrinho. Preços e totais são sempre calculados a partir do preço armazenado do produto."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Rounded"
+msgstr "Arredondado"
+
+#: P:frontend/models.py
+msgid "Sale"
+msgstr "Venda"
+
+#: P:frontend/models.py
+msgid "Sale Item"
+msgstr "Item de Venda"
+
+#: P:frontend/models.py
+msgid "Sale Items"
+msgstr "Itens de Venda"
+
+#: P:frontend/i18n.py
+msgid "Sale finalized"
+msgstr "Venda finalizada"
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Sale header: code, status, payment method, totals, customer, responsible user, and idempotency key."
+msgstr "Cabeçalho da venda: código, status, forma de pagamento, totais, cliente, usuário responsável e chave de idempotência."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Sale price (R$, two decimals). The POS always uses this stored price."
+msgstr "Preço de venda (R$, duas casas decimais). O PDV sempre usa este preço armazenado."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Sale states"
+msgstr "Estados da venda"
+
+#: P:frontend/i18n.py
+msgid "Sales"
+msgstr "Vendas"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Sales Today"
+msgstr "Vendas Hoje"
+
+#: P:frontend/search.py
+msgid "Sales and Point of Sale"
+msgstr "Vendas e Ponto de Venda"
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Sales are recorded at the point of sale and listed in the <a href=\"%(_u1)s\">Sales</a> history. Each sale stores its line items, totals, payment method, customer (when attached), and the responsible user."
+msgstr "As vendas são registradas no ponto de venda e listadas no histórico de <a href=\"%(_u1)s\">Vendas</a>. Cada venda armazena seus itens, totais, forma de pagamento, cliente (quando vinculado) e o usuário responsável."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Sales by code or customer name."
+msgstr "Vendas por código ou nome do cliente."
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "Sales history"
+msgstr "Histórico de vendas"
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "Sales pagination"
+msgstr "Paginação de vendas"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Sales summary"
+msgstr "Resumo de vendas"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Save"
+msgstr "Salvar"
+
+#: T:frontend/templates/frontend/products.html
+msgid "Save Product"
+msgstr "Salvar Produto"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Save changes"
+msgstr "Salvar alterações"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Saved in this browser."
+msgstr "Salvo neste navegador."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Saved to your account and applied on every visit."
+msgstr "Salvo na sua conta e aplicado em cada acesso."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Scale the interface text up or down. Default keeps the current size."
+msgstr "Aumente ou diminua o texto da interface. Padrão mantém o tamanho atual."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Search"
+msgstr "Pesquisar"
+
+#: P:frontend/i18n.py
+msgid "Search (%(shortcut)s+K)"
+msgstr "Pesquisar (%(shortcut)s+K)"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Search (Ctrl+K)"
+msgstr "Pesquisar (Ctrl+K)"
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Search Products"
+msgstr "Pesquisar Produtos"
+
+#: P:frontend/search.py
+msgid "Search and Advanced Queries"
+msgstr "Busca e Consultas Avançadas"
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "Search documentation topics"
+msgstr "Pesquisar tópicos de documentação"
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "Search documentation topics..."
+msgstr "Pesquisar tópicos de documentação..."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Search endpoint"
+msgstr "Endpoint de busca"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Search help"
+msgstr "Ajuda da busca"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Search mode"
+msgstr "Modo de busca"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Search pages, docs, products, people, sales..."
+msgstr "Pesquisar páginas, documentos, produtos, pessoas, vendas..."
+
+#: P:frontend/i18n.py
+msgid "Search pages, products, people, sales…"
+msgstr "Pesquisar páginas, produtos, pessoas, vendas…"
+
+#: T:frontend/templates/frontend/people.html
+msgid "Search people by name or registration"
+msgstr "Pesquisar pessoas por nome ou cadastro"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Search preferences"
+msgstr "Pesquisar preferências"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Search preferences..."
+msgstr "Pesquisar preferências..."
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Search product"
+msgstr "Pesquisar produto"
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Search product name..."
+msgstr "Pesquisar nome do produto..."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Search results"
+msgstr "Resultados da busca"
+
+#: P:frontend/i18n.py
+msgid "Search results are unavailable right now."
+msgstr "Os resultados da busca estão indisponíveis no momento."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Search results show only the name and record details — email and phone numbers are never returned by search."
+msgstr "Os resultados da busca mostram apenas o nome e os detalhes do cadastro — e-mails e telefones nunca são retornados pela busca."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Search scope"
+msgstr "Escopo da busca"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Searches"
+msgstr "Buscas"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Searching for people from anywhere"
+msgstr "Pesquisando pessoas de qualquer lugar"
+
+#: P:frontend/i18n.py
+msgid "Searching…"
+msgstr "Pesquisando…"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "See <a href=\"%(_u1)s\">Search and Advanced Queries</a> for the full search syntax."
+msgstr "Consulte <a href=\"%(_u1)s\">Busca e Consultas Avançadas</a> para a sintaxe completa da busca."
+
+#: P:frontend/i18n.py
+msgid "Select a payment method"
+msgstr "Selecione uma forma de pagamento"
+
+#: P:frontend/forms.py
+msgid "Select an account"
+msgstr "Selecione uma conta"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Selecting a person opens the People listing already filtered to that name."
+msgstr "Selecionar uma pessoa abre a listagem de Pessoas já filtrada por esse nome."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Share"
+msgstr "Participação"
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "Show getting started guide"
+msgstr "Mostrar guia de primeiros passos"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Shown as"
+msgstr "Exibido como"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Side effects on a new sale (all in one atomic transaction): one Sale, one SaleItem per line with the stored unit price, stock reductions with a stock movement per item, and — for On Account sales with a customer — one account receivable."
+msgstr "Efeitos colaterais de uma nova venda (tudo em uma transação atômica): uma Venda, um Item de Venda por linha com o preço unitário armazenado, reduções de estoque com uma movimentação por item e — para vendas A prazo com cliente — uma conta a receber."
+
+#: T:frontend/templates/frontend/login.html
+msgid "Sign in"
+msgstr "Entrar"
+
+#: P:frontend/search.py
+msgid "Sign in, find your way around Quadrum, replay the first-run guide, and set up interface preferences."
+msgstr "Entre, encontre seu caminho no Quadrum, repita o guia de primeiros passos e configure as preferências da interface."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Sign out"
+msgstr "Sair"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Sign out?"
+msgstr "Sair?"
+
+#: T:frontend/templates/frontend/auth_base.html
+msgid "Simple Management System"
+msgstr "Sistema Simples de Gestão"
+
+#: T:frontend/templates/frontend/auth_base.html
+msgid "Simple management for products, sales, and accounts receivable in one place."
+msgstr "Gestão simples de produtos, vendas e contas a receber em um só lugar."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Small"
+msgstr "Pequeno"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Small, Default, Large."
+msgstr "Pequeno, Padrão, Grande."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Some filters could not be applied:"
+msgstr "Alguns filtros não puderam ser aplicados:"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Some payments registered; a balance remains."
+msgstr "Alguns pagamentos registrados; resta um saldo."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Square"
+msgstr "Quadrados"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Square (default) or Rounded."
+msgstr "Quadrados (padrão) ou Arredondados."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Square removes rounded corners across the interface; Rounded restores the classic look."
+msgstr "Quadrados remove os cantos arredondados de toda a interface; Arredondados restaura o visual clássico."
+
+#: P:frontend/models.py
+msgid "Staff"
+msgstr "Funcionário"
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Start a Sale"
+msgstr "Iniciar uma Venda"
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "Start with the Getting Started guide."
+msgstr "Comece pelo guia Primeiros Passos."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "State-changing requests must carry a CSRF token, sent as the <code>X-CSRFToken</code> header or the <code>csrfmiddlewaretoken</code> form field."
+msgstr "Requisições que alteram estado devem portar um token CSRF, enviado como cabeçalho <code>X-CSRFToken</code> ou campo de formulário <code>csrfmiddlewaretoken</code>."
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Status"
+msgstr "Status"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Status Breakdown"
+msgstr "Distribuição por Status"
+
+#: P:frontend/reporting.py
+msgid "Status: %(label)s"
+msgstr "Status: %(label)s"
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Statuses are recalculated when payments are registered or a sale is cancelled; there is no background job that moves records to Overdue on its own, so a stored status reflects the last recalculation."
+msgstr "Os status são recalculados quando pagamentos são registrados ou uma venda é cancelada; não há tarefa em segundo plano que mova registros para Vencida por conta própria, então o status armazenado reflete a última recalculação."
+
+#: P:frontend/i18n.py
+msgid "Step %(current)s of %(total)s"
+msgstr "Etapa %(current)s de %(total)s"
+
+#: T:frontend/templates/frontend/products.html
+msgid "Stock"
+msgstr "Estoque"
+
+#: P:frontend/models.py
+msgid "Stock Movement"
+msgstr "Movimentação de Estoque"
+
+#: P:frontend/models.py
+msgid "Stock Movements"
+msgstr "Movimentações de Estoque"
+
+#: P:frontend/views.py
+msgid "Stock OK"
+msgstr "Estoque OK"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Stock adjustment"
+msgstr "Ajuste de estoque"
+
+#: P:frontend/forms.py
+msgid "Stock cannot be negative."
+msgstr "O estoque não pode ser negativo."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Stock is never allowed to go negative — a database constraint backs the service-level checks."
+msgstr "O estoque nunca pode ficar negativo — uma restrição do banco de dados respalda as verificações na camada de serviço."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "Stock movement history is append-only, so stock changes can always be reconstructed."
+msgstr "O histórico de movimentações de estoque é somente de acréscimo, então as alterações de estoque sempre podem ser reconstruídas."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Stock never goes negative: an adjustment that would remove more than the available quantity is rejected with an error message, and nothing is saved."
+msgstr "O estoque nunca fica negativo: um ajuste que removeria mais do que a quantidade disponível é rejeitado com uma mensagem de erro, e nada é salvo."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Stock status indicators"
+msgstr "Indicadores de status do estoque"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Strengthen text, borders, and focus indicators."
+msgstr "Reforce texto, bordas e indicadores de foco."
+
+#: P:frontend/models.py
+msgid "Student"
+msgstr "Aluno"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Student, Teacher, Staff, or Visitor."
+msgstr "Aluno, Professor, Funcionário ou Visitante."
+
+#: P:frontend/search.py
+msgid "Student, teacher, staff, and visitor records — fields, filters, balances, and lookup."
+msgstr "Registros de alunos, professores, funcionários e visitantes — campos, filtros, saldos e consulta."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Submit. The new stock level is saved together with a stock movement recording the signed quantity, the reason, and the responsible user."
+msgstr "Envie. O novo nível de estoque é salvo junto com uma movimentação de estoque registrando a quantidade com sinal, o motivo e o usuário responsável."
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Subtotal"
+msgstr "Subtotal"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Success returns <code>{\"success\": true, \"code\": \"VEN-000042\", \"message\": \"Sale completed\"}</code>."
+msgstr "O sucesso retorna <code>{\"success\": true, \"code\": \"VEN-000042\", \"message\": \"Sale completed\"}</code>."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Success: <code>{\"total\": \"10.00\"}</code> — the total is a string with two decimals. An empty items list returns <code>{\"total\": \"0\"}</code>."
+msgstr "Sucesso: <code>{\"total\": \"10.00\"}</code> — o total é uma string com duas casas decimais. Uma lista de itens vazia retorna <code>{\"total\": \"0\"}</code>."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Switching tabs never clears your query; clearing the query returns to browse mode."
+msgstr "Trocar de aba nunca limpa sua consulta; limpar a consulta retorna ao modo de navegação."
+
+#: T:frontend/templates/frontend/base.html
+msgid "System"
+msgstr "Sistema"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "System or Reduced animation."
+msgstr "Animação do Sistema ou Reduzida."
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "System, Light, Dark."
+msgstr "Sistema, Claro, Escuro."
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "TIME"
+msgstr "HORA"
+
+#: P:frontend/models.py
+msgid "Teacher"
+msgstr "Professor"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Text size"
+msgstr "Tamanho do texto"
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "The <a href=\"%(_u1)s\">Dashboard</a> is the landing page after sign-in. It summarizes the current day and recent activity; the <a href=\"%(_u2)s\">Reports</a> page covers longer periods."
+msgstr "O <a href=\"%(_u1)s\">Painel</a> é a página inicial após entrar. Ele resume o dia atual e a atividade recente; a página <a href=\"%(_u2)s\">Relatórios</a> cobre períodos mais longos."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "The POS endpoints are POST-only; an authenticated non-POST request returns 405. The search endpoint is GET-only."
+msgstr "Os endpoints de PDV são somente POST; uma requisição autenticada que não seja POST retorna 405. O endpoint de busca é somente GET."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "The POS endpoints read a JSON body (<code>application/json</code>) directly."
+msgstr "Os endpoints de PDV leem um corpo JSON (<code>application/json</code>) diretamente."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "The Preferences dialog stores interface settings in this browser only — see <a href=\"%(_u1)s\">Preferences and Troubleshooting</a>."
+msgstr "O diálogo de Preferências armazena as configurações de interface apenas neste navegador — consulte <a href=\"%(_u1)s\">Preferências e Solução de Problemas</a>."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "The advanced prefixes <code>page:</code>, <code>doc:</code>, <code>product:</code>, <code>person:</code>, and <code>sale:</code> restrict the search to one group; an empty prefixed term returns a prompt instead of results."
+msgstr "Os prefixos avançados <code>page:</code>, <code>doc:</code>, <code>product:</code>, <code>person:</code> e <code>sale:</code> restringem a busca a um grupo; um termo prefixado vazio retorna uma dica em vez de resultados."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "The application keeps a compact data model: nine entities covering the catalog, sales, stock auditing, receivables, and onboarding state. This page is a quick map; the schema, constraints, and migration guidance live in <code>docs/data-model.md</code>."
+msgstr "A aplicação mantém um modelo de dados compacto: nove entidades cobrindo o catálogo, vendas, auditoria de estoque, contas a receber e estado de integração. Esta página é um mapa rápido; o esquema, as restrições e as orientações de migração ficam em <code>docs/data-model.md</code>."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "The complete request/response schemas, every controlled error message, and the fingerprint rules are documented in <code>docs/api-reference.md</code> and <code>docs/business-flows.md</code> (repository files, not served by the application). See also <a href=\"%(_u1)s\">Search and Advanced Queries</a>."
+msgstr "Os esquemas completos de requisição/resposta, todas as mensagens de erro controladas e as regras de impressão digital estão documentados em <code>docs/api-reference.md</code> e <code>docs/business-flows.md</code> (arquivos do repositório, não servidos pela aplicação). Consulte também <a href=\"%(_u1)s\">Busca e Consultas Avançadas</a>."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "The detailed aggregation rules are documented for developers in <code>docs/business-flows.md</code> (repository file, not served by the application)."
+msgstr "As regras detalhadas de agregação estão documentadas para desenvolvedores em <code>docs/business-flows.md</code> (arquivo do repositório, não servido pela aplicação)."
+
+#: P:frontend/reporting.py
+msgid "The end date must not be before the start date."
+msgstr "A data de término não pode ser anterior à data de início."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "The endpoint behind the palette (<code>GET /api/search/</code>) is documented on the <a href=\"%(_u1)s\">API Reference</a> page."
+msgstr "O endpoint por trás da paleta (<code>GET /api/search/</code>) está documentado na página <a href=\"%(_u1)s\">Referência da API</a>."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "The endpoint is read-only: it does not reserve or guarantee stock."
+msgstr "O endpoint é somente leitura: ele não reserva nem garante estoque."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "The full request/response contract, including every error code, is on the <a href=\"%(_u1)s\">API Reference</a> page and in <code>docs/api-reference.md</code>."
+msgstr "O contrato completo de requisição/resposta, incluindo cada código de erro, está na página <a href=\"%(_u1)s\">Referência da API</a> e em <code>docs/api-reference.md</code>."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "The grouping used to filter the catalog and the point-of-sale product picker."
+msgstr "O agrupamento usado para filtrar o catálogo e o seletor de produtos do ponto de venda."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "The guide's current step is stored per account, so it resumes where you left off even after navigating or signing back in."
+msgstr "A etapa atual do guia é armazenada por conta, então ele retoma de onde você parou mesmo após navegar ou entrar novamente."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "The header search (or <code>Ctrl+K</code>) opens the global search palette — see <a href=\"%(_u1)s\">Search and Advanced Queries</a>."
+msgstr "A busca do cabeçalho (ou <code>Ctrl+K</code>) abre a paleta de busca global — consulte <a href=\"%(_u1)s\">Busca e Consultas Avançadas</a>."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "The listing header has a search box that filters by name or registration; the URL parameter is preserved, so links can open a filtered listing directly."
+msgstr "O cabeçalho da listagem tem uma caixa de busca que filtra por nome ou cadastro; o parâmetro da URL é preservado, então links podem abrir uma listagem filtrada diretamente."
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "The point of sale: pick products by category, set quantities, optionally choose the customer, select the payment method, then finalize. Finalizing records the sale and deducts stock; an On Account sale with a customer also creates an account receivable."
+msgstr "O ponto de venda: escolha produtos por categoria, defina quantidades, opcionalmente escolha o cliente, selecione a forma de pagamento e finalize. A finalização registra a venda e deduz o estoque; uma venda A prazo com cliente também cria uma conta a receber."
+
+#: P:frontend/search.py
+msgid "The preferences that actually exist and verified fixes for common situations."
+msgstr "As preferências que realmente existem e correções verificadas para situações comuns."
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "The product name shown in the catalog and sale screens."
+msgstr "O nome do produto exibido no catálogo e nas telas de venda."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "The query is whitespace-normalized and capped at 100 characters; at least two characters are required."
+msgstr "A consulta é normalizada quanto a espaços e limitada a 100 caracteres; pelo menos dois caracteres são necessários."
+
+#: T:frontend/templates/frontend/documentation.html
+msgid "The repository files <code>README.md</code> and the <code>docs/</code> directory are the internal source of truth for the schema, business rules, and API contract. They are not served by the application; the pages above summarize them in-app."
+msgstr "Os arquivos do repositório <code>README.md</code> e o diretório <code>docs/</code> são a fonte interna da verdade para o esquema, as regras de negócio e o contrato da API. Eles não são servidos pela aplicação; as páginas acima os resumem no aplicativo."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "The request fingerprint is a SHA-256 over the normalized items (sorted <code>product_id</code>/<code>quantity</code> pairs), <code>customer_id</code>, and <code>payment_method</code>; item order and any client price are excluded."
+msgstr "A impressão digital da requisição é um SHA-256 sobre os itens normalizados (pares <code>product_id</code>/<code>quantity</code> ordenados), <code>customer_id</code> e <code>payment_method</code>; a ordem dos itens e qualquer preço do cliente são excluídos."
+
+#: T:frontend/templates/404.html
+msgid "The requested address does not exist or has been moved. Check the link and try again."
+msgstr "O endereço solicitado não existe ou foi movido. Verifique o link e tente novamente."
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "The sale is recorded as <em>Completed</em>, stock is deducted from each product, and a stock movement is written per item."
+msgstr "A venda é registrada como <em>Concluída</em>, o estoque é deduzido de cada produto e uma movimentação de estoque é gravada por item."
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "The sales history lists recent sales with their status (Completed, Pending, or Cancelled), totals, and customer. Use it to review what was finalized and when."
+msgstr "O histórico de vendas lista as vendas recentes com seu status (Concluída, Pendente ou Cancelada), totais e cliente. Use-o para revisar o que foi finalizado e quando."
+
+#: T:frontend/templates/400.html
+msgid "The server could not process this request. Check the submitted data and try again."
+msgstr "O servidor não conseguiu processar esta requisição. Verifique os dados enviados e tente novamente."
+
+#: T:frontend/templates/500.html
+msgid "The server encountered a problem and could not complete the request. Try again in a few moments."
+msgstr "O servidor encontrou um problema e não conseguiu concluir a requisição. Tente novamente em alguns instantes."
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "The sidebar links to every area of the system; collapse it with <code>Ctrl+B</code> on desktop."
+msgstr "A barra lateral leva a todas as áreas do sistema; recolha-a com <code>Ctrl+B</code> no desktop."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Theme"
+msgstr "Tema"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "There are no completed sale items in the selected period."
+msgstr "Não há itens de venda concluída no período selecionado."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "There is no completed revenue in the selected period."
+msgstr "Não há receita concluída no período selecionado."
+
+#: T:frontend/templates/frontend/documentation/topics/data_models.html
+msgid "These files are the internal source of truth and are not served by the application. See also <a href=\"%(_u1)s\">API Reference</a>."
+msgstr "Esses arquivos são a fonte interna da verdade e não são servidos pela aplicação. Consulte também <a href=\"%(_u1)s\">Referência da API</a>."
+
+#: P:frontend/forms.py
+msgid "This account is already settled."
+msgstr "Esta conta já está quitada."
+
+#: P:frontend/forms.py
+msgid "This account is cancelled."
+msgstr "Esta conta está cancelada."
+
+#: P:frontend/i18n.py
+msgid "This action cannot be undone."
+msgstr "Esta ação não pode ser desfeita."
+
+#: P:frontend/i18n.py
+msgid "This action cannot be undone. Continue?"
+msgstr "Esta ação não pode ser desfeita. Continuar?"
+
+#: P:frontend/reporting.py
+msgid "This month"
+msgstr "Este mês"
+
+#: P:frontend/services.py
+msgid "This person cannot be deleted because historical records reference them."
+msgstr "Esta pessoa não pode ser excluída porque registros históricos a referenciam."
+
+#: T:frontend/templates/frontend/people.html
+msgid "This person is referenced by %(sales)s sale(s) and %(receivables)s receivable(s). Deactivate them instead so sales and receivables history stays intact."
+msgstr "Esta pessoa é referenciada por %(sales)s venda(s) e %(receivables)s conta(s) a receber. Desative-a para que o histórico de vendas e contas a receber permaneça intacto."
+
+#: P:frontend/services.py
+msgid "This product cannot be deleted because sales or inventory history reference it."
+msgstr "Este produto não pode ser excluído porque o histórico de vendas ou de estoque o referencia."
+
+#: T:frontend/templates/frontend/products.html
+msgid "This product is referenced by %(items)s sale item(s) and %(movements)s stock movement(s). Deactivate it instead so sales and inventory history stays intact."
+msgstr "Este produto é referenciado por %(items)s item(ns) de venda e %(movements)s movimentação(ões) de estoque. Desative-o para que o histórico de vendas e estoque permaneça intacto."
+
+#: T:frontend/templates/frontend/products.html
+msgid "This removes %(name)s from the catalog. This action cannot be undone."
+msgstr "Isso remove %(name)s do catálogo. Esta ação não pode ser desfeita."
+
+#: T:frontend/templates/frontend/people.html
+msgid "This removes %(name)s from the registry. This action cannot be undone."
+msgstr "Isso remove %(name)s do cadastro. Esta ação não pode ser desfeita."
+
+#: T:frontend/templates/frontend/base.html
+msgid "Tints buttons, links, focus rings, and selected items."
+msgstr "Tinge botões, links, anéis de foco e itens selecionados."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "To"
+msgstr "Até"
+
+#: P:frontend/reporting.py
+msgid "Today"
+msgstr "Hoje"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Top Products"
+msgstr "Produtos Principais"
+
+#: T:frontend/templates/frontend/documentation/topic_base.html
+msgid "Topics"
+msgstr "Tópicos"
+
+#: P:frontend/reporting.py
+msgid "Total"
+msgstr "Total"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Total Items"
+msgstr "Total de Itens"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Total Overdue"
+msgstr "Total Vencido"
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Total Receivable"
+msgstr "Total a Receber"
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Total Value"
+msgstr "Valor Total"
+
+#: P:frontend/models.py
+msgid "Transfer"
+msgstr "Transferência"
+
+#: T:frontend/templates/frontend/documentation/topics/preferences_troubleshooting.html
+msgid "Troubleshooting"
+msgstr "Solução de Problemas"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Try a different period or clear the filters."
+msgstr "Tente outro período ou limpe os filtros."
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "Try a different query or period."
+msgstr "Tente outra consulta ou período."
+
+#: T:frontend/templates/frontend/products.html
+msgid "Try another name, code, category, or status."
+msgstr "Tente outro nome, código, categoria ou status."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Try another person, reference, method, or date range."
+msgstr "Tente outra pessoa, referência, forma ou intervalo de datas."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "Try another person, status, or due-date range."
+msgstr "Tente outra pessoa, status ou intervalo de vencimento."
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "Try another product name, code, status, or category."
+msgstr "Tente outro nome de produto, código, status ou categoria."
+
+#: P:frontend/forms.py
+msgid "Type"
+msgstr "Tipo"
+
+#: P:frontend/i18n.py
+msgid "Type a person name or document after person: (for example, person:maria)."
+msgstr "Digite um nome de pessoa ou documento após person: (por exemplo, person:maria)."
+
+#: P:frontend/i18n.py
+msgid "Type a product name or code after product: (for example, product:rice)."
+msgstr "Digite um nome de produto ou código após product: (por exemplo, product:rice)."
+
+#: P:frontend/i18n.py
+msgid "Type a sale code or customer name after sale: (for example, sale:1042)."
+msgstr "Digite um código de venda ou nome do cliente após sale: (por exemplo, sale:1042)."
+
+#: P:frontend/i18n.py
+msgid "Type after doc: to search documentation topics (for example, doc:inventory)."
+msgstr "Digite após doc: para pesquisar tópicos de documentação (por exemplo, doc:inventory)."
+
+#: P:frontend/i18n.py
+msgid "Type after page: to search application pages (for example, page:inventory)."
+msgstr "Digite após page: para pesquisar páginas da aplicação (por exemplo, page:inventory)."
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Type badge"
+msgstr "Selo de tipo"
+
+#: P:frontend/i18n.py
+msgid "Type to search Quadrum."
+msgstr "Digite para pesquisar no Quadrum."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Type two or more characters: matching pages and documentation topics appear immediately, and products, people, and sales are fetched from the server as you type."
+msgstr "Digite dois ou mais caracteres: páginas e tópicos de documentação correspondentes aparecem imediatamente, e produtos, pessoas e vendas são buscados no servidor conforme você digita."
+
+#: P:frontend/i18n.py
+msgid "Unable to copy to clipboard"
+msgstr "Não é possível copiar para a área de transferência"
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "Unexpected failure; the response carries no internal detail."
+msgstr "Falha inesperada; a resposta não traz detalhes internos."
+
+#: P:frontend/i18n.py
+msgid "Units"
+msgstr "Unidades"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Units Sold"
+msgstr "Unidades Vendidas"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Units from sale items of completed sales. Tooltips also show the transaction count per bucket."
+msgstr "Unidades de itens de venda de vendas concluídas. As dicas também mostram a contagem de transações por intervalo."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Units sold over time"
+msgstr "Unidades vendidas ao longo do tempo"
+
+#: P:frontend/i18n.py
+msgid "Units: %(units)s · %(count)s transaction"
+msgstr "Unidades: %(units)s · %(count)s transação"
+
+#: P:frontend/i18n.py
+msgid "Units: %(units)s · %(count)s transactions"
+msgstr "Unidades: %(units)s · %(count)s transações"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Unknown prefixes are treated as ordinary search text, not as errors."
+msgstr "Prefixos desconhecidos são tratados como texto de busca comum, não como erros."
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "Unprefixed searches cover every resource type at once."
+msgstr "Buscas sem prefixo cobrem todos os tipos de recurso de uma vez."
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Up to date"
+msgstr "Em dia"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Use the <code>person:</code> prefix to search people only (for example, <code>person:maria</code> or <code>person:123456</code>), or switch to the <strong>People</strong> tab."
+msgstr "Use o prefixo <code>person:</code> para pesquisar apenas pessoas (por exemplo, <code>person:maria</code> ou <code>person:123456</code>), ou mude para a aba <strong>Pessoas</strong>."
+
+#: T:frontend/templates/frontend/people.html
+msgid "Use the form above to register the first person"
+msgstr "Use o formulário acima para cadastrar a primeira pessoa"
+
+#: T:frontend/templates/frontend/documentation/topics/people.html
+msgid "Used for matching in listings and search."
+msgstr "Usado para correspondência em listagens e buscas."
+
+#: P:frontend/models.py
+msgid "User Profile"
+msgstr "Perfil de Usuário"
+
+#: P:frontend/models.py
+msgid "User Profiles"
+msgstr "Perfis de Usuário"
+
+#: P:frontend/forms.py
+msgid "Username"
+msgstr "Nome de usuário"
+
+#: T:frontend/templates/frontend/documentation/topics/sales_pos.html
+msgid "Validation and safe retries"
+msgstr "Validação e novas tentativas seguras"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Value paid per method on completed sales (On Account counts when the sale completes, not when it is later paid)."
+msgstr "Valor pago por forma em vendas concluídas (A prazo conta quando a venda é concluída, não quando é paga depois)."
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "View Sales"
+msgstr "Ver Vendas"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "View all"
+msgstr "Ver todos"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "View finance"
+msgstr "Ver financeiro"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "View inventory"
+msgstr "Ver estoque"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "View report"
+msgstr "Ver relatório"
+
+#: T:frontend/templates/frontend/base.html
+msgid "Violet"
+msgstr "Violeta"
+
+#: P:frontend/models.py
+msgid "Visitor"
+msgstr "Visitante"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Volume"
+msgstr "Volume"
+
+#: P:frontend/views.py
+msgid "Walk-in"
+msgstr "Cliente avulso"
+
+#: P:frontend/search.py
+msgid "What the overview cards, recent activity, and inventory indicators show — and where the numbers come from."
+msgstr "O que os cartões de visão geral, a atividade recente e os indicadores de estoque mostram — e de onde vêm os números."
+
+#: T:frontend/templates/frontend/documentation/topics/api.html
+msgid "When"
+msgstr "Quando"
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "When your session ends, sign in again to continue. Saved data is not affected."
+msgstr "Quando sua sessão terminar, entre novamente para continuar. Os dados salvos não são afetados."
+
+#: T:frontend/templates/frontend/documentation/topics/finance.html
+msgid "Where receivables come from"
+msgstr "De onde vêm as contas a receber"
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "Where the numbers come from"
+msgstr "De onde vêm os números"
+
+#: T:frontend/templates/frontend/documentation/topics/search.html
+msgid "With an empty field, the tabs All, Pages, Docs, Products, People, and Sales show what each category can search and how to query it."
+msgstr "Com o campo vazio, as abas Todas, Páginas, Documentos, Produtos, Pessoas e Vendas mostram o que cada categoria pode pesquisar e como consultá-la."
+
+#: P:frontend/reporting.py
+msgid "Yesterday"
+msgstr "Ontem"
+
+#: T:frontend/templates/frontend/documentation/topics/getting_started.html
+msgid "You can create your own account from the <a href=\"%(_u1)s\">registration page</a>. Every operational area requires signing in."
+msgstr "Você pode criar sua própria conta na <a href=\"%(_u1)s\">página de cadastro</a>. Toda área operacional exige login."
+
+#: T:frontend/templates/403.html
+msgid "You do not have permission to access this area. If you believe this is a mistake, contact the administrator."
+msgstr "Você não tem permissão para acessar esta área. Se acredita que isso é um erro, contate o administrador."
+
+#: T:frontend/templates/frontend/partials/onboarding.html
+msgid "Your daily overview: sales and revenue for today, receivables and overdue balances, low-stock alerts, and the latest sales activity."
+msgstr "Sua visão diária: vendas e receita de hoje, contas a receber e saldos vencidos, alertas de estoque baixo e as últimas atividades de venda."
+
+#: P:frontend/forms.py
+msgid "Your password"
+msgstr "Sua senha"
+
+#: P:frontend/forms.py
+msgid "Your username"
+msgstr "Seu nome de usuário"
+
+#: T:frontend/templates/frontend/documentation/topics/products_inventory.html
+msgid "Zero-quantity adjustments are rejected."
+msgstr "Ajustes com quantidade zero são rejeitados."
+
+#: T:frontend/templates/frontend/reports.html
+msgid "by due date"
+msgstr "por vencimento"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "by method"
+msgstr "por forma"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "by revenue"
+msgstr "por receita"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "by units sold"
+msgstr "por unidades vendidas"
+
+#: T:frontend/templates/frontend/base.html
+msgid "close"
+msgstr "fechar"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "completed revenue"
+msgstr "receita concluída"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "completed sales only"
+msgstr "somente vendas concluídas"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "current snapshot"
+msgstr "visão atual"
+
+#: T:frontend/templates/frontend/base.html
+msgid "doc:"
+msgstr "doc:"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "item revenue and units"
+msgstr "receita e unidades do item"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "last 7 days"
+msgstr "últimos 7 dias"
+
+#: T:frontend/templates/frontend/base.html
+msgid "move between settings"
+msgstr "mover entre configurações"
+
+#: T:frontend/templates/frontend/base.html
+msgid "navigate"
+msgstr "navegar"
+
+#: P:frontend/views.py
+msgid "needs attention"
+msgstr "requer atenção"
+
+#: P:frontend/reporting.py
+msgid "no %(noun)s in previous %(days)s day"
+msgstr "sem %(noun)s há %(days)s dia"
+
+#: P:frontend/reporting.py
+msgid "no %(noun)s in previous %(days)s days"
+msgstr "sem %(noun)s há %(days)s dias"
+
+#: P:frontend/views.py
+msgid "no %(noun)s yesterday"
+msgstr "sem %(noun)s ontem"
+
+#: P:frontend/reporting.py
+msgid "no activity in either period"
+msgstr "nenhuma atividade em nenhum dos períodos"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "no completed sales in period"
+msgstr "nenhuma venda concluída no período"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "no open accounts"
+msgstr "nenhuma conta em aberto"
+
+#: P:frontend/views.py
+msgid "no products"
+msgstr "nenhum produto"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "none in period"
+msgstr "nenhum no período"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "outstanding"
+msgstr "em aberto"
+
+#: T:frontend/templates/frontend/base.html
+msgid "page:"
+msgstr "page:"
+
+#: T:frontend/templates/frontend/base.html
+msgid "person:"
+msgstr "person:"
+
+#: T:frontend/templates/frontend/base.html
+msgid "product:"
+msgstr "product:"
+
+#: T:frontend/templates/frontend/sidebar.html
+msgid "quadrum — Dashboard"
+msgstr "quadrum — Painel"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "recorded cost basis"
+msgstr "base de custo registrada"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "recorded on completed sales"
+msgstr "registrado em vendas concluídas"
+
+#: P:frontend/reporting.py
+msgid "revenue"
+msgstr "receita"
+
+#: T:frontend/templates/frontend/base.html
+msgid "sale:"
+msgstr "sale:"
+
+#: P:frontend/reporting.py
+msgid "sales"
+msgstr "vendas"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "sales revenue in period; payments received are tracked separately"
+msgstr "receita de vendas no período; pagamentos recebidos são acompanhados separadamente"
+
+#: T:frontend/templates/frontend/base.html
+msgid "select"
+msgstr "selecionar"
+
+#: T:frontend/templates/frontend/sales_list.html
+msgid "to see every sale."
+msgstr "para ver todas as vendas."
+
+#: T:frontend/templates/frontend/people.html
+msgid "to see everyone."
+msgstr "para ver todas as pessoas."
+
+#: T:frontend/templates/frontend/inventory.html
+msgid "to see everything."
+msgstr "para ver tudo."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "to see recent payments."
+msgstr "para ver os pagamentos recentes."
+
+#: T:frontend/templates/frontend/products.html
+msgid "to see the catalog."
+msgstr "para ver o catálogo."
+
+#: T:frontend/templates/frontend/finance.html
+msgid "to see the open accounts."
+msgstr "para ver as contas em aberto."
+
+#: P:frontend/reporting.py
+msgid "units"
+msgstr "unidades"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "units sold per %(granularity)s"
+msgstr "unidades vendidas por %(granularity)s"
+
+#: P:frontend/reporting.py
+msgid "vs previous %(days)s day"
+msgstr "vs. %(days)s dia anterior"
+
+#: P:frontend/reporting.py
+msgid "vs previous %(days)s days"
+msgstr "vs. %(days)s dias anteriores"
+
+#: P:frontend/views.py
+msgid "vs. yesterday"
+msgstr "vs. ontem"
+
+#: P:frontend/views.py
+msgid "“%(name)s” no longer exists; it may have been deleted already."
+msgstr "“%(name)s” não existe mais; talvez já tenha sido excluído."
+
+#: T:frontend/templates/frontend/documentation/topics/dashboard.html
+msgid "“Today” uses the server's current date and time zone."
+msgstr "“Hoje” usa a data e o fuso horário atuais do servidor."
+
+#: P:frontend/i18n.py
+msgid "Customer not found."
+msgstr "Cliente não encontrado."
+
+#: P:frontend/i18n.py
+msgid "Insufficient stock."
+msgstr "Estoque insuficiente."
+
+#: P:frontend/i18n.py
+msgid "Invalid payment method."
+msgstr "Forma de pagamento inválida."
+
+#: P:frontend/i18n.py
+msgid "Notice"
+msgstr "Aviso"
+
+msgid "Payment amount must be a decimal value."
+msgstr "O valor do pagamento deve ser um valor decimal."
+
+msgid "Payment amount must be at least R$ 0.01."
+msgstr "O valor do pagamento deve ser de pelo menos R$ 0,01."
+
+msgid "Payment amount must have at most two decimal places."
+msgstr "O valor do pagamento deve ter no máximo duas casas decimais."
+
+msgid "Cannot register payment for a cancelled receivable."
+msgstr "Não é possível registrar pagamento para uma conta a receber cancelada."
+
+msgid "Payment cannot exceed remaining balance."
+msgstr "O pagamento não pode exceder o saldo restante."
+
+msgid "This payment submission key was already used for a different request."
+msgstr "Esta chave de envio de pagamento já foi usada para uma solicitação diferente."

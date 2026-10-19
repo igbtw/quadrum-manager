@@ -67,6 +67,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'frontend.middleware.LocalePreferenceMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -84,6 +85,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
+                'frontend.context_processors.i18n',
                 'frontend.context_processors.onboarding',
                 'frontend.context_processors.documentation',
                 'frontend.context_processors.preferences',
@@ -171,10 +174,19 @@ if DEBUG:
 
 # INTERNATIONALIZATION
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
+
+LANGUAGES = [
+    ('en', 'English'),
+    ('pt-br', 'Português (Brasil)'),
+]
+
+# Application translation catalogs live at the project root. Portuguese uses
+# the conventional pt_BR directory name while the public identifier is pt-br.
+LOCALE_PATHS = [BASE_DIR / 'locale']
 
 
 # STATIC & MEDIA FILES

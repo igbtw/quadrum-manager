@@ -1,0 +1,14 @@
+{% load i18n %}
+<form class="auth-language" method="post" action="{% url 'frontend:set_language' %}" data-language-form>
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ language_return_url }}">
+    <label class="auth-language-label" for="auth-language-select">{% trans "Language" %}</label>
+    <div class="auth-language-controls">
+        <select class="select auth-language-select" name="language" id="auth-language-select" data-language-select>
+            {% for code, label in language_choices %}
+            <option value="{{ code }}"{% if current_language == code %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary auth-language-submit">{% trans "Apply" %}</button>
+    </div>
+</form>

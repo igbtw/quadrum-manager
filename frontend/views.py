@@ -8,9 +8,11 @@ from django.http import JsonResponse, HttpResponse, Http404
 import logging
 logger = logging.getLogger(__name__)
 from django.views.decorators.http import require_http_methods
-from django.utils import timezone
+from django.utils import timezone, translation
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils.translation import gettext as _
 from django.db import transaction
+from django.utils import formats
 from decimal import Decimal
 from datetime import timedelta
 from .services import (
@@ -19,8 +21,8 @@ from .services import (
 )
 from .models import (
     AccountReceivable, Category, OnboardingProgress, Payment, PaymentConflictError,
-    Person, Product, Sale, SaleItem, StockMovement, quantize_money, register_payment,
-    remaining_after,
+    Person, Product, Sale, SaleItem, StockMovement, UserProfile, quantize_money,
+    register_payment, remaining_after,
 )
 from .forms import ProductForm, PersonForm, LoginForm, RegisterForm
 from .authorization import (
@@ -48,19 +50,19 @@ def _kpi_delta(current, previous, noun):
     and a zero previous period never yields a division.
     """
     if previous == 0 and current == 0:
-        return {'value': '—', 'label': 'no activity in either period', 'class': ''}
+        return {'value': '—', 'label': _('no activity in either period'), 'class': ''}
     if previous == 0:
-        return {'value': 'New', 'label': f'no {noun} yesterday', 'class': 'kpi-delta-up'}
+        return {'value': _('New'), 'label': _('no %(noun)s yesterday') % {'noun': noun}, 'class': 'kpi-delta-up'}
     previous = Decimal(previous)
     change = (Decimal(current) - previous) / previous * 100
     change = change.quantize(Decimal('0.1'))
     if change == 0:
-        return {'value': '0%', 'label': 'vs. yesterday', 'class': ''}
+        return {'value': '0%', 'label': _('vs. yesterday'), 'class': ''}
     magnitude = f'{abs(change):.1f}'.rstrip('0').rstrip('.')
     sign = '+' if change > 0 else '-'
     return {
         'value': f'{sign}{magnitude}%',
-        'label': 'vs. yesterday',
+        'label': _('vs. yesterday'),
         'class': 'kpi-delta-up' if change > 0 else 'kpi-delta-down',
     }
 
@@ -100,11 +102,11 @@ def dashboard(request):
     active_products_count = active_products.count()
     low_stock_count = active_products.filter(stock_quantity__lte=F('minimum_stock')).count()
     if low_stock_count:
-        low_inventory_meta = {'text': 'needs attention', 'warn': True}
+        low_inventory_meta = {'text': _('needs attention'), 'warn': True}
     elif not active_products_count:
-        low_inventory_meta = {'text': 'no products', 'warn': False}
+        low_inventory_meta = {'text': _('no products'), 'warn': False}
     else:
-        low_inventory_meta = {'text': 'Stock OK', 'warn': False}
+        low_inventory_meta = {'text': _('Stock OK'), 'warn': False}
     # recent sales
     recent_sales = scoped_sales(request.user).filter(status__in=['COMPLETED','PENDING','CANCELLED']).select_related('customer')[:5]
     # inventory low (preview rows; the KPI itself uses low_stock_count)
@@ -123,14 +125,14 @@ def dashboard(request):
     }
     chart_days = [week_start + timedelta(days=offset) for offset in range(7)]
     sales_chart = {
-        'labels': [day.strftime('%a') for day in chart_days],
+        'labels': [formats.date_format(day, 'D') for day in chart_days],
         'units': [units_by_day.get(day, 0) for day in chart_days],
     }
     stats = {
         'sales_today': sales_today,
         'daily_revenue': daily_revenue,
-        'sales_delta': _kpi_delta(sales_today, sales_yesterday, 'sales'),
-        'revenue_delta': _kpi_delta(daily_revenue, yesterday_revenue, 'revenue'),
+        'sales_delta': _kpi_delta(sales_today, sales_yesterday, _('sales')),
+        'revenue_delta': _kpi_delta(daily_revenue, yesterday_revenue, _('revenue')),
         'receivables_total': receivables_total,
         'receivables_open_count': receivables_open_count,
         'overdue_total': overdue_total,
@@ -143,7 +145,7 @@ def dashboard(request):
     }
     context = {
         'stats': stats,
-        'page_title': 'Dashboard',
+        'page_title': _('Dashboard'),
     }
     return render(request, 'frontend/dashboard.html', context)
 
@@ -194,9 +196,9 @@ def sales_list(request):
         'list_qs': build_querystring(request),
         'sort_headers': sort_headers(
             request, SALES_SORT_FIELDS, sort, direction,
-            {'created_at': 'Date/Time', 'total': 'Total', 'code': 'Code'},
+            {'created_at': _('Date/Time'), 'total': _('Total'), 'code': _('Code')},
         ),
-        'page_title': 'Sales',
+        'page_title': _('Sales'),
     }
     return render(request, 'frontend/sales_list.html', context)
 
@@ -209,7 +211,7 @@ def point_of_sale(request):
         'categories': Category.objects.filter(active=True),
         'people': Person.objects.filter(active=True).order_by('name'),
         'payment_methods': Sale.PAYMENT_METHODS,
-        'page_title': 'New Sale',
+        'page_title': _('New Sale'),
     }
     return render(request, 'frontend/point_of_sale.html', context)
 
@@ -266,9 +268,9 @@ def _products_context(request, *, form=None, edit_form=None, edit_product=None):
         'category_id': category_id,
         'state': state,
         'state_options': (
-            ('active', 'Active'),
-            ('inactive', 'Inactive'),
-            ('all', 'All statuses'),
+            ('active', _('Active')),
+            ('inactive', _('Inactive')),
+            ('all', _('All statuses')),
         ),
         'categories': Category.objects.filter(active=True),
         'all_categories': Category.objects.all(),
@@ -278,7 +280,7 @@ def _products_context(request, *, form=None, edit_form=None, edit_product=None):
         'edit_form': edit_form,
         'edit_product': edit_product,
         'can_manage': can_manage_master_data(request.user),
-        'page_title': 'Products',
+        'page_title': _('Products'),
     }
     return context
 
@@ -291,9 +293,9 @@ def product_list(request):
         form = ProductForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Product saved.')
+            messages.success(request, _('Product saved.'))
             return redirect('frontend:products')
-        messages.error(request, 'Please check the fields.')
+        messages.error(request, _('Please check the fields.'))
     return render(request, 'frontend/products.html', _products_context(request, form=form))
 
 
@@ -307,9 +309,9 @@ def product_edit(request, pk):
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
             form.save()
-            messages.success(request, f'Product “{product.name}” updated.')
+            messages.success(request, _('Product “%(name)s” updated.') % {'name': product.name})
             return redirect('frontend:products')
-        messages.error(request, 'Please check the fields.')
+        messages.error(request, _('Please check the fields.'))
     else:
         form = ProductForm(instance=product)
     return render(
@@ -327,7 +329,7 @@ def product_delete(request, pk):
     try:
         delete_product(product)
     except Product.DoesNotExist:
-        messages.error(request, f'“{name}” no longer exists; it may have been deleted already.')
+        messages.error(request, _('“%(name)s” no longer exists; it may have been deleted already.') % {'name': name})
     except ReferencedRecordError as exc:
         refs = exc.references
         messages.error(
@@ -338,9 +340,9 @@ def product_delete(request, pk):
         )
     except ProtectedError:
         logger.exception('Protected delete refused for product pk=%s', pk)
-        messages.error(request, f'Cannot delete “{name}” because protected records reference it.')
+        messages.error(request, _('Cannot delete “%(name)s” because protected records reference it.') % {'name': name})
     else:
-        messages.success(request, f'Product “{name}” deleted.')
+        messages.success(request, _('Product “%(name)s” deleted.') % {'name': name})
     return redirect('frontend:products')
 
 
@@ -355,13 +357,13 @@ def inventory(request):
         try:
             qty = int(qty)
             if qty == 0:
-                raise ValueError('Quantity zero')
+                raise ValueError(_('Quantity zero'))
             prod = Product.objects.get(pk=product_id, active=True)
             from .services import adjust_stock
             adjust_stock(prod, qty, reason=reason, user=request.user if request.user.is_authenticated else None)
-            messages.success(request, 'Inventory adjusted.')
+            messages.success(request, _('Inventory adjusted.'))
         except Exception as e:
-            messages.error(request, f'Adjustment error: {e}')
+            messages.error(request, _('Adjustment error: %(error)s') % {'error': e})
         return redirect('frontend:inventory')
 
     query = normalize_q(request.GET.get('q'))
@@ -432,16 +434,16 @@ def inventory(request):
         'stock_status': stock_status,
         'category_id': category_id,
         'status_options': (
-            ('NORMAL', 'Normal'),
-            ('LOW', 'Low'),
-            ('OUT_OF_STOCK', 'Out of Stock'),
-            ('INACTIVE', 'Inactive'),
+            ('NORMAL', _('Normal')),
+            ('LOW', _('Low')),
+            ('OUT_OF_STOCK', _('Out of Stock')),
+            ('INACTIVE', _('Inactive')),
         ),
         'all_categories': Category.objects.all(),
         'filters_active': bool(query or stock_status or category_id),
         'list_qs': build_querystring(request),
         'product_options': Product.objects.filter(active=True).select_related('category'),
-        'page_title': 'Inventory',
+        'page_title': _('Inventory'),
         'total_items': totals['total_items'] or 0,
         'total_value': totals['total_value'] or Decimal('0.00'),
         'low_stock': low_stock,
@@ -526,9 +528,9 @@ def _people_context(request, *, form=None, edit_form=None, edit_person=None):
         'state': state,
         'person_types': Person.PERSON_TYPES,
         'state_options': (
-            ('active', 'Active'),
-            ('inactive', 'Inactive'),
-            ('all', 'All statuses'),
+            ('active', _('Active')),
+            ('inactive', _('Inactive')),
+            ('all', _('All statuses')),
         ),
         'filters_active': bool(query or person_type or state != 'active'),
         'list_qs': build_querystring(request),
@@ -536,7 +538,7 @@ def _people_context(request, *, form=None, edit_form=None, edit_person=None):
         'edit_form': edit_form,
         'edit_person': edit_person,
         'can_manage': can_manage_master_data(request.user),
-        'page_title': 'People',
+        'page_title': _('People'),
     }
     return context
 
@@ -549,9 +551,9 @@ def people(request):
         form = PersonForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Person saved.')
+            messages.success(request, _('Person saved.'))
             return redirect('frontend:people')
-        messages.error(request, 'Please check the fields.')
+        messages.error(request, _('Please check the fields.'))
     return render(request, 'frontend/people.html', _people_context(request, form=form))
 
 
@@ -565,9 +567,9 @@ def person_edit(request, pk):
         form = PersonForm(request.POST, instance=person)
         if form.is_valid():
             form.save()
-            messages.success(request, f'Person “{person.name}” updated.')
+            messages.success(request, _('Person “%(name)s” updated.') % {'name': person.name})
             return redirect('frontend:people')
-        messages.error(request, 'Please check the fields.')
+        messages.error(request, _('Please check the fields.'))
     else:
         form = PersonForm(instance=person)
     return render(
@@ -585,7 +587,7 @@ def person_delete(request, pk):
     try:
         delete_person(person)
     except Person.DoesNotExist:
-        messages.error(request, f'“{name}” no longer exists; it may have been deleted already.')
+        messages.error(request, _('“%(name)s” no longer exists; it may have been deleted already.') % {'name': name})
     except ReferencedRecordError as exc:
         refs = exc.references
         messages.error(
@@ -596,9 +598,9 @@ def person_delete(request, pk):
         )
     except ProtectedError:
         logger.exception('Protected delete refused for person pk=%s', pk)
-        messages.error(request, f'Cannot delete “{name}” because protected records reference them.')
+        messages.error(request, _('Cannot delete “%(name)s” because protected records reference them.') % {'name': name})
     else:
-        messages.success(request, f'Person “{name}” deleted.')
+        messages.success(request, _('Person “%(name)s” deleted.') % {'name': name})
     return redirect('frontend:people')
 
 
@@ -637,10 +639,10 @@ def finance(request):
             except ValueError as exc:
                 messages.error(request, str(exc))
             else:
-                messages.success(request, 'Payment registered.')
+                messages.success(request, _('Payment registered.'))
                 return redirect('frontend:finance')
         else:
-            messages.error(request, 'Please verify the payment.')
+            messages.error(request, _('Please verify the payment.'))
     else:
         from .forms import PaymentForm
         form = PaymentForm(user=request.user)
@@ -751,7 +753,7 @@ def finance(request):
         'p_filters_active': p_filters_active,
         'payments_qs': build_querystring(request, only=('pq', 'pmethod', 'paid_from', 'paid_to')),
         'form': form,
-        'page_title': 'Finance',
+        'page_title': _('Finance'),
     }
     return render(request, 'frontend/finance.html', context)
 
@@ -764,7 +766,7 @@ def reports(request):
         request, resolved.filters, resolved,
     )
     context = {
-        'page_title': 'Reports',
+        'page_title': _('Reports'),
         'report': resolved,
         'form': resolved.form,
         'filter_chips': reporting.active_filter_chips(resolved),
@@ -813,7 +815,7 @@ def login_view(request):
         login(request, form.get_user())
         return redirect(_safe_next_url(request) or 'frontend:dashboard')
     return render(request, 'frontend/login.html', {
-        'page_title': 'Login',
+        'page_title': _('Login'),
         'form': form,
         'next': _safe_next_url(request),
     })
@@ -827,10 +829,10 @@ def register_view(request):
     if request.method == 'POST' and form.is_valid():
         user = form.save()
         OnboardingProgress.objects.create(user=user)
-        messages.success(request, 'Account created. Sign in to continue.')
+        messages.success(request, _('Account created. Sign in to continue.'))
         return redirect('frontend:login')
     return render(request, 'frontend/register.html', {
-        'page_title': 'Create account',
+        'page_title': _('Create account'),
         'form': form,
     })
 
@@ -850,7 +852,7 @@ def documentation(request):
     """Documentation index: topic cards, search, and the guide replay action."""
     from .search import doc_topics_by_group
     return render(request, 'frontend/documentation.html', {
-        'page_title': 'Documentation',
+        'page_title': _('Documentation'),
         'doc_groups': doc_topics_by_group(),
     })
 
@@ -865,7 +867,7 @@ def documentation_topic(request, topic_slug):
         raise Http404('Unknown documentation topic')
     index = DOC_TOPICS.index(topic)
     return render(request, topic['template'], {
-        'page_title': f"{topic['title']} · Documentation",
+        'page_title': f"{topic['title']} · {_('Documentation')}",
         'topic': topic,
         'prev_topic': DOC_TOPICS[index - 1] if index > 0 else None,
         'next_topic': DOC_TOPICS[index + 1] if index < len(DOC_TOPICS) - 1 else None,
@@ -940,6 +942,61 @@ def preferences_per_page(request):
     return JsonResponse({'per_page': value})
 
 
+def _language_saved_response(request, language):
+    """JSON for the fetch-based Preferences dialog, redirect for plain forms."""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'language': language})
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER') or ''
+    if next_url and url_has_allowed_host_and_scheme(
+        next_url, {request.get_host()}, require_https=request.is_secure(),
+    ):
+        return redirect(next_url)
+    return redirect('frontend:login')
+
+
+@login_required
+@require_http_methods(["POST"])
+def preferences_language(request):
+    """Persist the authenticated user's language preference.
+
+    Only the exact supported identifiers are accepted. The session is kept in
+    sync for the current browser, but the persisted profile remains
+    authoritative on every subsequent request.
+    """
+    from .i18n import SESSION_LANGUAGE_KEY, normalize_language
+
+    language = normalize_language(request.POST.get('language'))
+    if language is None:
+        return JsonResponse({'error': 'invalid language'}, status=400)
+    profile, _created = UserProfile.objects.get_or_create(user=request.user)
+    profile.language = language
+    profile.save(update_fields=['language'])
+    request.session[SESSION_LANGUAGE_KEY] = language
+    with translation.override(language):
+        messages.success(request, _('Language updated.'))
+    return _language_saved_response(request, language)
+
+
+@require_http_methods(["POST"])
+def set_language(request):
+    """Anonymous language selection (session-backed, CSRF protected).
+
+    Authenticated users must use the Preferences endpoint so a stale
+    anonymous choice can never overwrite their saved account preference.
+    """
+    from .i18n import SESSION_LANGUAGE_KEY, normalize_language
+
+    if request.user.is_authenticated:
+        return JsonResponse({'error': 'use preferences_language'}, status=400)
+    language = normalize_language(request.POST.get('language'))
+    if language is None:
+        return JsonResponse({'error': 'invalid language'}, status=400)
+    request.session[SESSION_LANGUAGE_KEY] = language
+    with translation.override(language):
+        messages.success(request, _('Language updated.'))
+    return _language_saved_response(request, language)
+
+
 @login_required
 @require_http_methods(["GET"])
 def api_search(request):
@@ -967,7 +1024,7 @@ def api_search(request):
         return JsonResponse({
             'query': query,
             'prefix': prefix,
-            'prompt': SEARCH_PROMPTS.get(prefix, ''),
+            'prompt': str(SEARCH_PROMPTS.get(prefix, '')),
             'groups': [],
         })
 
@@ -985,20 +1042,20 @@ def api_search(request):
                 for entry in registry_matches(PAGE_REGISTRY, term)
             ]
             if items:
-                groups.append({'label': 'Pages', 'type': 'pages', 'items': items})
+                groups.append({'label': _('Pages'), 'type': 'pages', 'items': items})
 
         if prefix in (None, 'docs'):
             items = [
                 {
                     'title': entry['title'],
-                    'subtitle': 'Documentation',
+                    'subtitle': _('Documentation'),
                     'url': reverse('frontend:documentation_topic', args=[entry['slug']]),
                     'icon': 'book-open',
                 }
                 for entry in registry_matches(DOC_TOPICS, term)
             ]
             if items:
-                groups.append({'label': 'Documentation', 'type': 'docs', 'items': items})
+                groups.append({'label': _('Documentation'), 'type': 'docs', 'items': items})
 
         if prefix in (None, 'products'):
             products = (
@@ -1013,7 +1070,7 @@ def api_search(request):
                     'subtitle': ' · '.join(part for part in [
                         p.code,
                         p.category.name if p.category_id else '',
-                        f'{p.stock_quantity} in stock',
+                        _('%(count)s in stock') % {'count': p.stock_quantity},
                     ] if part),
                     # The Products list accepts ?q= for name/code, so a palette
                     # selection lands on the matching catalog row.
@@ -1023,7 +1080,7 @@ def api_search(request):
                 for p in products
             ]
             if product_items:
-                groups.append({'label': 'Products', 'type': 'products', 'items': product_items})
+                groups.append({'label': _('Products'), 'type': 'products', 'items': product_items})
 
         if prefix in (None, 'people'):
             people = (
@@ -1046,7 +1103,7 @@ def api_search(request):
                 for p in people
             ]
             if person_items:
-                groups.append({'label': 'People', 'type': 'people', 'items': person_items})
+                groups.append({'label': _('People'), 'type': 'people', 'items': person_items})
 
         if prefix in (None, 'sales'):
             sales = (
@@ -1059,7 +1116,7 @@ def api_search(request):
                 {
                     'title': s.code,
                     'subtitle': ' · '.join(part for part in [
-                        s.customer.name if s.customer_id else 'Walk-in',
+                        s.customer.name if s.customer_id else _('Walk-in'),
                         f'R$ {s.total:.2f}',
                         s.get_status_display(),
                     ] if part),
@@ -1071,7 +1128,7 @@ def api_search(request):
                 for s in sales
             ]
             if sale_items:
-                groups.append({'label': 'Sales', 'type': 'sales', 'items': sale_items})
+                groups.append({'label': _('Sales'), 'type': 'sales', 'items': sale_items})
 
     payload = {'query': query, 'groups': groups}
     if prefix:

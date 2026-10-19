@@ -1,13 +1,14 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Sales{% endblock %}
+{% block title %}{% trans "Sales" %}{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Sales</h1>
-        <p class="page-subtitle">Sales history</p>
+        <h1 class="page-title">{% trans "Sales" %}</h1>
+        <p class="page-subtitle">{% trans "Sales history" %}</p>
     </div>
     <div class="page-actions">
         <a href="{% url 'frontend:point_of_sale' %}" class="btn btn-primary">
@@ -15,7 +16,7 @@
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            New Sale
+            {% trans "New Sale" %}
         </a>
     </div>
 </div>
@@ -25,44 +26,44 @@
         <div class="list-toolbar">
             <form method="get" action="{% url 'frontend:sales_list' %}" role="search" class="list-toolbar-form">
                 <div class="toolbar-field toolbar-search">
-                    <label class="toolbar-label" for="sales-search">Search</label>
-                    <input type="search" id="sales-search" name="q" value="{{ query }}" class="input" placeholder="Code or customer" autocomplete="off">
+                    <label class="toolbar-label" for="sales-search">{% trans "Search" %}</label>
+                    <input type="search" id="sales-search" name="q" value="{{ query }}" class="input" placeholder="{% trans "Code or customer" %}" autocomplete="off">
                 </div>
                 <div class="toolbar-field">
-                    <label class="toolbar-label" for="sales-status">Status</label>
+                    <label class="toolbar-label" for="sales-status">{% trans "Status" %}</label>
                     <select id="sales-status" name="status" class="select js-auto-submit">
-                        <option value="">All statuses</option>
+                        <option value="">{% trans "All statuses" %}</option>
                         {% for value, label in status_options %}
                         <option value="{{ value }}"{% if status == value %} selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="toolbar-field">
-                    <label class="toolbar-label" for="sales-payment">Payment</label>
+                    <label class="toolbar-label" for="sales-payment">{% trans "Payment" %}</label>
                     <select id="sales-payment" name="payment_method" class="select js-auto-submit">
-                        <option value="">All methods</option>
+                        <option value="">{% trans "All methods" %}</option>
                         {% for value, label in payment_options %}
                         <option value="{{ value }}"{% if payment_method == value %} selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="toolbar-field">
-                    <label class="toolbar-label" for="sales-date-from">From</label>
+                    <label class="toolbar-label" for="sales-date-from">{% trans "From" %}</label>
                     <input type="date" id="sales-date-from" name="date_from" value="{{ date_from }}" class="input js-auto-submit">
                 </div>
                 <div class="toolbar-field">
-                    <label class="toolbar-label" for="sales-date-to">To</label>
+                    <label class="toolbar-label" for="sales-date-to">{% trans "To" %}</label>
                     <input type="date" id="sales-date-to" name="date_to" value="{{ date_to }}" class="input js-auto-submit">
                 </div>
                 <div class="toolbar-actions">
-                    <button type="submit" class="btn btn-secondary">Search</button>
+                    <button type="submit" class="btn btn-secondary">{% trans "Search" %}</button>
                     {% if filters_active %}
-                    <a class="btn btn-ghost" href="{% url 'frontend:sales_list' %}">Clear filters</a>
+                    <a class="btn btn-ghost" href="{% url 'frontend:sales_list' %}">{% trans "Clear filters" %}</a>
                     {% endif %}
                 </div>
             </form>
             <p class="list-count" role="status">
-                {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}
+                {% blocktrans count total=page_obj.paginator.count %}{{ total }} result{% plural %}{{ total }} results{% endblocktrans %}
             </p>
         </div>
     </div>
@@ -72,20 +73,20 @@
                 <thead>
                     <tr>
                         <th aria-sort="{{ sort_headers.code.aria_sort }}">
-                            <a class="sort-link" href="{{ sort_headers.code.url }}">Code{% if sort_headers.code.arrow %} <span class="sort-indicator" aria-hidden="true">{{ sort_headers.code.arrow }}</span>{% endif %}</a>
+                            <a class="sort-link" href="{{ sort_headers.code.url }}">{% trans "Code" %}{% if sort_headers.code.arrow %} <span class="sort-indicator" aria-hidden="true">{{ sort_headers.code.arrow }}</span>{% endif %}</a>
                         </th>
                         <th aria-sort="{{ sort_headers.created_at.aria_sort }}">
-                            <a class="sort-link" href="{{ sort_headers.created_at.url }}">Date/Time{% if sort_headers.created_at.arrow %} <span class="sort-indicator" aria-hidden="true">{{ sort_headers.created_at.arrow }}</span>{% endif %}</a>
+                            <a class="sort-link" href="{{ sort_headers.created_at.url }}">{% trans "Date/Time" %}{% if sort_headers.created_at.arrow %} <span class="sort-indicator" aria-hidden="true">{{ sort_headers.created_at.arrow }}</span>{% endif %}</a>
                         </th>
-                        <th>Customer</th>
-                        <th>Type</th>
-                        <th>Items</th>
+                        <th>{% trans "Customer" %}</th>
+                        <th>{% trans "Type" %}</th>
+                        <th>{% trans "Items" %}</th>
                         <th class="numeric" aria-sort="{{ sort_headers.total.aria_sort }}">
-                            <a class="sort-link" href="{{ sort_headers.total.url }}">Total{% if sort_headers.total.arrow %} <span class="sort-indicator" aria-hidden="true">{{ sort_headers.total.arrow }}</span>{% endif %}</a>
+                            <a class="sort-link" href="{{ sort_headers.total.url }}">{% trans "Total" %}{% if sort_headers.total.arrow %} <span class="sort-indicator" aria-hidden="true">{{ sort_headers.total.arrow }}</span>{% endif %}</a>
                         </th>
-                        <th>Payment</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th>{% trans "Payment" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Action" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -95,7 +96,7 @@
                         <td>{{ sale.created_at|date:"m/d/Y H:i" }}</td>
                         <td>{{ sale.customer.name|default:"Walk-in" }}</td>
                         <td><span class="badge badge-info">{{ sale.customer.get_person_type_display|default:"—" }}</span></td>
-                        <td>{{ sale.items_count }} item{{ sale.items_count|pluralize:"s" }}</td>
+                        <td>{% blocktrans count total=sale.items_count %}{{ total }} item{% plural %}{{ total }} items{% endblocktrans %}</td>
                         <td class="numeric" style="font-weight: var(--font-weight-semibold); color: var(--color-primary);">R$ {{ sale.total|floatformat:2 }}</td>
                         <td>{{ sale.get_payment_method_display }}</td>
                         <td>
@@ -108,7 +109,7 @@
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-icon btn-ghost" title="Copy code" aria-label="Copy sale code" onclick="copyCode('{{ sale.code }}')">
+                            <button class="btn btn-icon btn-ghost" title="{% trans "Copy code" %}" aria-label="{% trans "Copy sale code" %}" onclick="copyCode('{{ sale.code }}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -124,11 +125,11 @@
                                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                             </svg>
                             {% if filters_active %}
-                            <div class="empty-state-title">No sales match your filters</div>
-                            <div class="empty-state-description">Try a different query or period. <a href="{% url 'frontend:sales_list' %}">Clear filters</a> to see every sale.</div>
+                            <div class="empty-state-title">{% trans "No sales match your filters" %}</div>
+                            <div class="empty-state-description">{% trans "Try a different query or period." %} <a href="{% url 'frontend:sales_list' %}">{% trans "Clear filters" %}</a> {% trans "to see every sale." %}</div>
                             {% else %}
-                            <div class="empty-state-title">No sale registered</div>
-                            <div class="empty-state-description">Make the first sale at the POS</div>
+                            <div class="empty-state-title">{% trans "No sale registered" %}</div>
+                            <div class="empty-state-description">{% trans "Make the first sale at the POS" %}</div>
                             {% endif %}
                         </td>
                     </tr>
@@ -136,17 +137,14 @@
                 </tbody>
             </table>
         </div>
-        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=list_qs page_param="page" aria_label="Sales pagination" %}
+        {% trans "Sales pagination" as pagination_label %}
+        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=list_qs page_param="page" aria_label=pagination_label %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    window.copyCode = function(code) {
-        quadrum.copyToClipboard(code, `Code ${code} copied`);
-    };
-});
+document.addEventListener('DOMContentLoaded', function() { window.copyCode = function(code) { quadrum.copyToClipboard(code); }; });
 </script>
 {% endblock %}

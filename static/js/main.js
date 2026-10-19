@@ -37,6 +37,44 @@ var systemThemeQuery = window.matchMedia ? window.matchMedia('(prefers-color-sch
 var preferencesState = { isOpen: false, opener: null };
 var onboardingState = { isOpen: false, target: null };
 
+// Server-rendered translation dictionary (``#quadrum-i18n``). Read lazily so
+// calls made before DOMContentLoaded or on pages without the island never
+// throw. Unknown/unavailable keys always fall back to the caller's English
+// text instead of returning undefined.
+var translationDictionaryCache = null;
+function translationDictionary() {
+    if (translationDictionaryCache !== null) return translationDictionaryCache;
+    translationDictionaryCache = {};
+    var element = document.getElementById('quadrum-i18n');
+    if (!element || typeof element.textContent !== 'string') return translationDictionaryCache;
+    try {
+        var parsed = JSON.parse(element.textContent);
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+            translationDictionaryCache = parsed;
+        }
+    } catch (e) {
+        translationDictionaryCache = {};
+    }
+    return translationDictionaryCache;
+}
+
+function t(key, fallback, params) {
+    var dictionary = translationDictionary();
+    var hasKey = Object.prototype.hasOwnProperty.call(dictionary, key);
+    var value = hasKey ? dictionary[key] : fallback;
+    if (typeof value !== 'string') {
+        value = typeof fallback === 'string' ? fallback : String(key == null ? '' : key);
+    }
+    if (params && typeof params === 'object') {
+        value = value.replace(/%\(([^)]+)\)s/g, function(match, name) {
+            return Object.prototype.hasOwnProperty.call(params, name)
+                ? String(params[name])
+                : match;
+        });
+    }
+    return value;
+}
+
 function readPreferences() {
     var prefs = {
         theme: PREF_DEFAULTS.theme,
@@ -136,7 +174,7 @@ function shouldConfirmDestructive() {
 function confirmDestructive(message) {
     if (!shouldConfirmDestructive()) return true;
     if (typeof window.confirm !== 'function') return true;
-    return window.confirm(message || 'This action cannot be undone. Continue?');
+    return window.confirm(message || t('confirm.fallback', 'This action cannot be undone. Continue?'));
 }
 
 // Destructive confirmations use the shared dialog when present, with the
@@ -158,7 +196,9 @@ function openDestructiveDialog(form, blocked, opener) {
     destructiveConfirmState.opener = opener || null;
 
     titleEl.textContent = form.getAttribute('data-confirm-title') ||
-        (blocked ? 'Cannot delete record' : 'Delete record?');
+        (blocked
+            ? t('confirm.titleBlocked', 'Cannot delete record')
+            : t('confirm.title', 'Delete record?'));
     var record = form.getAttribute('data-confirm-record') || '';
     if (recordEl) {
         recordEl.textContent = record;
@@ -166,13 +206,13 @@ function openDestructiveDialog(form, blocked, opener) {
     }
     if (detailEl) {
         detailEl.textContent = form.getAttribute('data-confirm-detail') ||
-            'This action cannot be undone.';
+            t('confirm.note', 'This action cannot be undone.');
     }
     // Blocked records: the confirm action is gone, only Close remains.
     confirmBtn.hidden = blocked;
     confirmBtn.disabled = false;
     cancelBtn.disabled = false;
-    cancelBtn.textContent = blocked ? 'Close' : 'Cancel';
+    cancelBtn.textContent = blocked ? t('confirm.close', 'Close') : t('confirm.cancel', 'Cancel');
 
     overlay.classList.add('open');
     overlay.setAttribute('aria-hidden', 'false');
@@ -325,7 +365,8 @@ function savePageSize(value) {
     }).catch(function() {
         delete overlay.dataset.perPageSaving;
         if (typeof showToast === 'function') {
-            showToast('Preferences', 'Could not save records per page.', 'error');
+            showToast(t('toast.preferences', 'Preferences'),
+                t('toast.perPageError', 'Could not save records per page.'), 'error');
         }
     });
 }
@@ -462,7 +503,9 @@ function setSidebarOpen(open) {
 
     if (toggleBtn) {
         toggleBtn.setAttribute('aria-expanded', String(open));
-        toggleBtn.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+        toggleBtn.setAttribute('aria-label', open
+            ? t('sidebar.closeNavigation', 'Close navigation')
+            : t('sidebar.openNavigation', 'Open navigation'));
     }
 
     if (drawer && !wasOpen) {
@@ -494,8 +537,12 @@ function setSidebarCollapsed(collapsed, persist) {
     if (collapseBtn) {
         collapseBtn.classList.toggle('collapsed', collapsed);
         collapseBtn.setAttribute('aria-expanded', String(!collapsed));
-        collapseBtn.setAttribute('aria-label', collapsed ? 'Expand sidebar' : 'Collapse sidebar');
-        collapseBtn.setAttribute('title', (collapsed ? 'Expand' : 'Collapse') + ' sidebar (Ctrl+B)');
+        collapseBtn.setAttribute('aria-label', collapsed
+            ? t('sidebar.expand', 'Expand sidebar')
+            : t('sidebar.collapse', 'Collapse sidebar'));
+        collapseBtn.setAttribute('title', collapsed
+            ? t('sidebar.expandTitle', 'Expand sidebar (Ctrl+B)')
+            : t('sidebar.collapseTitle', 'Collapse sidebar (Ctrl+B)'));
     }
 
     if (persist !== false) storeSidebarCollapsed(collapsed);
@@ -773,7 +820,10 @@ function initOnboarding() {
             else step.setAttribute('hidden', '');
         });
         if (progress) {
-            progress.textContent = 'Step ' + (current + 1) + ' of ' + steps.length;
+            progress.textContent = t('onboarding.step', 'Step %(current)s of %(total)s', {
+                current: current + 1,
+                total: steps.length
+            });
             progress.hidden = false;
         }
         if (nav) nav.hidden = false;
@@ -884,11 +934,15 @@ function updateThemeHint(prefs) {
     var hint = document.getElementById('prefThemeEffective');
     if (!hint) return;
     prefs = prefs || readPreferences();
-    var label = resolveTheme(prefs.theme) === 'dark' ? 'Dark' : 'Light';
+    var label = resolveTheme(prefs.theme) === 'dark'
+        ? t('theme.dark', 'Dark')
+        : t('theme.light', 'Light');
     if (prefs.theme === 'system') {
-        hint.textContent = 'Following system setting — currently ' + label + '.';
+        hint.textContent = t('theme.followingSystem',
+            'Following system setting — currently %(theme)s.', { theme: label });
     } else {
-        hint.textContent = 'Always ' + label + ', regardless of system setting.';
+        hint.textContent = t('theme.always',
+            'Always %(theme)s, regardless of system setting.', { theme: label });
     }
 }
 
@@ -1075,7 +1129,7 @@ function initChartExpand() {
         chartExpandState.placeholder = placeholder;
         body.appendChild(area);
 
-        if (titleText) titleText.textContent = title || button.getAttribute('aria-label') || 'Chart';
+        if (titleText) titleText.textContent = title || button.getAttribute('aria-label') || t('chart.title', 'Chart');
         if (subtitle) {
             subtitle.textContent = panelText(panel, '.panel-subtitle');
             subtitle.hidden = !subtitle.textContent;
@@ -1159,9 +1213,18 @@ var searchPaletteState = {
 
 /* Browse-mode hint shown when a record tab has no static destinations. */
 var SEARCH_BROWSE_HINTS = {
-    products: 'Type a query to search products — for example, product:rice.',
-    people: 'Type a query to search people — for example, person:maria.',
-    sales: 'Type a query to search sales — for example, sale:1042.'
+    products: function() {
+        return t('search.prompt.products',
+            'Type a product name or code after product: (for example, product:rice).');
+    },
+    people: function() {
+        return t('search.prompt.people',
+            'Type a person name or document after person: (for example, person:maria).');
+    },
+    sales: function() {
+        return t('search.prompt.sales',
+            'Type a sale code or customer name after sale: (for example, sale:1042).');
+    }
 };
 
 function initSearchPalette() {
@@ -1193,8 +1256,10 @@ function initSearchPalette() {
 
     if (shortcutModifier) shortcutModifier.textContent = shortcutLabel;
     if (headerTrigger) {
-        headerTrigger.setAttribute('aria-label', 'Open search (' + shortcutLabel + '+K)');
-        headerTrigger.setAttribute('title', 'Search (' + shortcutLabel + '+K)');
+        headerTrigger.setAttribute('aria-label', t('search.openShortcut',
+            'Open search (%(shortcut)s+K)', { shortcut: shortcutLabel }));
+        headerTrigger.setAttribute('title', t('search.titleShortcut',
+            'Search (%(shortcut)s+K)', { shortcut: shortcutLabel }));
     }
 
     searchPaletteState.pages = pageData
@@ -1317,14 +1382,22 @@ function initSearchPalette() {
             const items = resultItems(
                 searchPaletteState.pages.filter(function(page) { return entryMatches(page, query); })
             );
-            if (items.length) groups.push({ label: 'Pages', type: 'pages', items: items });
+            if (items.length) groups.push({
+                label: t('search.group.pages', 'Pages'),
+                type: 'pages',
+                items: items
+            });
         }
         if (tab === 'all' || tab === 'docs') {
             const items = resultItems(
                 searchPaletteState.docs.filter(function(doc) { return entryMatches(doc, query); }),
-                'Documentation'
+                t('search.group.docs', 'Documentation')
             );
-            if (items.length) groups.push({ label: 'Documentation', type: 'docs', items: items });
+            if (items.length) groups.push({
+                label: t('search.group.docs', 'Documentation'),
+                type: 'docs',
+                items: items
+            });
         }
         return groups;
     }
@@ -1336,7 +1409,7 @@ function initSearchPalette() {
 
     function browseGroups(tab) {
         if (SEARCH_BROWSE_HINTS[tab]) {
-            return { groups: [], notice: SEARCH_BROWSE_HINTS[tab] };
+            return { groups: [], notice: SEARCH_BROWSE_HINTS[tab]() };
         }
         return { groups: staticGroups('', tab), notice: '' };
     }
@@ -1356,7 +1429,8 @@ function initSearchPalette() {
         // While the debounced request is still in flight, say so instead of
         // claiming "No results" for categories only the server can search.
         const pending = !remoteReady && isAuthenticated && query.trim().length >= 2;
-        renderGroups(filterByTab(base, tab), query, pending ? 'Searching\u2026' : '');
+        renderGroups(filterByTab(base, tab), query,
+            pending ? t('search.searching', 'Searching…') : '');
     }
 
     function createItem(item, index) {
@@ -1443,17 +1517,19 @@ function initSearchPalette() {
             const empty = document.createElement('div');
             empty.className = 'command-empty';
             empty.textContent = notice || (query
-                ? 'No results for \u201c' + query + '\u201d.'
-                : 'Type to search Quadrum.');
+                ? t('search.noResultsFor', 'No results for “%(query)s”.', { query: query })
+                : t('search.typeToSearch', 'Type to search Quadrum.'));
             results.appendChild(empty);
             searchPaletteState.activeIndex = -1;
             searchPaletteState.activeKey = null;
             input.setAttribute('aria-activedescendant', '');
-            if (status) status.textContent = 'No results';
+            if (status) status.textContent = t('search.noResults', 'No results');
         } else {
             if (status) {
                 const count = searchPaletteState.items.length;
-                status.textContent = count + (count === 1 ? ' result' : ' results');
+                status.textContent = count === 1
+                    ? t('search.resultOne', '%(count)s result', { count: count })
+                    : t('search.resultMany', '%(count)s results', { count: count });
             }
             let target = -1;
             if (previousQuery === query && previousIndex >= 0) {
@@ -1531,7 +1607,7 @@ function initSearchPalette() {
                 renderGroups(
                     filterByTab(staticGroups(query.toLowerCase(), 'all'), searchPaletteState.activeTab),
                     query,
-                    'Search results are unavailable right now.'
+                    t('search.unavailable', 'Search results are unavailable right now.')
                 );
             });
     }
@@ -1776,7 +1852,7 @@ function showNotification(title, message, type = 'info', duration = 5000) {
         max-width: 320px;
     `;
     notification.innerHTML = `
-        <strong>${title || 'Notice'}</strong>
+        <strong>${title || t('common.notice', 'Notice')}</strong>
         <span style="margin-left: var(--space-2);">${message || ''}</span>
     `;
 
@@ -1814,7 +1890,8 @@ function formatCurrency(value) {
     return 'R$ ' + parseFloat(value || 0).toFixed(2);
 }
 
-function copyToClipboard(text, message = 'Copied') {
+function copyToClipboard(text, message) {
+    if (message == null) message = t('copy.copied', 'Copied');
     const value = String(text == null ? '' : text);
 
     function copyFallback() {
@@ -1837,9 +1914,10 @@ function copyToClipboard(text, message = 'Copied') {
 
     function feedback(ok) {
         if (ok) {
-            showToast('Copied', message, 'success');
+            showToast(t('copy.copied', 'Copied'), message, 'success');
         } else {
-            showToast('Copy failed', 'Unable to copy to clipboard', 'error');
+            showToast(t('copy.failed', 'Copy failed'),
+                t('copy.unavailable', 'Unable to copy to clipboard'), 'error');
         }
         return ok;
     }
@@ -1868,7 +1946,8 @@ window.quadrum = {
     copyToClipboard,
     toggleSidebar,
     toggleTheme,
-    confirmDestructive
+    confirmDestructive,
+    t
 };
 
 function setNotificationPanel(open) {

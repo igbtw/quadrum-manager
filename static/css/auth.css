@@ -227,3 +227,33 @@
         padding: var(--space-5) var(--space-4);
     }
 }
+
+/* Language switcher shown on anonymous login/registration pages. */
+.auth-language {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.auth-language-label {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.auth-language-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.auth-language-select {
+    min-width: 160px;
+}
+
+.auth-language-submit {
+    padding: var(--space-1) var(--space-3);
+}

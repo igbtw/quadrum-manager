@@ -1,29 +1,30 @@
 {% extends "frontend/documentation/topic_base.html" %}
+{% load i18n %}
 
 {% block topic_content %}
-<p>The <a href="{% url 'frontend:dashboard' %}">Dashboard</a> is the landing page after sign-in. It summarizes the current day and recent activity; the <a href="{% url 'frontend:reports' %}">Reports</a> page covers longer periods.</p>
+{% url 'frontend:dashboard' as _u1 %} {% url 'frontend:reports' as _u2 %} <p>{% blocktrans trimmed %}The <a href="{{ _u1 }}">Dashboard</a> is the landing page after sign-in. It summarizes the current day and recent activity; the <a href="{{ _u2 }}">Reports</a> page covers longer periods.{% endblocktrans %}</p>
 
-<h3>Overview cards</h3>
+<h3>{% blocktrans trimmed %}Overview cards{% endblocktrans %}</h3>
 <ul>
-    <li><strong>Sales today</strong> — the number of <em>Completed</em> sales created today.</li>
-    <li><strong>Revenue today</strong> — the sum of the totals of those Completed sales, shown in R$ with two decimals.</li>
-    <li><strong>Open receivables</strong> — the sum of the <em>original</em> amounts of receivables currently in Pending, Partial, or Overdue state (not the remaining balance after payments).</li>
-    <li><strong>Low stock</strong> — the number of active products whose stock is at or below their minimum stock, but still above zero.</li>
+    <li>{% blocktrans trimmed %}<strong>Sales today</strong> — the number of <em>Completed</em> sales created today.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Revenue today</strong> — the sum of the totals of those Completed sales, shown in R$ with two decimals.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Open receivables</strong> — the sum of the <em>original</em> amounts of receivables currently in Pending, Partial, or Overdue state (not the remaining balance after payments).{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Low stock</strong> — the number of active products whose stock is at or below their minimum stock, but still above zero.{% endblocktrans %}</li>
 </ul>
 
-<h3>Alerts and activity</h3>
+<h3>{% blocktrans trimmed %}Alerts and activity{% endblocktrans %}</h3>
 <ul>
-    <li><strong>Low-stock list</strong> — active products with stock at or below the minimum threshold, with their current quantities.</li>
-    <li><strong>Out-of-stock count</strong> — active products with zero stock; these cannot be sold until restocked.</li>
-    <li><strong>Recent sales</strong> — the five most recent sales with their code, total, and status. The full history is on the <a href="{% url 'frontend:sales_list' %}">Sales</a> page.</li>
+    <li>{% blocktrans trimmed %}<strong>Low-stock list</strong> — active products with stock at or below the minimum threshold, with their current quantities.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Out-of-stock count</strong> — active products with zero stock; these cannot be sold until restocked.{% endblocktrans %}</li>
+    {% url 'frontend:sales_list' as _u1 %} <li>{% blocktrans trimmed %}<strong>Recent sales</strong> — the five most recent sales with their code, total, and status. The full history is on the <a href="{{ _u1 }}">Sales</a> page.{% endblocktrans %}</li>
 </ul>
 
-<h3>Where the numbers come from</h3>
+<h3>{% blocktrans trimmed %}Where the numbers come from{% endblocktrans %}</h3>
 <ul>
-    <li>All dashboard figures are computed from the database at page load; there is no caching layer to refresh.</li>
-    <li>“Today” uses the server's current date and time zone.</li>
-    <li>Because the open-receivables card uses original amounts, it can exceed the money actually still owed once payments are registered. The remaining balance per receivable is visible on <a href="{% url 'frontend:documentation_topic' 'finance' %}">Finance</a>.</li>
+    <li>{% blocktrans trimmed %}All dashboard figures are computed from the database at page load; there is no caching layer to refresh.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}“Today” uses the server's current date and time zone.{% endblocktrans %}</li>
+    {% url 'frontend:documentation_topic' 'finance' as _u1 %} <li>{% blocktrans trimmed %}Because the open-receivables card uses original amounts, it can exceed the money actually still owed once payments are registered. The remaining balance per receivable is visible on <a href="{{ _u1 }}">Finance</a>.{% endblocktrans %}</li>
 </ul>
 
-<p class="doc-note">The detailed aggregation rules are documented for developers in <code>docs/business-flows.md</code> (repository file, not served by the application).</p>
+<p class="doc-note">{% blocktrans trimmed %}The detailed aggregation rules are documented for developers in <code>docs/business-flows.md</code> (repository file, not served by the application).{% endblocktrans %}</p>
 {% endblock %}

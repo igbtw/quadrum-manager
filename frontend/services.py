@@ -2,6 +2,7 @@
 # Upgrade: replace with full transaction service when concurrency/volume grows
 from decimal import Decimal
 from django.db import transaction
+from django.utils.translation import gettext as _
 from django.utils import timezone
 from django.contrib.auth.models import User
 from .models import (
@@ -32,7 +33,11 @@ def reduce_stock(product: Product, qty: int, user: User = None, sale: Sale = Non
         # Lock row for update (DB-level) — PostgreSQL compatible
         p = Product.objects.select_for_update().get(pk=product.pk)
         if p.stock_quantity - qty < 0:
-            raise InsufficientStockError(f"Negative stock for {p.name}: {p.stock_quantity - qty}")
+            raise InsufficientStockError(
+                _("Negative stock for %(name)s: %(remaining)s") % {
+                    'name': p.name, 'remaining': p.stock_quantity - qty,
+                }
+            )
         p.stock_quantity -= qty
         p.save(update_fields=['stock_quantity'])
         StockMovement.objects.create(
@@ -49,7 +54,7 @@ def create_sale_items(sale: Sale, items_data: list, user: User = None):
         for d in items_data:
             quantity = d.get('quantity')
             if isinstance(quantity, bool) or not isinstance(quantity, int) or quantity < 1:
-                raise ValueError('Quantity must be a positive integer.')
+                raise ValueError(_('Quantity must be a positive integer.'))
             prod = Product.objects.select_for_update().get(pk=d['product_id'])
             unit_price = Decimal(str(d.get('unit_price', prod.price)))
             # Server-side price enforcement: never trust client price
@@ -72,7 +77,7 @@ def cancel_sale(sale: Sale, user: User = None):
         if s.status == 'CANCELLED':
             return s
         if s.status != 'COMPLETED':
-            raise ValueError('Only completed sales can be cancelled.')
+            raise ValueError(_('Only completed sales can be cancelled.'))
         # Lock the associated receivable (if any) before checking payments and
         # before marking it cancelled, so cancellation serializes with
         # register_payment()/Payment.save() on the same row.
@@ -85,7 +90,7 @@ def cancel_sale(sale: Sale, user: User = None):
             )
         # Rule 1: if a receivable exists, reject when payments are recorded
         if rc and rc.payments.exists():
-            raise ValueError('Cannot cancel: recorded payments exist on the receivable account.')
+            raise ValueError(_('Cannot cancel: recorded payments exist on the receivable account.'))
         # Update sale
         s.status = 'CANCELLED'
         s.save(update_fields=['status'])
@@ -120,7 +125,7 @@ def delete_person(person: Person):
         receivables = locked.receivables.count()
         if sales or receivables:
             raise ReferencedRecordError(
-                'This person cannot be deleted because historical records reference them.',
+                _('This person cannot be deleted because historical records reference them.'),
                 references={'sales': sales, 'receivables': receivables},
             )
         locked.delete()
@@ -139,7 +144,7 @@ def delete_product(product: Product):
         movements = locked.movements.count()
         if sale_items or movements:
             raise ReferencedRecordError(
-                'This product cannot be deleted because sales or inventory history reference it.',
+                _('This product cannot be deleted because sales or inventory history reference it.'),
                 references={'sale_items': sale_items, 'movements': movements},
             )
         locked.delete()

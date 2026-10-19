@@ -1,41 +1,42 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Dashboard — quadrum{% endblock %}
+{% block title %}{% trans "Dashboard" %} — quadrum{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Operation overview</p>
+        <h1 class="page-title">{% trans "Dashboard" %}</h1>
+        <p class="page-subtitle">{% trans "Operation overview" %}</p>
     </div>
     <div class="page-actions">
         <a href="{% url 'frontend:point_of_sale' %}" class="btn btn-primary">
             <i data-lucide="plus" style="width:16px;height:16px;stroke-width:2;"></i>
-            New Sale
+            {% trans "New Sale" %}
         </a>
     </div>
 </div>
 
 <!-- KPI Strip -->
-<div class="kpi-strip" aria-label="Key indicators">
+<div class="kpi-strip" aria-label="{% trans "Key indicators" %}">
     <div class="kpi">
-        <div class="kpi-label">Sales Today</div>
+        <div class="kpi-label">{% trans "Sales Today" %}</div>
         <div class="kpi-value">{{ stats.sales_today }}</div>
         <div class="kpi-meta"><span class="kpi-delta{% if stats.sales_delta.class %} {{ stats.sales_delta.class }}{% endif %}">{{ stats.sales_delta.value }}</span> <span class="kpi-compare">{{ stats.sales_delta.label }}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Revenue</div>
+        <div class="kpi-label">{% trans "Revenue" %}</div>
         <div class="kpi-value">R$ {{ stats.daily_revenue|floatformat:2 }}</div>
         <div class="kpi-meta"><span class="kpi-delta{% if stats.revenue_delta.class %} {{ stats.revenue_delta.class }}{% endif %}">{{ stats.revenue_delta.value }}</span> <span class="kpi-compare">{{ stats.revenue_delta.label }}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Receivable</div>
+        <div class="kpi-label">{% trans "Receivable" %}</div>
         <div class="kpi-value">R$ {{ stats.receivables_total|floatformat:2 }}</div>
-        <div class="kpi-meta"><span class="kpi-sub">{% if stats.receivables_open_count %}{{ stats.receivables_open_count }} open account{{ stats.receivables_open_count|pluralize }}{% else %}no open accounts{% endif %}</span></div>
+        <div class="kpi-meta"><span class="kpi-sub">{% if stats.receivables_open_count %}{% blocktrans count total=stats.receivables_open_count %}{{ total }} open account{% plural %}{{ total }} open accounts{% endblocktrans %}{% else %}{% trans "no open accounts" %}{% endif %}</span></div>
     </div>
     <div class="kpi">
-        <div class="kpi-label">Low Inventory</div>
+        <div class="kpi-label">{% trans "Low Inventory" %}</div>
         <div class="kpi-value">{{ stats.low_stock_count }}</div>
         <div class="kpi-meta"><span class="kpi-sub{% if stats.low_inventory_meta.warn %} kpi-sub-warn{% endif %}">{{ stats.low_inventory_meta.text }}</span></div>
     </div>
@@ -45,28 +46,28 @@
 <div class="dashboard-grid-2col">
     <section class="panel" aria-labelledby="chart-heading">
         <div class="panel-header">
-            <h2 id="chart-heading" class="panel-title">Sales <span class="panel-subtitle">last 7 days</span></h2>
-            <a href="{% url 'frontend:reports' %}" class="btn btn-ghost btn-sm">View report <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <h2 id="chart-heading" class="panel-title">{% trans "Sales" %} <span class="panel-subtitle">{% trans "last 7 days" %}</span></h2>
+            <a href="{% url 'frontend:reports' %}" class="btn btn-ghost btn-sm">{% trans "View report" %} <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="chart-area">
                 <canvas id="salesChart"></canvas>
             </div>
-            <div class="chart-caption" aria-label="Chart legend">Last 7 days — units sold per day (Y axis: units). The trend indicates operational volume, not revenue.</div>
+            <div class="chart-caption" aria-label="{% trans "Chart legend" %}">{% trans "Last 7 days — units sold per day (Y axis: units). The trend indicates operational volume, not revenue." %}</div>
         </div>
     </section>
 
     <section class="panel" aria-labelledby="inventory-heading">
         <div class="panel-header">
-            <h2 id="inventory-heading" class="panel-title">Inventory</h2>
-            <a href="{% url 'frontend:inventory' %}" class="btn btn-ghost btn-sm">View inventory <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <h2 id="inventory-heading" class="panel-title">{% trans "Inventory" %}</h2>
+            <a href="{% url 'frontend:inventory' %}" class="btn btn-ghost btn-sm">{% trans "View inventory" %} <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             {% if stats.low_stock_products %}
             <div class="compact-table-wrap">
                 <table class="table-compact">
                     <thead>
-                        <tr><th>Product</th><th class="num">Quantity</th><th class="num">Minimum</th><th>Status</th></tr>
+                        <tr><th>{% trans "Product" %}</th><th class="num">{% trans "Quantity" %}</th><th class="num">{% trans "Minimum" %}</th><th>{% trans "Status" %}</th></tr>
                     </thead>
                     <tbody>
                         {% for p in stats.low_stock_products %}
@@ -76,7 +77,7 @@
                             <td class="num mono text-muted">{{ p.minimum_stock }}</td>
                             <td>
                                 <span class="badge {% if p.stock_quantity == 0 %}badge-danger{% else %}badge-warning{% endif %}">
-                                    {% if p.stock_quantity == 0 %}OUT OF STOCK{% else %}LOW{% endif %}
+                                    {% if p.stock_quantity == 0 %}{% trans "OUT OF STOCK" %}{% else %}{% trans "LOW" %}{% endif %}
                                 </span>
                             </td>
                         </tr>
@@ -87,11 +88,11 @@
             {% else %}
             <div class="empty-state compact">
                 {% if stats.active_products_count %}
-                <div class="empty-state-title">Stock OK</div>
-                <div class="empty-state-description">All products have adequate stock — no urgent replenishment.</div>
+                <div class="empty-state-title">{% trans "Stock OK" %}</div>
+                <div class="empty-state-description">{% trans "All products have adequate stock — no urgent replenishment." %}</div>
                 {% else %}
-                <div class="empty-state-title">No products</div>
-                <div class="empty-state-description">Add products to track inventory and low-stock alerts.</div>
+                <div class="empty-state-title">{% trans "No products" %}</div>
+                <div class="empty-state-description">{% trans "Add products to track inventory and low-stock alerts." %}</div>
                 {% endif %}
             </div>
             {% endif %}
@@ -103,20 +104,20 @@
 <div class="dashboard-grid-2col">
     <section class="panel" aria-labelledby="recent-sales-heading">
         <div class="panel-header">
-            <h2 id="recent-sales-heading" class="panel-title">Recent Sales</h2>
-            <a href="{% url 'frontend:sales_list' %}" class="btn btn-ghost btn-sm">View all <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <h2 id="recent-sales-heading" class="panel-title">{% trans "Recent Sales" %}</h2>
+            <a href="{% url 'frontend:sales_list' %}" class="btn btn-ghost btn-sm">{% trans "View all" %} <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="compact-table-wrap">
                 <table class="table-compact">
                     <thead>
-                        <tr><th>CODE</th><th>Customer</th><th>TIME</th><th class="num">Total</th><th>Status</th></tr>
+                        <tr><th>{% trans "CODE" %}</th><th>{% trans "Customer" %}</th><th>{% trans "TIME" %}</th><th class="num">{% trans "Total" %}</th><th>{% trans "Status" %}</th></tr>
                     </thead>
                     <tbody>
                         {% for sale in stats.recent_sales %}
                         <tr>
                             <td class="mono text-muted">{{ sale.code }}</td>
-                            <td>{{ sale.customer.name|default:"Walk-in" }}</td>
+                            <td>{{ sale.customer.name|default:_("Walk-in") }}</td>
                             <td class="mono">{{ sale.created_at|date:"H:i" }}</td>
                             <td class="num font-semibold text-primary">R$ {{ sale.total|floatformat:2 }}</td>
                             <td>
@@ -126,7 +127,7 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="5" class="empty-state compact">No recent sales</td></tr>
+                        <tr><td colspan="5" class="empty-state compact">{% trans "No recent sales" %}</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
@@ -136,34 +137,34 @@
 
     <section class="panel" aria-labelledby="receivables-heading">
         <div class="panel-header">
-            <h2 id="receivables-heading" class="panel-title">Receivables</h2>
-            <a href="{% url 'frontend:finance' %}" class="btn btn-ghost btn-sm">View finance <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
+            <h2 id="receivables-heading" class="panel-title">{% trans "Receivables" %}</h2>
+            <a href="{% url 'frontend:finance' %}" class="btn btn-ghost btn-sm">{% trans "View finance" %} <i data-lucide="arrow-right" style="width:14px;height:14px;stroke-width:2;"></i></a>
         </div>
         <div class="panel-body">
             <div class="receivable-summary">
                 <div class="receivable-total">R$ {{ stats.receivables_total|default:0|floatformat:2 }}</div>
-                <div class="receivable-label">outstanding</div>
+                <div class="receivable-label">{% trans "outstanding" %}</div>
                 <div class="receivable-breakdown">
                     {% if stats.receivables_total %}
                     <div class="receivable-row">
-                        <span>Pending</span>
+                        <span>{% trans "Pending" %}</span>
                         <span class="receivable-amount text-warning">R$ {{ stats.receivables_total|floatformat:2 }}</span>
                     </div>
                     {% endif %}
                     {% if stats.overdue_total %}
                     <div class="receivable-row">
-                        <span>Overdue</span>
+                        <span>{% trans "Overdue" %}</span>
                         <span class="receivable-amount text-danger">R$ {{ stats.overdue_total|floatformat:2 }}</span>
                     </div>
                     {% endif %}
                     {% if not stats.receivables_total and not stats.overdue_total %}
                     <div class="receivable-row">
-                        <span>Up to date</span>
+                        <span>{% trans "Up to date" %}</span>
                         <span class="receivable-amount">—</span>
                     </div>
                     {% endif %}
                 </div>
-                <div style="margin-top:12px;font-size:0.6875rem;color:var(--color-text-muted);line-height:1.4;">Overdue accounts need immediate follow-up to avoid cash flow impact.</div>
+                <div style="margin-top:12px;font-size:0.6875rem;color:var(--color-text-muted);line-height:1.4;">{% trans "Overdue accounts need immediate follow-up to avoid cash flow impact." %}</div>
             </div>
         </div>
     </section>
@@ -174,73 +175,6 @@
 {% block extra_js %}
 {{ stats.sales_chart|json_script:"sales-chart-data" }}
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        if (window.lucide) lucide.createIcons();
-    });
-
-    (function initSalesChart() {
-        const canvas = document.getElementById('salesChart');
-        if (!canvas || typeof Chart === 'undefined') return;
-        if (Chart.getChart(canvas)) return;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return;
-        const chartDataEl = document.getElementById('sales-chart-data');
-        if (!chartDataEl) return;
-        let chartData;
-        try {
-            chartData = JSON.parse(chartDataEl.textContent);
-        } catch (e) { return; }
-        try {
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: chartData.labels,
-                    datasets: [{
-                        label: 'Sales',
-                        data: chartData.units,
-                        borderColor: '#606060',
-                        backgroundColor: 'rgba(96,96,96,0.08)',
-                        tension: 0.35,
-                        fill: true,
-                        pointBackgroundColor: '#f0f0f0',
-                        pointBorderColor: '#606060',
-                        pointRadius: 3,
-                        pointHoverRadius: 5,
-                        borderWidth: 1.5,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: '#f5f5f5',
-                            titleColor: '#171717',
-                            bodyColor: '#606060',
-                            borderColor: '#d0d0d0',
-                            borderWidth: 1,
-                            cornerRadius: 4,
-                            padding: 8,
-                            titleFont: { size: 12, weight: 600 },
-                            bodyFont: { size: 12 }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(163,163,163,0.12)' },
-                            ticks: { color: '#737373', font: { size: 11 }, maxTicksLimit: 5 }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#737373', font: { size: 11 } }
-                        }
-                    },
-                    interaction: { intersect: false, mode: 'index' }
-                }
-            });
-        } catch (e) { console.warn('Chart init skipped:', e); }
-    })();
+    document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); }); (function initSalesChart() { const canvas = document.getElementById('salesChart'); if (!canvas || typeof Chart === 'undefined') return; if (Chart.getChart(canvas)) return; const ctx = canvas.getContext('2d'); if (!ctx) return; const chartDataEl = document.getElementById('sales-chart-data'); if (!chartDataEl) return; let chartData; try { chartData = JSON.parse(chartDataEl.textContent); } catch (e) { return; } try { new Chart(ctx, { type: 'line', data: { labels: chartData.labels, datasets: [{ label: quadrum.t('chart.sales', 'Sales'), data: chartData.units, borderColor: '#606060', backgroundColor: 'rgba(96,96,96,0.08)', tension: 0.35, fill: true, pointBackgroundColor: '#f0f0f0', pointBorderColor: '#606060', pointRadius: 3, pointHoverRadius: 5, borderWidth: 1.5, }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#f5f5f5', titleColor: '#171717', bodyColor: '#606060', borderColor: '#d0d0d0', borderWidth: 1, cornerRadius: 4, padding: 8, titleFont: { size: 12, weight: 600 }, bodyFont: { size: 12 } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(163,163,163,0.12)' }, ticks: { color: '#737373', font: { size: 11 }, maxTicksLimit: 5 } }, x: { grid: { display: false }, ticks: { color: '#737373', font: { size: 11 } } } }, interaction: { intersect: false, mode: 'index' } } }); } catch (e) { console.warn('Chart init skipped:', e); } })();
 </script>
 {% endblock %}

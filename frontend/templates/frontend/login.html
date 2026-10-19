@@ -1,11 +1,12 @@
 {% extends "frontend/auth_base.html" %}
+{% load i18n %}
 
-{% block title %}Sign in — quadrum{% endblock %}
+{% block title %}{% trans "Sign in" %} — quadrum{% endblock %}
 
 {% block content %}
 <header class="auth-header">
-    <h1 class="auth-heading">Sign in</h1>
-    <p class="auth-sub">Enter your credentials to continue to quadrum.</p>
+    <h1 class="auth-heading">{% trans "Sign in" %}</h1>
+    <p class="auth-sub">{% trans "Enter your credentials to continue to quadrum." %}</p>
 </header>
 
 <form method="post" action="{% url 'frontend:login' %}" class="auth-form" novalidate>
@@ -19,16 +20,16 @@
     {% endif %}
 
     <div class="form-group">
-        <label for="id_username" class="form-label">Username</label>
-        <input type="text" name="username" id="id_username" class="input{% if form.username.errors %} input-error{% endif %}" value="{{ form.username.value|default:'' }}" placeholder="Your username" maxlength="150" autocomplete="username" autocapitalize="none" spellcheck="false" autofocus required{% if form.username.errors %} aria-invalid="true" aria-describedby="username-errors"{% endif %}>
+        <label for="id_username" class="form-label">{% trans "Username" %}</label>
+        <input type="text" name="username" id="id_username" class="input{% if form.username.errors %} input-error{% endif %}" value="{{ form.username.value|default:'' }}" placeholder="{% trans "Your username" %}" maxlength="150" autocomplete="username" autocapitalize="none" spellcheck="false" autofocus required{% if form.username.errors %} aria-invalid="true" aria-describedby="username-errors"{% endif %}>
         {% if form.username.errors %}
         <p class="form-error" id="username-errors">{% for error in form.username.errors %}{{ error }}{% if not forloop.last %} {% endif %}{% endfor %}</p>
         {% endif %}
     </div>
 
     <div class="form-group">
-        <label for="id_password" class="form-label">Password</label>
-        <input type="password" name="password" id="id_password" class="input{% if form.password.errors %} input-error{% endif %}" placeholder="Your password" autocomplete="current-password" required{% if form.password.errors %} aria-invalid="true" aria-describedby="password-errors"{% endif %}>
+        <label for="id_password" class="form-label">{% trans "Password" %}</label>
+        <input type="password" name="password" id="id_password" class="input{% if form.password.errors %} input-error{% endif %}" placeholder="{% trans "Your password" %}" autocomplete="current-password" required{% if form.password.errors %} aria-invalid="true" aria-describedby="password-errors"{% endif %}>
         {% if form.password.errors %}
         <p class="form-error" id="password-errors">{% for error in form.password.errors %}{{ error }}{% if not forloop.last %} {% endif %}{% endfor %}</p>
         {% endif %}
@@ -40,9 +41,9 @@
             <polyline points="10 17 15 12 10 7"></polyline>
             <line x1="15" y1="12" x2="3" y2="12"></line>
         </svg>
-        Sign in
+        {% trans "Sign in" %}
     </button>
 </form>
 
-<p class="auth-switch">New to quadrum? <a href="{% url 'frontend:register' %}">Create an account</a></p>
+<p class="auth-switch">{% trans "New to quadrum?" %} <a href="{% url 'frontend:register' %}">{% trans "Create an account" %}</a></p>
 {% endblock %}

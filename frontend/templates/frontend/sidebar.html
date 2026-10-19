@@ -1,7 +1,8 @@
+{% load i18n %}
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <a href="{% url 'frontend:dashboard' %}" class="sidebar-logo" aria-label="quadrum — Dashboard">
+        <a href="{% url 'frontend:dashboard' %}" class="sidebar-logo" aria-label="{% trans "quadrum — Dashboard" %}">
             <span class="sidebar-logo-mark" aria-hidden="true">
                 <i data-lucide="squares-intersect" aria-hidden="true"></i>
             </span>
@@ -9,56 +10,56 @@
         </a>
     </div>
 
-    <nav class="sidebar-nav" aria-label="Main">
+    <nav class="sidebar-nav" aria-label="{% trans "Main" %}">
         <div class="nav-section">
-            <div class="nav-section-label" id="sidebarNavLabel">Navigation</div>
+            <div class="nav-section-label" id="sidebarNavLabel">{% trans "Navigation" %}</div>
             <ul class="nav-list" aria-labelledby="sidebarNavLabel">
                 <li>
-                    <a href="{% url 'frontend:dashboard' %}" class="nav-item{% if request.resolver_match.url_name == 'dashboard' %} active{% endif %}" title="Dashboard" aria-label="Dashboard"{% if request.resolver_match.url_name == 'dashboard' %} aria-current="page"{% endif %}>
+                    <a href="{% url 'frontend:dashboard' %}" class="nav-item{% if request.resolver_match.url_name == 'dashboard' %} active{% endif %}" title="{% trans "Dashboard" %}" aria-label="{% trans "Dashboard" %}"{% if request.resolver_match.url_name == 'dashboard' %} aria-current="page"{% endif %}>
                         <span class="nav-item-icon" aria-hidden="true"><i data-lucide="layout-dashboard"></i></span>
-                        <span class="nav-item-label">Dashboard</span>
+                        <span class="nav-item-label">{% trans "Dashboard" %}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'frontend:sales_list' %}" class="nav-item{% if request.resolver_match.url_name == 'sales_list' %} active{% endif %}" title="Sales" aria-label="Sales"{% if request.resolver_match.url_name == 'sales_list' %} aria-current="page"{% endif %}>
+                    <a href="{% url 'frontend:sales_list' %}" class="nav-item{% if request.resolver_match.url_name == 'sales_list' %} active{% endif %}" title="{% trans "Sales" %}" aria-label="{% trans "Sales" %}"{% if request.resolver_match.url_name == 'sales_list' %} aria-current="page"{% endif %}>
                         <span class="nav-item-icon" aria-hidden="true"><i data-lucide="receipt"></i></span>
-                        <span class="nav-item-label">Sales</span>
+                        <span class="nav-item-label">{% trans "Sales" %}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'frontend:point_of_sale' %}" class="nav-item{% if request.resolver_match.url_name == 'point_of_sale' %} active{% endif %}" title="New Sale" aria-label="New Sale"{% if request.resolver_match.url_name == 'point_of_sale' %} aria-current="page"{% endif %}>
+                    <a href="{% url 'frontend:point_of_sale' %}" class="nav-item{% if request.resolver_match.url_name == 'point_of_sale' %} active{% endif %}" title="{% trans "New Sale" %}" aria-label="{% trans "New Sale" %}"{% if request.resolver_match.url_name == 'point_of_sale' %} aria-current="page"{% endif %}>
                         <span class="nav-item-icon" aria-hidden="true"><i data-lucide="credit-card"></i></span>
-                        <span class="nav-item-label">New Sale</span>
+                        <span class="nav-item-label">{% trans "New Sale" %}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'frontend:products' %}" class="nav-item{% if request.resolver_match.url_name == 'products' %} active{% endif %}" title="Products" aria-label="Products"{% if request.resolver_match.url_name == 'products' %} aria-current="page"{% endif %}>
+                    <a href="{% url 'frontend:products' %}" class="nav-item{% if request.resolver_match.url_name == 'products' %} active{% endif %}" title="{% trans "Products" %}" aria-label="{% trans "Products" %}"{% if request.resolver_match.url_name == 'products' %} aria-current="page"{% endif %}>
                         <span class="nav-item-icon" aria-hidden="true"><i data-lucide="package"></i></span>
-                        <span class="nav-item-label">Products</span>
+                        <span class="nav-item-label">{% trans "Products" %}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'frontend:inventory' %}" class="nav-item{% if request.resolver_match.url_name == 'inventory' %} active{% endif %}" title="Inventory" aria-label="Inventory"{% if request.resolver_match.url_name == 'inventory' %} aria-current="page"{% endif %}>
+                    <a href="{% url 'frontend:inventory' %}" class="nav-item{% if request.resolver_match.url_name == 'inventory' %} active{% endif %}" title="{% trans "Inventory" %}" aria-label="{% trans "Inventory" %}"{% if request.resolver_match.url_name == 'inventory' %} aria-current="page"{% endif %}>
                         <span class="nav-item-icon" aria-hidden="true"><i data-lucide="boxes"></i></span>
-                        <span class="nav-item-label">Inventory</span>
+                        <span class="nav-item-label">{% trans "Inventory" %}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'frontend:people' %}" class="nav-item{% if request.resolver_match.url_name == 'people' %} active{% endif %}" title="People" aria-label="People"{% if request.resolver_match.url_name == 'people' %} aria-current="page"{% endif %}>
+                    <a href="{% url 'frontend:people' %}" class="nav-item{% if request.resolver_match.url_name == 'people' %} active{% endif %}" title="{% trans "People" %}" aria-label="{% trans "People" %}"{% if request.resolver_match.url_name == 'people' %} aria-current="page"{% endif %}>
                         <span class="nav-item-icon" aria-hidden="true"><i data-lucide="users"></i></span>
-                        <span class="nav-item-label">People</span>
+                        <span class="nav-item-label">{% trans "People" %}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'frontend:finance' %}" class="nav-item{% if request.resolver_match.url_name == 'finance' %} active{% endif %}" title="Finance" aria-label="Finance"{% if request.resolver_match.url_name == 'finance' %} aria-current="page"{% endif %}>
+                    <a href="{% url 'frontend:finance' %}" class="nav-item{% if request.resolver_match.url_name == 'finance' %} active{% endif %}" title="{% trans "Finance" %}" aria-label="{% trans "Finance" %}"{% if request.resolver_match.url_name == 'finance' %} aria-current="page"{% endif %}>
                         <span class="nav-item-icon" aria-hidden="true"><i data-lucide="banknote"></i></span>
-                        <span class="nav-item-label">Finance</span>
+                        <span class="nav-item-label">{% trans "Finance" %}</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'frontend:reports' %}" class="nav-item{% if request.resolver_match.url_name == 'reports' %} active{% endif %}" title="Reports" aria-label="Reports"{% if request.resolver_match.url_name == 'reports' %} aria-current="page"{% endif %}>
+                    <a href="{% url 'frontend:reports' %}" class="nav-item{% if request.resolver_match.url_name == 'reports' %} active{% endif %}" title="{% trans "Reports" %}" aria-label="{% trans "Reports" %}"{% if request.resolver_match.url_name == 'reports' %} aria-current="page"{% endif %}>
                         <span class="nav-item-icon" aria-hidden="true"><i data-lucide="bar-chart-3"></i></span>
-                        <span class="nav-item-label">Reports</span>
+                        <span class="nav-item-label">{% trans "Reports" %}</span>
                     </a>
                 </li>
             </ul>
@@ -75,7 +76,7 @@
             </div>
             <form method="post" action="{% url 'frontend:logout' %}" class="logout-form" id="logoutForm">
                 {% csrf_token %}
-                <button type="button" class="logout-btn" id="sidebarLogoutBtn" aria-label="Sign out" title="Sign out" aria-haspopup="dialog" aria-controls="logoutDialog">
+                <button type="button" class="logout-btn" id="sidebarLogoutBtn" aria-label="{% trans "Sign out" %}" title="{% trans "Sign out" %}" aria-haspopup="dialog" aria-controls="logoutDialog">
                     <i data-lucide="log-out" aria-hidden="true"></i>
                 </button>
             </form>
@@ -83,7 +84,7 @@
         {% else %}
         <a href="{% url 'frontend:login' %}" class="sidebar-signin">
             <i data-lucide="log-in" aria-hidden="true"></i>
-            <span class="sidebar-signin-label">Sign in</span>
+            <span class="sidebar-signin-label">{% trans "Sign in" %}</span>
         </a>
         {% endif %}
     </div>

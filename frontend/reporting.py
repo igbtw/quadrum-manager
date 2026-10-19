@@ -102,7 +102,7 @@ from django.db.models import (
     Count, DecimalField, F, IntegerField, OuterRef, Q, Subquery, Sum, Value,
 )
 from django.db.models.functions import Coalesce, TruncDate
-from django.utils import timezone
+from django.utils import timezone, translation
 
 from .authorization import (
     has_global_access, scoped_payments, scoped_receivables, scoped_sale_items,
@@ -112,6 +112,9 @@ from .listsearch import (
     SALES_DEFAULT_SORT, SALES_SORT_FIELDS,
     paginate, resolve_page_size, sort_state,
 )
+from django.utils.translation import gettext, gettext_lazy as _
+from django.utils import formats
+
 from .models import (
     AccountReceivable, Category, Payment, Sale, SaleItem, quantize_money,
 )
@@ -120,29 +123,29 @@ COMPLETED = 'COMPLETED'
 CANCELLED = 'CANCELLED'
 
 PRESET_CHOICES = (
-    ('today', 'Today'),
-    ('yesterday', 'Yesterday'),
-    ('7d', 'Last 7 days'),
-    ('30d', 'Last 30 days'),
-    ('month', 'This month'),
-    ('custom', 'Custom range'),
+    ('today', _('Today')),
+    ('yesterday', _('Yesterday')),
+    ('7d', _('Last 7 days')),
+    ('30d', _('Last 30 days')),
+    ('month', _('This month')),
+    ('custom', _('Custom range')),
 )
 DEFAULT_PRESET = '30d'
 MAX_CUSTOM_SPAN_DAYS = 366
 DAILY_BUCKET_MAX_SPAN_DAYS = 31
 TOP_PRODUCT_LIMIT = 8
 AGING_BUCKETS = (
-    ('current', 'Not yet due'),
-    ('1-30', '1–30 days overdue'),
-    ('31-60', '31–60 days overdue'),
-    ('61+', '61+ days overdue'),
+    ('current', _('Not yet due')),
+    ('1-30', _('1–30 days overdue')),
+    ('31-60', _('31–60 days overdue')),
+    ('61+', _('61+ days overdue')),
 )
 
 TRANSACTION_SORT_FIELDS = dict(SALES_SORT_FIELDS)
 TRANSACTION_SORT_LABELS = {
-    'code': 'Code',
-    'created_at': 'Date/Time',
-    'total': 'Total',
+    'code': _('Code'),
+    'created_at': _('Date/Time'),
+    'total': _('Total'),
 }
 
 
@@ -166,21 +169,21 @@ class ReportFilterForm(forms.Form):
         }),
     )
     status = forms.ChoiceField(
-        choices=[('', 'All statuses')] + list(Sale.SALE_STATUSES), required=False,
+        choices=[('', _('All statuses'))] + list(Sale.SALE_STATUSES), required=False,
         widget=forms.Select(attrs={'class': 'select js-auto-submit', 'id': 'report-status'}),
     )
     payment_method = forms.ChoiceField(
-        choices=[('', 'All methods')] + list(Sale.PAYMENT_METHODS), required=False,
+        choices=[('', _('All methods'))] + list(Sale.PAYMENT_METHODS), required=False,
         widget=forms.Select(attrs={'class': 'select js-auto-submit', 'id': 'report-payment'}),
     )
     category = forms.ModelChoiceField(
         queryset=Category.objects.order_by('name'), required=False,
-        empty_label='All categories',
+        empty_label=_('All categories'),
         widget=forms.Select(attrs={'class': 'select js-auto-submit', 'id': 'report-category'}),
     )
     responsible = forms.ModelChoiceField(
         queryset=User.objects.order_by('username'), required=False,
-        empty_label='All responsibles',
+        empty_label=_('All responsibles'),
         widget=forms.Select(attrs={'class': 'select js-auto-submit', 'id': 'report-responsible'}),
     )
 
@@ -202,17 +205,18 @@ class ReportFilterForm(forms.Form):
         date_to = cleaned.get('date_to')
         if preset == 'custom':
             if not date_from or not date_to:
-                raise forms.ValidationError('Choose both a start and an end date for a custom range.')
+                raise forms.ValidationError(_('Choose both a start and an end date for a custom range.'))
             if date_to < date_from:
-                raise forms.ValidationError('The end date must not be before the start date.')
+                raise forms.ValidationError(_('The end date must not be before the start date.'))
             if (date_to - date_from).days + 1 > MAX_CUSTOM_SPAN_DAYS:
                 raise forms.ValidationError(
-                    f'Custom ranges are limited to {MAX_CUSTOM_SPAN_DAYS} days.',
+                    _('Custom ranges are limited to %(days)s days.')
+                    % {'days': MAX_CUSTOM_SPAN_DAYS},
                 )
         else:
             if date_from or date_to:
                 raise forms.ValidationError(
-                    'Choose "Custom range" to use start and end dates.',
+                    _('Choose "Custom range" to use start and end dates.'),
                 )
         cleaned['preset'] = preset
         return cleaned
@@ -320,9 +324,12 @@ def resolve_report(request, today: date | None = None) -> ResolvedReport:
     prev_start, prev_end = previous_window(start, end)
     preset_label = dict(PRESET_CHOICES)[preset]
     if start == end:
-        human = f'{start:%b %d, %Y}'
+        human = formats.date_format(start, 'M d, Y')
     else:
-        human = f'{start:%b %d} – {end:%b %d, %Y}'
+        human = (
+            formats.date_format(start, 'M d') + ' – '
+            + formats.date_format(end, 'M d, Y')
+        )
     return ResolvedReport(
         form=form,
         filters=filters,
@@ -342,16 +349,16 @@ def active_filter_chips(report: ResolvedReport):
     chips = []
     if report.filters.status:
         label = dict(Sale.SALE_STATUSES).get(report.filters.status, report.filters.status)
-        chips.append({'label': f'Status: {label}'})
+        chips.append({'label': _('Status: %(label)s') % {'label': label}})
     if report.filters.payment_method:
         label = dict(Sale.PAYMENT_METHODS).get(
             report.filters.payment_method, report.filters.payment_method,
         )
-        chips.append({'label': f'Payment: {label}'})
+        chips.append({'label': _('Payment: %(label)s') % {'label': label}})
     if report.filters.category_id:
-        chips.append({'label': f'Category: {report.filters.category_label}'})
+        chips.append({'label': _('Category: %(label)s') % {'label': report.filters.category_label}})
     if report.filters.responsible_id:
-        chips.append({'label': f'Responsible: {report.filters.responsible_label}'})
+        chips.append({'label': _('Responsible: %(label)s') % {'label': report.filters.responsible_label}})
     return chips
 
 
@@ -445,16 +452,22 @@ def _delta(current, previous, span_days: int, noun: str):
     current = current or zero
     previous = previous or zero
     if current == 0 and previous == 0:
-        return {'value': '—', 'label': 'no activity in either period', 'class': ''}
+        return {'value': '—', 'label': _('no activity in either period'), 'class': ''}
     if previous == 0:
         return {
-            'value': 'New',
-            'label': f'no {noun} in previous {span_days} day{"s" if span_days != 1 else ""}',
+            'value': _('New'),
+            'label': (
+                _('no %(noun)s in previous %(days)s day') if span_days == 1
+                else _('no %(noun)s in previous %(days)s days')
+            ) % {'noun': noun, 'days': span_days},
             'class': 'kpi-delta-up',
         }
     change = (Decimal(current) - Decimal(previous)) / Decimal(previous) * 100
     change = change.quantize(Decimal('0.1'))
-    label = f'vs previous {span_days} day{"s" if span_days != 1 else ""}'
+    label = (
+        _('vs previous %(days)s day') if span_days == 1
+        else _('vs previous %(days)s days')
+    ) % {'days': span_days}
     if change == 0:
         return {'value': '0%', 'label': label, 'class': ''}
     magnitude = f'{abs(change):.1f}'.rstrip('0').rstrip('.')
@@ -517,9 +530,9 @@ def sales_summary(filters: ReportFilters, report: ResolvedReport):
         'discounts': discounts,
         'cancelled_count': cancelled_count,
         'cancelled_amount': cancelled_amount,
-        'revenue_delta': _delta(revenue, prev_revenue, report.span_days, 'revenue'),
-        'transactions_delta': _delta(transactions, prev_transactions, report.span_days, 'sales'),
-        'units_delta': _delta(units, prev_units, report.span_days, 'units'),
+        'revenue_delta': _delta(revenue, prev_revenue, report.span_days, _('revenue')),
+        'transactions_delta': _delta(transactions, prev_transactions, report.span_days, _('sales')),
+        'units_delta': _delta(units, prev_units, report.span_days, _('units')),
         'status_rows': status_rows,
         'total_rows': total_rows,
     }
@@ -534,10 +547,13 @@ def _bucket_days(start: date, end: date, granularity: str):
 
 def _bucket_label(days):
     if len(days) == 1:
-        return f'{days[0]:%b %d}'
+        return formats.date_format(days[0], 'M d')
     if days[0].month == days[-1].month:
-        return f'{days[0]:%b %d}–{days[-1]:%d}'
-    return f'{days[0]:%b %d}–{days[-1]:%b %d}'
+        return formats.date_format(days[0], 'M d') + '–' + str(days[-1].day)
+    return (
+        formats.date_format(days[0], 'M d') + '–'
+        + formats.date_format(days[-1], 'M d')
+    )
 
 
 def _sum_days(bucket, day_values):
@@ -584,6 +600,7 @@ def sales_trend(filters: ReportFilters, report: ResolvedReport):
     has_data = any(revenue) or any(units) or any(transactions)
     return {
         'granularity': granularity,
+        'granularity_label': gettext(granularity),
         'labels': [_bucket_label(days) for days in current_buckets],
         'prev_labels': [_bucket_label(days) for days in previous_buckets],
         'revenue': [float(value) for value in revenue],
@@ -853,21 +870,24 @@ def transactions_csv(filters: ReportFilters, report: ResolvedReport):
         'Payment Method', 'Status', 'Discount (R$)', 'Total (R$)',
     ])
     queryset = _transactions_queryset(filters, report).order_by('created_at', 'pk')
-    for sale in queryset.iterator():
-        local_stamp = timezone.localtime(sale.created_at)
-        responsible = sale.responsible
-        writer.writerow([
-            _csv_safe(sale.code),
-            local_stamp.strftime('%Y-%m-%d %H:%M'),
-            _csv_safe(sale.customer.name if sale.customer else 'Walk-in'),
-            _csv_safe((responsible.get_full_name() or responsible.username) if responsible else '—'),
-            sale.items_count,
-            sale.units,
-            _csv_safe(sale.get_payment_method_display()),
-            _csv_safe(sale.get_status_display()),
-            f'{sale.discount:.2f}',
-            f'{sale.total:.2f}',
-        ])
+    # Exported artifacts keep their English labels even when the on-screen UI
+    # is in Portuguese, so column values stay stable across language changes.
+    with translation.override('en'):
+        for sale in queryset.iterator():
+            local_stamp = timezone.localtime(sale.created_at)
+            responsible = sale.responsible
+            writer.writerow([
+                _csv_safe(sale.code),
+                local_stamp.strftime('%Y-%m-%d %H:%M'),
+                _csv_safe(sale.customer.name if sale.customer else 'Walk-in'),
+                _csv_safe((responsible.get_full_name() or responsible.username) if responsible else '—'),
+                sale.items_count,
+                sale.units,
+                _csv_safe(sale.get_payment_method_display()),
+                _csv_safe(sale.get_status_display()),
+                f'{sale.discount:.2f}',
+                f'{sale.total:.2f}',
+            ])
     filename = (
         f'quadrum-sales-report-{report.start:%Y%m%d}-{report.end:%Y%m%d}.csv'
     )

@@ -1,40 +1,41 @@
 {% extends "frontend/documentation/topic_base.html" %}
+{% load i18n %}
 
 {% block topic_content %}
-<p>Interface preferences are stored in this browser only (localStorage key <code>quadrum.preferences.v1</code>) and apply immediately. They never sync across devices or accounts.</p>
+<p>{% blocktrans trimmed %}Interface preferences are stored in this browser only (localStorage key <code>quadrum.preferences.v1</code>) and apply immediately. They never sync across devices or accounts.{% endblocktrans %}</p>
 
-<h3>Available preferences</h3>
+<h3>{% blocktrans trimmed %}Available preferences{% endblocktrans %}</h3>
 <div class="doc-table-wrap">
     <table class="doc-table">
         <thead>
-            <tr><th>Preference</th><th>Options</th></tr>
+            <tr><th>{% blocktrans trimmed %}Preference{% endblocktrans %}</th><th>{% blocktrans trimmed %}Options{% endblocktrans %}</th></tr>
         </thead>
         <tbody>
-            <tr><td>Theme</td><td>System, Light, Dark.</td></tr>
-            <tr><td>Accent color</td><td>Default, Blue, Violet, Emerald — tints buttons, links, focus rings, and selected items.</td></tr>
-            <tr><td>Interface density</td><td>Comfortable or Compact spacing in panels, tables, and forms.</td></tr>
-            <tr><td>Corner style</td><td>Square (default) or Rounded.</td></tr>
-            <tr><td>Desktop sidebar</td><td>Expanded or Icon-only.</td></tr>
-            <tr><td>Text size</td><td>Small, Default, Large.</td></tr>
-            <tr><td>Motion</td><td>System or Reduced animation.</td></tr>
-            <tr><td>High contrast</td><td>Strengthen text, borders, and focus indicators.</td></tr>
-            <tr><td>Confirm destructive actions</td><td>Ask before deletes or removals that cannot be undone.</td></tr>
+            <tr><td>{% blocktrans trimmed %}Theme{% endblocktrans %}</td><td>{% blocktrans trimmed %}System, Light, Dark.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Accent color{% endblocktrans %}</td><td>{% blocktrans trimmed %}Default, Blue, Violet, Emerald — tints buttons, links, focus rings, and selected items.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Interface density{% endblocktrans %}</td><td>{% blocktrans trimmed %}Comfortable or Compact spacing in panels, tables, and forms.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Corner style{% endblocktrans %}</td><td>{% blocktrans trimmed %}Square (default) or Rounded.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Desktop sidebar{% endblocktrans %}</td><td>{% blocktrans trimmed %}Expanded or Icon-only.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Text size{% endblocktrans %}</td><td>{% blocktrans trimmed %}Small, Default, Large.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Motion{% endblocktrans %}</td><td>{% blocktrans trimmed %}System or Reduced animation.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}High contrast{% endblocktrans %}</td><td>{% blocktrans trimmed %}Strengthen text, borders, and focus indicators.{% endblocktrans %}</td></tr>
+            <tr><td>{% blocktrans trimmed %}Confirm destructive actions{% endblocktrans %}</td><td>{% blocktrans trimmed %}Ask before deletes or removals that cannot be undone.{% endblocktrans %}</td></tr>
         </tbody>
     </table>
 </div>
-<p>Open the Preferences dialog from the header or search inside it; clearing the search shows all settings again. There is no “save” button — changes apply immediately. A stored preference is not the cause of data disappearing; clearing browser storage resets the interface to defaults.</p>
+<p>{% blocktrans trimmed %}Open the Preferences dialog from the header or search inside it; clearing the search shows all settings again. There is no “save” button — changes apply immediately. A stored preference is not the cause of data disappearing; clearing browser storage resets the interface to defaults.{% endblocktrans %}</p>
 
-<h3>Troubleshooting</h3>
+<h3>{% blocktrans trimmed %}Troubleshooting{% endblocktrans %}</h3>
 <ul>
-    <li><strong>Signed out unexpectedly?</strong> Sessions expire after a period of inactivity. Sign in again; saved data is not affected.</li>
-    <li><strong>Stock adjustment rejected?</strong> Stock cannot go negative. Reduce the quantity to remove or restock first.</li>
-    <li><strong>Payment rejected?</strong> The amount exceeds the remaining balance, or the receivable is cancelled. Overpayment is blocked at the form and service layers.</li>
-    <li><strong>Can't cancel a sale?</strong> A sale whose receivable already has registered payments cannot be cancelled, and only Completed sales can be cancelled.</li>
-    <li><strong>Product missing from the sale picker?</strong> Inactive products are hidden from selection but remain in history.</li>
-    <li><strong>Person missing from the listing?</strong> The listing shows active records; a record that was deactivated stays in history but is not listed.</li>
-    <li><strong>Want the tour again?</strong> Use <strong>Show getting started guide</strong> on the <a href="{% url 'frontend:documentation' %}">Documentation index</a>.</li>
-    <li><strong>Something else?</strong> The Help control in the header always returns to the documentation index.</li>
+    <li>{% blocktrans trimmed %}<strong>Signed out unexpectedly?</strong> Sessions expire after a period of inactivity. Sign in again; saved data is not affected.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Stock adjustment rejected?</strong> Stock cannot go negative. Reduce the quantity to remove or restock first.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Payment rejected?</strong> The amount exceeds the remaining balance, or the receivable is cancelled. Overpayment is blocked at the form and service layers.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Can't cancel a sale?</strong> A sale whose receivable already has registered payments cannot be cancelled, and only Completed sales can be cancelled.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Product missing from the sale picker?</strong> Inactive products are hidden from selection but remain in history.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Person missing from the listing?</strong> The listing shows active records; a record that was deactivated stays in history but is not listed.{% endblocktrans %}</li>
+    {% url 'frontend:documentation' as _u1 %} <li>{% blocktrans trimmed %}<strong>Want the tour again?</strong> Use <strong>Show getting started guide</strong> on the <a href="{{ _u1 }}">Documentation index</a>.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Something else?</strong> The Help control in the header always returns to the documentation index.{% endblocktrans %}</li>
 </ul>
 
-<p class="doc-note">Guides for the areas involved: <a href="{% url 'frontend:documentation_topic' 'products-inventory' %}">Products and Inventory</a> · <a href="{% url 'frontend:documentation_topic' 'finance' %}">Finance and Receivables</a> · <a href="{% url 'frontend:documentation_topic' 'people' %}">People and Customers</a>.</p>
+{% url 'frontend:documentation_topic' 'products-inventory' as _u1 %} {% url 'frontend:documentation_topic' 'finance' as _u2 %} {% url 'frontend:documentation_topic' 'people' as _u3 %} <p class="doc-note">{% blocktrans trimmed %}Guides for the areas involved: <a href="{{ _u1 }}">Products and Inventory</a> · <a href="{{ _u2 }}">Finance and Receivables</a> · <a href="{{ _u3 }}">People and Customers</a>.{% endblocktrans %}</p>
 {% endblock %}

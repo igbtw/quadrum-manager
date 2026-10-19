@@ -1,3 +1,4 @@
+{% load i18n %}
 {% comment %}
 Shared Person form fields; pass `form` (create or edit binding).
 Labels mirror the registry columns so the form reads like the table.
@@ -8,14 +9,14 @@ Labels mirror the registry columns so the form reads like the table.
 <div class="row">
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
+            <label class="form-label" for="{{ form.name.id_for_label }}">{% trans "Name" %}</label>
             {{ form.name }}
             {{ form.name.errors }}
         </div>
     </div>
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.person_type.id_for_label }}">Type</label>
+            <label class="form-label" for="{{ form.person_type.id_for_label }}">{% trans "Type" %}</label>
             {{ form.person_type }}
             {{ form.person_type.errors }}
         </div>
@@ -24,14 +25,14 @@ Labels mirror the registry columns so the form reads like the table.
 <div class="row">
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.doc_id.id_for_label }}">Registration</label>
+            <label class="form-label" for="{{ form.doc_id.id_for_label }}">{% trans "Registration" %}</label>
             {{ form.doc_id }}
             {{ form.doc_id.errors }}
         </div>
     </div>
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.phone.id_for_label }}">Phone</label>
+            <label class="form-label" for="{{ form.phone.id_for_label }}">{% trans "Phone" %}</label>
             {{ form.phone }}
             {{ form.phone.errors }}
         </div>
@@ -40,15 +41,15 @@ Labels mirror the registry columns so the form reads like the table.
 <div class="row">
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+            <label class="form-label" for="{{ form.email.id_for_label }}">{% trans "Email" %}</label>
             {{ form.email }}
             {{ form.email.errors }}
         </div>
     </div>
     <div class="col-span-1">
         <div class="form-group">
-            <label class="form-label" for="{{ form.active.id_for_label }}">Status</label>
-            <label class="checkbox-inline">{{ form.active }} Active</label>
+            <label class="form-label" for="{{ form.active.id_for_label }}">{% trans "Status" %}</label>
+            <label class="checkbox-inline">{{ form.active }} {% trans "Active" %}</label>
             {{ form.active.errors }}
         </div>
     </div>

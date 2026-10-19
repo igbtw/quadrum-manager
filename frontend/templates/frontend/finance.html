@@ -1,13 +1,14 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Finance{% endblock %}
+{% block title %}{% trans "Finance" %}{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Finance</h1>
-        <p class="page-subtitle">Receivables and payments</p>
+        <h1 class="page-title">{% trans "Finance" %}</h1>
+        <p class="page-subtitle">{% trans "Receivables and payments" %}</p>
     </div>
 </div>
 
@@ -15,19 +16,19 @@
 <div class="finance-summary">
     <div class="stat-card">
         <div class="stat-value" style="color: var(--color-primary);">R$ {{ total_receivable|default:0|floatformat:2 }}</div>
-        <div class="stat-label">Total Receivable</div>
+        <div class="stat-label">{% trans "Total Receivable" %}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value" style="color: var(--color-danger);">R$ {{ total_overdue|default:0|floatformat:2 }}</div>
-        <div class="stat-label">Total Overdue</div>
+        <div class="stat-label">{% trans "Total Overdue" %}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ pending_accounts|default:0 }}</div>
-        <div class="stat-label">Pending Accounts</div>
+        <div class="stat-label">{% trans "Pending Accounts" %}</div>
     </div>
     <div class="stat-card">
         <div class="stat-value">{{ overdue_accounts|default:0 }}</div>
-        <div class="stat-label">Overdue Accounts</div>
+        <div class="stat-label">{% trans "Overdue Accounts" %}</div>
     </div>
 </div>
 
@@ -35,39 +36,39 @@
 <div class="finance-cards">
     <div class="section-card">
         <div class="card-header list-header">
-            <h3 class="card-title">Receivables</h3>
+            <h3 class="card-title">{% trans "Receivables" %}</h3>
             <div class="list-toolbar">
                 <form method="get" action="{% url 'frontend:finance' %}" role="search" class="list-toolbar-form">
                     <div class="toolbar-field toolbar-search">
-                        <label class="toolbar-label" for="receivables-search">Search</label>
-                        <input type="search" id="receivables-search" name="rq" value="{{ r_query }}" class="input" placeholder="Person, sale code, or note" autocomplete="off">
+                        <label class="toolbar-label" for="receivables-search">{% trans "Search" %}</label>
+                        <input type="search" id="receivables-search" name="rq" value="{{ r_query }}" class="input" placeholder="{% trans "Person, sale code, or note" %}" autocomplete="off">
                     </div>
                     <div class="toolbar-field">
-                        <label class="toolbar-label" for="receivables-status">Status</label>
+                        <label class="toolbar-label" for="receivables-status">{% trans "Status" %}</label>
                         <select id="receivables-status" name="rstatus" class="select js-auto-submit">
-                            <option value="">Open accounts</option>
+                            <option value="">{% trans "Open accounts" %}</option>
                             {% for value, label in receivable_status_options %}
                             <option value="{{ value }}"{% if r_status == value %} selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="toolbar-field">
-                        <label class="toolbar-label" for="due-from">Due from</label>
+                        <label class="toolbar-label" for="due-from">{% trans "Due from" %}</label>
                         <input type="date" id="due-from" name="due_from" value="{{ due_from }}" class="input js-auto-submit">
                     </div>
                     <div class="toolbar-field">
-                        <label class="toolbar-label" for="due-to">Due to</label>
+                        <label class="toolbar-label" for="due-to">{% trans "Due to" %}</label>
                         <input type="date" id="due-to" name="due_to" value="{{ due_to }}" class="input js-auto-submit">
                     </div>
                     <div class="toolbar-actions">
-                        <button type="submit" class="btn btn-secondary">Search</button>
+                        <button type="submit" class="btn btn-secondary">{% trans "Search" %}</button>
                         {% if r_filters_active %}
-                        <a class="btn btn-ghost" href="{% url 'frontend:finance' %}">Clear filters</a>
+                        <a class="btn btn-ghost" href="{% url 'frontend:finance' %}">{% trans "Clear filters" %}</a>
                         {% endif %}
                     </div>
                 </form>
                 <p class="list-count" role="status">
-                    {{ receivables_page.paginator.count }} result{{ receivables_page.paginator.count|pluralize }}
+                    {% blocktrans count total=receivables_page.paginator.count %}{{ total }} result{% plural %}{{ total }} results{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -77,19 +78,19 @@
                     <thead>
                         <tr>
                             <th aria-sort="{{ r_sort_headers.person.aria_sort }}">
-                                <a class="sort-link" href="{{ r_sort_headers.person.url }}">Person{% if r_sort_headers.person.arrow %} <span class="sort-indicator" aria-hidden="true">{{ r_sort_headers.person.arrow }}</span>{% endif %}</a>
+                                <a class="sort-link" href="{{ r_sort_headers.person.url }}">{% trans "Person" %}{% if r_sort_headers.person.arrow %} <span class="sort-indicator" aria-hidden="true">{{ r_sort_headers.person.arrow }}</span>{% endif %}</a>
                             </th>
                             <th class="numeric" aria-sort="{{ r_sort_headers.amount.aria_sort }}">
-                                <a class="sort-link" href="{{ r_sort_headers.amount.url }}">Amount{% if r_sort_headers.amount.arrow %} <span class="sort-indicator" aria-hidden="true">{{ r_sort_headers.amount.arrow }}</span>{% endif %}</a>
+                                <a class="sort-link" href="{{ r_sort_headers.amount.url }}">{% trans "Amount" %}{% if r_sort_headers.amount.arrow %} <span class="sort-indicator" aria-hidden="true">{{ r_sort_headers.amount.arrow }}</span>{% endif %}</a>
                             </th>
-                            <th class="numeric">Paid</th>
-                            <th class="numeric">Remaining</th>
+                            <th class="numeric">{% trans "Paid" %}</th>
+                            <th class="numeric">{% trans "Remaining" %}</th>
                             <th aria-sort="{{ r_sort_headers.due_date.aria_sort }}">
-                                <a class="sort-link" href="{{ r_sort_headers.due_date.url }}">Due Date{% if r_sort_headers.due_date.arrow %} <span class="sort-indicator" aria-hidden="true">{{ r_sort_headers.due_date.arrow }}</span>{% endif %}</a>
+                                <a class="sort-link" href="{{ r_sort_headers.due_date.url }}">{% trans "Due Date" %}{% if r_sort_headers.due_date.arrow %} <span class="sort-indicator" aria-hidden="true">{{ r_sort_headers.due_date.arrow }}</span>{% endif %}</a>
                             </th>
-                            <th>Status</th>
-                            <th>Description</th>
-                            <th>Action</th>
+                            <th>{% trans "Status" %}</th>
+                            <th>{% trans "Description" %}</th>
+                            <th>{% trans "Action" %}</th>
                         </tr>
                     </thead>
                     <tbody id="receivables-table">
@@ -118,7 +119,7 @@
                         </td>
                         <td>
                             {% if c.remaining_display > 0 and c.status != 'CANCELLED' %}
-                            <button type="button" class="btn btn-icon btn-ghost" title="Register payment for {{ c.person.name }}" aria-label="Register payment for {{ c.person.name }}" onclick="registerPayment({{ c.id }})">
+                            <button type="button" class="btn btn-icon btn-ghost" title="{% blocktrans with name=c.person.name %}Register payment for {{ name }}{% endblocktrans %}" aria-label="{% blocktrans with name=c.person.name %}Register payment for {{ name }}{% endblocktrans %}" onclick="registerPayment({{ c.id }})">
                                 <i data-lucide="banknote" aria-hidden="true"></i>
                             </button>
                             {% else %}
@@ -135,11 +136,11 @@
                                 <path d="M6 12h.01M18 12h.01"></path>
                             </svg>
                             {% if r_filters_active %}
-                            <div class="empty-state-title">No receivables match your filters</div>
-                            <div class="empty-state-description">Try another person, status, or due-date range. <a href="{% url 'frontend:finance' %}">Clear filters</a> to see the open accounts.</div>
+                            <div class="empty-state-title">{% trans "No receivables match your filters" %}</div>
+                            <div class="empty-state-description">{% trans "Try another person, status, or due-date range." %} <a href="{% url 'frontend:finance' %}">{% trans "Clear filters" %}</a> {% trans "to see the open accounts." %}</div>
                             {% else %}
-                            <div class="empty-state-title">No account registered</div>
-                            <div class="empty-state-description">All accounts are up to date</div>
+                            <div class="empty-state-title">{% trans "No account registered" %}</div>
+                            <div class="empty-state-description">{% trans "All accounts are up to date" %}</div>
                             {% endif %}
                         </td>
                     </tr>
@@ -147,46 +148,47 @@
                     </tbody>
                 </table>
             </div>
-            {% include "frontend/partials/pagination.html" with page_obj=receivables_page params=receivables_qs page_param="rpage" aria_label="Receivables pagination" %}
+            {% trans "Receivables pagination" as pagination_label %}
+            {% include "frontend/partials/pagination.html" with page_obj=receivables_page params=receivables_qs page_param="rpage" aria_label=pagination_label %}
         </div>
     </div>
 
     <!-- Recent payments -->
     <div class="section-card">
         <div class="card-header list-header">
-            <h3 class="card-title">Payments</h3>
+            <h3 class="card-title">{% trans "Payments" %}</h3>
             <div class="list-toolbar">
                 <form method="get" action="{% url 'frontend:finance' %}" role="search" class="list-toolbar-form">
                     <div class="toolbar-field toolbar-search">
-                        <label class="toolbar-label" for="payments-search">Search</label>
-                        <input type="search" id="payments-search" name="pq" value="{{ p_query }}" class="input" placeholder="Person or reference" autocomplete="off">
+                        <label class="toolbar-label" for="payments-search">{% trans "Search" %}</label>
+                        <input type="search" id="payments-search" name="pq" value="{{ p_query }}" class="input" placeholder="{% trans "Person or reference" %}" autocomplete="off">
                     </div>
                     <div class="toolbar-field">
-                        <label class="toolbar-label" for="payments-method">Method</label>
+                        <label class="toolbar-label" for="payments-method">{% trans "Method" %}</label>
                         <select id="payments-method" name="pmethod" class="select js-auto-submit">
-                            <option value="">All methods</option>
+                            <option value="">{% trans "All methods" %}</option>
                             {% for value, label in payment_method_options %}
                             <option value="{{ value }}"{% if payment_method == value %} selected{% endif %}>{{ label }}</option>
                             {% endfor %}
                         </select>
                     </div>
                     <div class="toolbar-field">
-                        <label class="toolbar-label" for="paid-from">From</label>
+                        <label class="toolbar-label" for="paid-from">{% trans "From" %}</label>
                         <input type="date" id="paid-from" name="paid_from" value="{{ paid_from }}" class="input js-auto-submit">
                     </div>
                     <div class="toolbar-field">
-                        <label class="toolbar-label" for="paid-to">To</label>
+                        <label class="toolbar-label" for="paid-to">{% trans "To" %}</label>
                         <input type="date" id="paid-to" name="paid_to" value="{{ paid_to }}" class="input js-auto-submit">
                     </div>
                     <div class="toolbar-actions">
-                        <button type="submit" class="btn btn-secondary">Search</button>
+                        <button type="submit" class="btn btn-secondary">{% trans "Search" %}</button>
                         {% if p_filters_active %}
-                        <a class="btn btn-ghost" href="{% url 'frontend:finance' %}">Clear filters</a>
+                        <a class="btn btn-ghost" href="{% url 'frontend:finance' %}">{% trans "Clear filters" %}</a>
                         {% endif %}
                     </div>
                 </form>
                 <p class="list-count" role="status">
-                    {{ payments_page.paginator.count }} result{{ payments_page.paginator.count|pluralize }}
+                    {% blocktrans count total=payments_page.paginator.count %}{{ total }} result{% plural %}{{ total }} results{% endblocktrans %}
                 </p>
             </div>
         </div>
@@ -195,11 +197,11 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Person</th>
-                            <th class="numeric">Amount</th>
-                            <th>Date</th>
-                            <th>Method</th>
-                            <th>Reference</th>
+                            <th>{% trans "Person" %}</th>
+                            <th class="numeric">{% trans "Amount" %}</th>
+                            <th>{% trans "Date" %}</th>
+                            <th>{% trans "Method" %}</th>
+                            <th>{% trans "Reference" %}</th>
                         </tr>
                     </thead>
                     <tbody id="recent-payments">
@@ -224,11 +226,11 @@
                                 <path d="M6 12h.01M18 12h.01"></path>
                             </svg>
                             {% if p_filters_active %}
-                            <div class="empty-state-title">No payments match your filters</div>
-                            <div class="empty-state-description">Try another person, reference, method, or date range. <a href="{% url 'frontend:finance' %}">Clear filters</a> to see recent payments.</div>
+                            <div class="empty-state-title">{% trans "No payments match your filters" %}</div>
+                            <div class="empty-state-description">{% trans "Try another person, reference, method, or date range." %} <a href="{% url 'frontend:finance' %}">{% trans "Clear filters" %}</a> {% trans "to see recent payments." %}</div>
                             {% else %}
-                            <div class="empty-state-title">No payment recorded</div>
-                            <div class="empty-state-description">Payments will appear here</div>
+                            <div class="empty-state-title">{% trans "No payment recorded" %}</div>
+                            <div class="empty-state-description">{% trans "Payments will appear here" %}</div>
                             {% endif %}
                         </td>
                     </tr>
@@ -236,7 +238,8 @@
                     </tbody>
                 </table>
             </div>
-            {% include "frontend/partials/pagination.html" with page_obj=payments_page params=payments_qs page_param="ppage" aria_label="Payments pagination" %}
+            {% trans "Payments pagination" as pagination_label %}
+            {% include "frontend/partials/pagination.html" with page_obj=payments_page params=payments_qs page_param="ppage" aria_label=pagination_label %}
         </div>
     </div>
 </div>
@@ -245,27 +248,27 @@
         {% csrf_token %}
         {{ form.idempotency_key }}
         <div class="card-body">
-            <h3 class="card-title">Register Payment</h3>
+            <h3 class="card-title">{% trans "Register Payment" %}</h3>
             <div class="payment-form-grid">
                 <div class="form-group">
-                    <label for="id_account_receivable" class="form-label">Account</label>
+                    <label for="id_account_receivable" class="form-label">{% trans "Account" %}</label>
                     {{ form.account_receivable }}
                 </div>
                 <div class="form-group">
-                    <label for="id_amount" class="form-label">Amount</label>
+                    <label for="id_amount" class="form-label">{% trans "Amount" %}</label>
                     {{ form.amount }}
                 </div>
                 <div class="form-group">
-                    <label for="id_method" class="form-label">Method</label>
+                    <label for="id_method" class="form-label">{% trans "Method" %}</label>
                     {{ form.method }}
                 </div>
                 <div class="form-group">
-                    <label for="id_notes" class="form-label">Reference</label>
+                    <label for="id_notes" class="form-label">{% trans "Reference" %}</label>
                     {{ form.notes }}
                 </div>
             </div>
             <div class="payment-form-actions">
-                <button type="submit" class="btn btn-primary">Register</button>
+                <button type="submit" class="btn btn-primary">{% trans "Register" %}</button>
                 {% if form.non_field_errors %}<div class="text-error">{{ form.non_field_errors }}</div>{% endif %}
             </div>
         </div>
@@ -275,19 +278,6 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    window.registerPayment = function(id) {
-        const form = document.getElementById('paymentForm');
-        const select = document.getElementById('id_account_receivable');
-        const amount = document.getElementById('id_amount');
-        if (!form || !select) return;
-
-        select.value = String(id);
-        if (select.value !== String(id)) return;
-
-        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        if (amount) amount.focus({ preventScroll: true });
-    };
-});
+document.addEventListener('DOMContentLoaded', function() { window.registerPayment = function(id) { const form = document.getElementById('paymentForm'); const select = document.getElementById('id_account_receivable'); const amount = document.getElementById('id_amount'); if (!form || !select) return; select.value = String(id); if (select.value !== String(id)) return; form.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (amount) amount.focus({ preventScroll: true }); }; });
 </script>
 {% endblock %}

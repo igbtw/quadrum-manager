@@ -1,47 +1,48 @@
 {% extends "frontend/documentation/topic_base.html" %}
+{% load i18n %}
 
 {% block topic_content %}
-<p>Quadrum is a Django-based <strong>Simple Management System</strong> for product inventory, point-of-sale (POS) sales, accounts receivable, and basic reporting. This page covers the basics of signing in, finding your way around, and the everyday workflows.</p>
+<p>{% blocktrans trimmed %}Quadrum is a Django-based <strong>Simple Management System</strong> for product inventory, point-of-sale (POS) sales, accounts receivable, and basic reporting. This page covers the basics of signing in, finding your way around, and the everyday workflows.{% endblocktrans %}</p>
 
-<h3>Accounts and access</h3>
+<h3>{% blocktrans trimmed %}Accounts and access{% endblocktrans %}</h3>
 <ul>
-    <li>You can create your own account from the <a href="{% url 'frontend:register' %}">registration page</a>. Every operational area requires signing in.</li>
-    <li>Any successfully registered account can access the operational pages: Dashboard, Sales, Products, Inventory, People, Finance, and Reports. There are no additional roles inside the application.</li>
-    <li>Registration never grants Django staff or superuser privileges. Application access and administrative privileges are separate.</li>
-    <li>When your session ends, sign in again to continue. Saved data is not affected.</li>
+    {% url 'frontend:register' as _u1 %} <li>{% blocktrans trimmed %}You can create your own account from the <a href="{{ _u1 }}">registration page</a>. Every operational area requires signing in.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Any successfully registered account can access the operational pages: Dashboard, Sales, Products, Inventory, People, Finance, and Reports. There are no additional roles inside the application.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Registration never grants Django staff or superuser privileges. Application access and administrative privileges are separate.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}When your session ends, sign in again to continue. Saved data is not affected.{% endblocktrans %}</li>
 </ul>
 
-<h3>First-run guide</h3>
+<h3>{% blocktrans trimmed %}First-run guide{% endblocktrans %}</h3>
 <ul>
-    <li>Newly registered accounts see the getting started guide once. You can skip it or finish it; either way it will not appear again on its own while a guide is pending.</li>
-    <li>The guide's current step is stored per account, so it resumes where you left off even after navigating or signing back in.</li>
-    <li>Replay it any time with <strong>Show getting started guide</strong> on the <a href="{% url 'frontend:documentation' %}">Documentation index</a>.</li>
+    <li>{% blocktrans trimmed %}Newly registered accounts see the getting started guide once. You can skip it or finish it; either way it will not appear again on its own while a guide is pending.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}The guide's current step is stored per account, so it resumes where you left off even after navigating or signing back in.{% endblocktrans %}</li>
+    {% url 'frontend:documentation' as _u1 %} <li>{% blocktrans trimmed %}Replay it any time with <strong>Show getting started guide</strong> on the <a href="{{ _u1 }}">Documentation index</a>.{% endblocktrans %}</li>
 </ul>
 
-<h3>Getting around</h3>
+<h3>{% blocktrans trimmed %}Getting around{% endblocktrans %}</h3>
 <ul>
-    <li>The sidebar links to every area of the system; collapse it with <code>Ctrl+B</code> on desktop.</li>
-    <li>The header search (or <code>Ctrl+K</code>) opens the global search palette — see <a href="{% url 'frontend:documentation_topic' 'search' %}">Search and Advanced Queries</a>.</li>
-    <li>The Preferences dialog stores interface settings in this browser only — see <a href="{% url 'frontend:documentation_topic' 'preferences-troubleshooting' %}">Preferences and Troubleshooting</a>.</li>
+    <li>{% blocktrans trimmed %}The sidebar links to every area of the system; collapse it with <code>Ctrl+B</code> on desktop.{% endblocktrans %}</li>
+    {% url 'frontend:documentation_topic' 'search' as _u1 %} <li>{% blocktrans trimmed %}The header search (or <code>Ctrl+K</code>) opens the global search palette — see <a href="{{ _u1 }}">Search and Advanced Queries</a>.{% endblocktrans %}</li>
+    {% url 'frontend:documentation_topic' 'preferences-troubleshooting' as _u1 %} <li>{% blocktrans trimmed %}The Preferences dialog stores interface settings in this browser only — see <a href="{{ _u1 }}">Preferences and Troubleshooting</a>.{% endblocktrans %}</li>
 </ul>
 
-<h3>Application areas</h3>
+<h3>{% blocktrans trimmed %}Application areas{% endblocktrans %}</h3>
 <ul>
-    <li><a href="{% url 'frontend:dashboard' %}">Dashboard</a> — sales and revenue for today, receivables, low-stock alerts, and recent activity.</li>
-    <li><a href="{% url 'frontend:sales_list' %}">Sales</a> — history of recorded sales with status, totals, customer, and responsible user.</li>
-    <li><a href="{% url 'frontend:point_of_sale' %}">New Sale</a> — the point of sale used to build a cart and finalize a sale.</li>
-    <li><a href="{% url 'frontend:products' %}">Products</a> — the catalog of items with category, price, cost, and minimum stock.</li>
-    <li><a href="{% url 'frontend:inventory' %}">Inventory</a> — current stock per product, status indicators, and manual stock adjustments.</li>
-    <li><a href="{% url 'frontend:people' %}">People</a> — students, teachers, staff, and visitors that can be selected as sale customers.</li>
-    <li><a href="{% url 'frontend:finance' %}">Finance</a> — outstanding accounts receivable and payment registration.</li>
-    <li><a href="{% url 'frontend:reports' %}">Reports</a> — operational summaries by period.</li>
+    {% url 'frontend:dashboard' as _u1 %} <li>{% blocktrans trimmed %}<a href="{{ _u1 }}">Dashboard</a> — sales and revenue for today, receivables, low-stock alerts, and recent activity.{% endblocktrans %}</li>
+    {% url 'frontend:sales_list' as _u1 %} <li>{% blocktrans trimmed %}<a href="{{ _u1 }}">Sales</a> — history of recorded sales with status, totals, customer, and responsible user.{% endblocktrans %}</li>
+    {% url 'frontend:point_of_sale' as _u1 %} <li>{% blocktrans trimmed %}<a href="{{ _u1 }}">New Sale</a> — the point of sale used to build a cart and finalize a sale.{% endblocktrans %}</li>
+    {% url 'frontend:products' as _u1 %} <li>{% blocktrans trimmed %}<a href="{{ _u1 }}">Products</a> — the catalog of items with category, price, cost, and minimum stock.{% endblocktrans %}</li>
+    {% url 'frontend:inventory' as _u1 %} <li>{% blocktrans trimmed %}<a href="{{ _u1 }}">Inventory</a> — current stock per product, status indicators, and manual stock adjustments.{% endblocktrans %}</li>
+    {% url 'frontend:people' as _u1 %} <li>{% blocktrans trimmed %}<a href="{{ _u1 }}">People</a> — students, teachers, staff, and visitors that can be selected as sale customers.{% endblocktrans %}</li>
+    {% url 'frontend:finance' as _u1 %} <li>{% blocktrans trimmed %}<a href="{{ _u1 }}">Finance</a> — outstanding accounts receivable and payment registration.{% endblocktrans %}</li>
+    {% url 'frontend:reports' as _u1 %} <li>{% blocktrans trimmed %}<a href="{{ _u1 }}">Reports</a> — operational summaries by period.{% endblocktrans %}</li>
 </ul>
 
-<h3>Daily workflows</h3>
+<h3>{% blocktrans trimmed %}Daily workflows{% endblocktrans %}</h3>
 <ol>
-    <li><strong>Record a sale.</strong> Open New Sale, pick products by category, and adjust quantities. Choose the payment method (Cash, Debit, Credit, PIX, or On Account), then select Finalize Sale. The sale is recorded as Completed and stock is deducted. See <a href="{% url 'frontend:documentation_topic' 'sales-pos' %}">Sales and Point of Sale</a>.</li>
-    <li><strong>Adjust stock.</strong> Open Inventory and use the stock adjustment form. Enter a positive quantity to add stock or a negative quantity to remove it, and include a reason. Every adjustment is stored as a stock movement. See <a href="{% url 'frontend:documentation_topic' 'products-inventory' %}">Products and Inventory</a>.</li>
-    <li><strong>Register a payment.</strong> Open Finance, pick the receivable, and enter the amount and method. A payment cannot exceed the remaining balance; the receivable status updates automatically. See <a href="{% url 'frontend:documentation_topic' 'finance' %}">Finance and Receivables</a>.</li>
-    <li><strong>Review results.</strong> Use the <a href="{% url 'frontend:dashboard' %}">Dashboard</a> for the current picture and <a href="{% url 'frontend:reports' %}">Reports</a> for period summaries.</li>
+    {% url 'frontend:documentation_topic' 'sales-pos' as _u1 %} <li>{% blocktrans trimmed %}<strong>Record a sale.</strong> Open New Sale, pick products by category, and adjust quantities. Choose the payment method (Cash, Debit, Credit, PIX, or On Account), then select Finalize Sale. The sale is recorded as Completed and stock is deducted. See <a href="{{ _u1 }}">Sales and Point of Sale</a>.{% endblocktrans %}</li>
+    {% url 'frontend:documentation_topic' 'products-inventory' as _u1 %} <li>{% blocktrans trimmed %}<strong>Adjust stock.</strong> Open Inventory and use the stock adjustment form. Enter a positive quantity to add stock or a negative quantity to remove it, and include a reason. Every adjustment is stored as a stock movement. See <a href="{{ _u1 }}">Products and Inventory</a>.{% endblocktrans %}</li>
+    {% url 'frontend:documentation_topic' 'finance' as _u1 %} <li>{% blocktrans trimmed %}<strong>Register a payment.</strong> Open Finance, pick the receivable, and enter the amount and method. A payment cannot exceed the remaining balance; the receivable status updates automatically. See <a href="{{ _u1 }}">Finance and Receivables</a>.{% endblocktrans %}</li>
+    {% url 'frontend:dashboard' as _u1 %} {% url 'frontend:reports' as _u2 %} <li>{% blocktrans trimmed %}<strong>Review results.</strong> Use the <a href="{{ _u1 }}">Dashboard</a> for the current picture and <a href="{{ _u2 }}">Reports</a> for period summaries.{% endblocktrans %}</li>
 </ol>
 {% endblock %}

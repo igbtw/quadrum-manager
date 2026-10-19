@@ -1,13 +1,14 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}Products{% endblock %}
+{% block title %}{% trans "Products" %}{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">Products</h1>
-        <p class="page-subtitle">Product catalog</p>
+        <h1 class="page-title">{% trans "Products" %}</h1>
+        <p class="page-subtitle">{% trans "Product catalog" %}</p>
     </div>
     <div class="page-actions">
         <button class="btn btn-primary" onclick="openModal('product-modal')">
@@ -15,7 +16,7 @@
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            New Product
+            {% trans "New Product" %}
         </button>
     </div>
 </div>
@@ -25,20 +26,20 @@
         <div class="list-toolbar">
             <form method="get" action="{% url 'frontend:products' %}" role="search" class="list-toolbar-form">
                 <div class="toolbar-field toolbar-search">
-                    <label class="toolbar-label" for="products-search">Search</label>
-                    <input type="search" id="products-search" name="q" value="{{ query }}" class="input" placeholder="Name or code" autocomplete="off">
+                    <label class="toolbar-label" for="products-search">{% trans "Search" %}</label>
+                    <input type="search" id="products-search" name="q" value="{{ query }}" class="input" placeholder="{% trans "Name or code" %}" autocomplete="off">
                 </div>
                 <div class="toolbar-field">
-                    <label class="toolbar-label" for="products-category">Category</label>
+                    <label class="toolbar-label" for="products-category">{% trans "Category" %}</label>
                     <select id="products-category" name="category" class="select js-auto-submit">
-                        <option value="">All categories</option>
+                        <option value="">{% trans "All categories" %}</option>
                         {% for c in all_categories %}
                         <option value="{{ c.id }}"{% if category_id == c.id|stringformat:"s" %} selected{% endif %}>{{ c.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="toolbar-field">
-                    <label class="toolbar-label" for="products-state">Status</label>
+                    <label class="toolbar-label" for="products-state">{% trans "Status" %}</label>
                     <select id="products-state" name="state" class="select js-auto-submit">
                         {% for value, label in state_options %}
                         <option value="{{ value }}"{% if state == value %} selected{% endif %}>{{ label }}</option>
@@ -46,14 +47,14 @@
                     </select>
                 </div>
                 <div class="toolbar-actions">
-                    <button type="submit" class="btn btn-secondary">Search</button>
+                    <button type="submit" class="btn btn-secondary">{% trans "Search" %}</button>
                     {% if filters_active %}
-                    <a class="btn btn-ghost" href="{% url 'frontend:products' %}">Clear filters</a>
+                    <a class="btn btn-ghost" href="{% url 'frontend:products' %}">{% trans "Clear filters" %}</a>
                     {% endif %}
                 </div>
             </form>
             <p class="list-count" role="status">
-                {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}
+                {% blocktrans count total=page_obj.paginator.count %}{{ total }} result{% plural %}{{ total }} results{% endblocktrans %}
             </p>
         </div>
     </div>
@@ -62,13 +63,13 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Product</th>
-                        <th>Category</th>
-                        <th class="numeric">Price</th>
-                        <th class="numeric">Inventory</th>
-                        <th>Stock</th>
-                        <th>Active</th>
-                        <th>Action</th>
+                        <th>{% trans "Product" %}</th>
+                        <th>{% trans "Category" %}</th>
+                        <th class="numeric">{% trans "Price" %}</th>
+                        <th class="numeric">{% trans "Inventory" %}</th>
+                        <th>{% trans "Stock" %}</th>
+                        <th>{% trans "Active" %}</th>
+                        <th>{% trans "Action" %}</th>
                     </tr>
                 </thead>
                 <tbody id="products-table">
@@ -78,7 +79,7 @@
                         <strong>{{ product.name }}</strong>
                         {% if product.code %}<div class="product-code"><code>{{ product.code }}</code></div>{% endif %}
                         {% if not product.active %}
-                            <span class="badge badge-danger" style="font-size: var(--font-size-xs); margin-left: var(--space-2);">Inactive</span>
+                            <span class="badge badge-danger" style="font-size: var(--font-size-xs); margin-left: var(--space-2);">{% trans "Inactive" %}</span>
                         {% endif %}
                     </td>
                     <td>{{ product.category.name|default:"—" }}</td>
@@ -89,27 +90,27 @@
                             {% if product.is_out_of_stock %}badge-status-out-of-stock
                             {% elif product.is_low_stock %}badge-status-low
                             {% else %}badge-status-normal{% endif %}">
-                            {% if product.is_out_of_stock %}Out of Stock{% elif product.is_low_stock %}Low{% else %}Normal{% endif %}
+                            {% if product.is_out_of_stock %}{% trans "Out of Stock" %}{% elif product.is_low_stock %}{% trans "Low" %}{% else %}{% trans "Normal" %}{% endif %}
                         </span>
                     </td>
                     <td>
                         <span class="badge {% if product.active %}badge-success{% else %}badge-neutral{% endif %}" style="font-size: var(--font-size-xs);">
-                            {% if product.active %}Active{% else %}Inactive{% endif %}
+                            {% if product.active %}{% trans "Active" %}{% else %}{% trans "Inactive" %}{% endif %}
                         </span>
                     </td>
                     <td>
                         <div class="row-actions">
                             {% if can_manage %}
-                            <a class="btn btn-icon btn-ghost" href="{% url 'frontend:product_edit' product.id %}" title="Edit" aria-label="Edit {{ product.name }}">
+                            <a class="btn btn-icon btn-ghost" href="{% url 'frontend:product_edit' product.id %}" title="{% trans "Edit" %}" aria-label="{% blocktrans with name=product.name %}Edit {{ name }}{% endblocktrans %}">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                             </a>
                             {% if product.can_delete %}
-                            <form method="post" action="{% url 'frontend:product_delete' product.id %}" data-confirm-destructive="true" data-confirm-title="Delete product?" data-confirm-record="{{ product.name }}" data-confirm-detail="This removes {{ product.name }} from the catalog. This action cannot be undone.">
+                            <form method="post" action="{% url 'frontend:product_delete' product.id %}" data-confirm-destructive="true" data-confirm-title="{% trans "Delete product?" %}" data-confirm-record="{{ product.name }}" data-confirm-detail="{% blocktrans with name=product.name %}This removes {{ name }} from the catalog. This action cannot be undone.{% endblocktrans %}">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-icon btn-ghost btn-danger-ghost" title="Delete" aria-label="Delete {{ product.name }}">
+                                <button type="submit" class="btn btn-icon btn-ghost btn-danger-ghost" title="{% trans "Delete" %}" aria-label="{% blocktrans with name=product.name %}Delete {{ name }}{% endblocktrans %}">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -117,9 +118,9 @@
                                 </button>
                             </form>
                             {% else %}
-                            <form method="post" action="{% url 'frontend:product_delete' product.id %}" data-confirm-destructive="true" data-confirm-blocked="true" data-confirm-title="Cannot delete product" data-confirm-record="{{ product.name }}" data-confirm-detail="{{ product.sale_items_count }} sale item(s) and {{ product.movements_count }} stock movement(s) reference this product. Deactivate it instead so sales and inventory history stays intact.">
+                            <form method="post" action="{% url 'frontend:product_delete' product.id %}" data-confirm-destructive="true" data-confirm-blocked="true" data-confirm-title="{% trans "Cannot delete product" %}" data-confirm-record="{{ product.name }}" data-confirm-detail="{% blocktrans with items=product.sale_items_count movements=product.movements_count %}This product is referenced by {{ items }} sale item(s) and {{ movements }} stock movement(s). Deactivate it instead so sales and inventory history stays intact.{% endblocktrans %}">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-icon btn-ghost row-action-blocked" title="Has history — deactivate instead" aria-label="Delete {{ product.name }} (blocked: referenced by history)">
+                                <button type="submit" class="btn btn-icon btn-ghost row-action-blocked" title="{% trans "Has history — deactivate instead" %}" aria-label="{% blocktrans with name=product.name %}Delete {{ name }} (blocked: referenced by history){% endblocktrans %}">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -129,7 +130,7 @@
                             {% endif %}
                             {% endif %}
                             {% if product.code %}
-                            <button type="button" class="btn btn-icon btn-ghost" title="Copy code" aria-label="Copy code of {{ product.name }}" onclick="copyCode('{{ product.code|escapejs }}')">
+                            <button type="button" class="btn btn-icon btn-ghost" title="{% trans "Copy code" %}" aria-label="{% blocktrans with name=product.name %}Copy code of {{ name }}{% endblocktrans %}" onclick="copyCode('{{ product.code|escapejs }}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -149,11 +150,11 @@
                             <line x1="12" y1="8" x2="12.01" y2="8"></line>
                         </svg>
                         {% if filters_active %}
-                        <div class="empty-state-title">No products match your filters</div>
-                        <div class="empty-state-description">Try another name, code, category, or status. <a href="{% url 'frontend:products' %}">Clear filters</a> to see the catalog.</div>
+                        <div class="empty-state-title">{% trans "No products match your filters" %}</div>
+                        <div class="empty-state-description">{% trans "Try another name, code, category, or status." %} <a href="{% url 'frontend:products' %}">{% trans "Clear filters" %}</a> {% trans "to see the catalog." %}</div>
                         {% else %}
-                        <div class="empty-state-title">No product registered</div>
-                        <div class="empty-state-description">Click "New Product" to get started</div>
+                        <div class="empty-state-title">{% trans "No product registered" %}</div>
+                        <div class="empty-state-description">{% trans 'Click "New Product" to get started' %}</div>
                         {% endif %}
                     </td>
                 </tr>
@@ -161,7 +162,8 @@
                 </tbody>
             </table>
         </div>
-        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=list_qs page_param="page" aria_label="Products pagination" %}
+        {% trans "Products pagination" as pagination_label %}
+        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=list_qs page_param="page" aria_label=pagination_label %}
     </div>
 </div>
 
@@ -169,8 +171,8 @@
 <div class="modal-overlay" id="product-modal">
     <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="product-modal-title">
         <div class="modal-header">
-            <h2 class="modal-title" id="product-modal-title">New Product</h2>
-            <button type="button" class="modal-close" onclick="closeModal('product-modal')" aria-label="Close">
+            <h2 class="modal-title" id="product-modal-title">{% trans "New Product" %}</h2>
+            <button type="button" class="modal-close" onclick="closeModal('product-modal')" aria-label="{% trans "Close" %}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -183,8 +185,8 @@
                 {% include "frontend/partials/product_form_fields.html" with form=form %}
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('product-modal')">Cancel</button>
-                <button type="submit" class="btn btn-primary">Save Product</button>
+                <button type="button" class="btn btn-secondary" onclick="closeModal('product-modal')">{% trans "Cancel" %}</button>
+                <button type="submit" class="btn btn-primary">{% trans "Save Product" %}</button>
             </div>
         </form>
     </div>
@@ -194,8 +196,8 @@
 <div class="modal-overlay" id="product-edit-modal">
     <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="product-edit-title">
         <div class="modal-header">
-            <h2 class="modal-title" id="product-edit-title">Edit Product</h2>
-            <button type="button" class="modal-close" onclick="closeModal('product-edit-modal')" aria-label="Close">
+            <h2 class="modal-title" id="product-edit-title">{% trans "Edit Product" %}</h2>
+            <button type="button" class="modal-close" onclick="closeModal('product-edit-modal')" aria-label="{% trans "Close" %}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -208,8 +210,8 @@
                 {% include "frontend/partials/product_form_fields.html" with form=edit_form %}
             </div>
             <div class="modal-footer">
-                <a class="btn btn-secondary" href="{% url 'frontend:products' %}">Cancel</a>
-                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a class="btn btn-secondary" href="{% url 'frontend:products' %}">{% trans "Cancel" %}</a>
+                <button type="submit" class="btn btn-primary">{% trans "Save changes" %}</button>
             </div>
         </form>
     </div>

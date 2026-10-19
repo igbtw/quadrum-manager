@@ -1,35 +1,36 @@
 {% extends "frontend/documentation/topic_base.html" %}
+{% load i18n %}
 
 {% block topic_content %}
-<p>Sales are recorded at the point of sale and listed in the <a href="{% url 'frontend:sales_list' %}">Sales</a> history. Each sale stores its line items, totals, payment method, customer (when attached), and the responsible user.</p>
+{% url 'frontend:sales_list' as _u1 %} <p>{% blocktrans trimmed %}Sales are recorded at the point of sale and listed in the <a href="{{ _u1 }}">Sales</a> history. Each sale stores its line items, totals, payment method, customer (when attached), and the responsible user.{% endblocktrans %}</p>
 
-<h3>Recording a sale</h3>
+<h3>{% blocktrans trimmed %}Recording a sale{% endblocktrans %}</h3>
 <ol>
-    <li>Open <a href="{% url 'frontend:point_of_sale' %}">New Sale</a> and pick products by category with the quantity controls.</li>
-    <li>Review the cart total. Prices and totals are always calculated from the stored product price.</li>
-    <li>Choose the payment method and select Finalize Sale.</li>
-    <li>The sale is recorded as <em>Completed</em>, stock is deducted from each product, and a stock movement is written per item.</li>
+    {% url 'frontend:point_of_sale' as _u1 %} <li>{% blocktrans trimmed %}Open <a href="{{ _u1 }}">New Sale</a> and pick products by category with the quantity controls.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Review the cart total. Prices and totals are always calculated from the stored product price.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Choose the payment method and select Finalize Sale.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}The sale is recorded as <em>Completed</em>, stock is deducted from each product, and a stock movement is written per item.{% endblocktrans %}</li>
 </ol>
 
-<h3>Payment methods</h3>
+<h3>{% blocktrans trimmed %}Payment methods{% endblocktrans %}</h3>
 <ul>
-    <li><strong>Cash</strong>, <strong>Debit</strong>, <strong>Credit</strong>, and <strong>PIX</strong> close the sale immediately.</li>
-    <li><strong>On Account</strong> records the sale and, when the sale has a customer attached, creates an account receivable for that person — managed on <a href="{% url 'frontend:documentation_topic' 'finance' %}">Finance</a>. An On Account sale without a customer completes but creates no receivable.</li>
+    <li>{% blocktrans trimmed %}<strong>Cash</strong>, <strong>Debit</strong>, <strong>Credit</strong>, and <strong>PIX</strong> close the sale immediately.{% endblocktrans %}</li>
+    {% url 'frontend:documentation_topic' 'finance' as _u1 %} <li>{% blocktrans trimmed %}<strong>On Account</strong> records the sale and, when the sale has a customer attached, creates an account receivable for that person — managed on <a href="{{ _u1 }}">Finance</a>. An On Account sale without a customer completes but creates no receivable.{% endblocktrans %}</li>
 </ul>
 
-<h3>Sale states</h3>
+<h3>{% blocktrans trimmed %}Sale states{% endblocktrans %}</h3>
 <ul>
-    <li><strong>Pending</strong> — created but not finalized (not the normal outcome of the checkout flow).</li>
-    <li><strong>Completed</strong> — finalized; stock was deducted and the total recorded. Completed sales keep their history.</li>
-    <li><strong>Cancelled</strong> — a cancelled sale remains visible in history; when applicable, stock is restored and its receivable is closed. See <code>docs/business-flows.md</code> for the exact cancellation restrictions (for example, a receivable that already has payments blocks cancellation).</li>
+    <li>{% blocktrans trimmed %}<strong>Pending</strong> — created but not finalized (not the normal outcome of the checkout flow).{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Completed</strong> — finalized; stock was deducted and the total recorded. Completed sales keep their history.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<strong>Cancelled</strong> — a cancelled sale remains visible in history; when applicable, stock is restored and its receivable is closed. See <code>docs/business-flows.md</code> for the exact cancellation restrictions (for example, a receivable that already has payments blocks cancellation).{% endblocktrans %}</li>
 </ul>
 
-<h3>Validation and safe retries</h3>
+<h3>{% blocktrans trimmed %}Validation and safe retries{% endblocktrans %}</h3>
 <ul>
-    <li>Quantities must be positive whole numbers; invalid items are rejected before anything is written.</li>
-    <li>A sale that would consume more stock than available is rejected and nothing is saved — stock never goes negative.</li>
-    <li>Finalizing uses an <strong>idempotency key</strong>: if the same submission is retried (for example after a network hiccup), the existing sale is returned instead of creating a duplicate. Reusing a key with different contents is rejected with a conflict.</li>
+    <li>{% blocktrans trimmed %}Quantities must be positive whole numbers; invalid items are rejected before anything is written.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}A sale that would consume more stock than available is rejected and nothing is saved — stock never goes negative.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Finalizing uses an <strong>idempotency key</strong>: if the same submission is retried (for example after a network hiccup), the existing sale is returned instead of creating a duplicate. Reusing a key with different contents is rejected with a conflict.{% endblocktrans %}</li>
 </ul>
 
-<p class="doc-note">The full request/response contract, including every error code, is on the <a href="{% url 'frontend:documentation_topic' 'api' %}">API Reference</a> page and in <code>docs/api-reference.md</code>.</p>
+{% url 'frontend:documentation_topic' 'api' as _u1 %} <p class="doc-note">{% blocktrans trimmed %}The full request/response contract, including every error code, is on the <a href="{{ _u1 }}">API Reference</a> page and in <code>docs/api-reference.md</code>.{% endblocktrans %}</p>
 {% endblock %}

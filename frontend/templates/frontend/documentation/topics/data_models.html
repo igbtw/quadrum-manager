@@ -1,43 +1,44 @@
 {% extends "frontend/documentation/topic_base.html" %}
+{% load i18n %}
 
 {% block topic_content %}
-<p>The application keeps a compact data model: nine entities covering the catalog, sales, stock auditing, receivables, and onboarding state. This page is a quick map; the schema, constraints, and migration guidance live in <code>docs/data-model.md</code>.</p>
+<p>{% blocktrans trimmed %}The application keeps a compact data model: nine entities covering the catalog, sales, stock auditing, receivables, and onboarding state. This page is a quick map; the schema, constraints, and migration guidance live in <code>docs/data-model.md</code>.{% endblocktrans %}</p>
 
-<h3>Entities</h3>
+<h3>{% blocktrans trimmed %}Entities{% endblocktrans %}</h3>
 <div class="doc-table-wrap">
     <table class="doc-table">
         <thead>
-            <tr><th>Model</th><th>Purpose</th></tr>
+            <tr><th>{% blocktrans trimmed %}Model{% endblocktrans %}</th><th>{% blocktrans trimmed %}Purpose{% endblocktrans %}</th></tr>
         </thead>
         <tbody>
-            <tr><td><code>Category</code></td><td>Groups products; referenced with <code>PROTECT</code> so a category in use cannot be deleted.</td></tr>
-            <tr><td><code>Product</code></td><td>Name, code, category, price, cost, stock, minimum stock, and active flag.</td></tr>
-            <tr><td><code>Person</code></td><td>Customer registry with type, record/doc, contact fields, and active flag.</td></tr>
-            <tr><td><code>Sale</code></td><td>Sale header: code, status, payment method, totals, customer, responsible user, and idempotency key.</td></tr>
-            <tr><td><code>SaleItem</code></td><td>One line of a sale with the captured unit price at sale time.</td></tr>
-            <tr><td><code>StockMovement</code></td><td>Append-only audit log of every stock change (sale, return, adjustment), with optional sale and user links.</td></tr>
-            <tr><td><code>AccountReceivable</code></td><td>Amount owed by a person for an On Account sale.</td></tr>
-            <tr><td><code>Payment</code></td><td>A payment applied to a receivable.</td></tr>
-            <tr><td><code>OnboardingProgress</code></td><td>First-run guide state per account, including the resume step.</td></tr>
+            <tr><td><code>Category</code></td><td>{% blocktrans trimmed %}Groups products; referenced with <code>PROTECT</code> so a category in use cannot be deleted.{% endblocktrans %}</td></tr>
+            <tr><td><code>Product</code></td><td>{% blocktrans trimmed %}Name, code, category, price, cost, stock, minimum stock, and active flag.{% endblocktrans %}</td></tr>
+            <tr><td><code>Person</code></td><td>{% blocktrans trimmed %}Customer registry with type, record/doc, contact fields, and active flag.{% endblocktrans %}</td></tr>
+            <tr><td><code>Sale</code></td><td>{% blocktrans trimmed %}Sale header: code, status, payment method, totals, customer, responsible user, and idempotency key.{% endblocktrans %}</td></tr>
+            <tr><td><code>SaleItem</code></td><td>{% blocktrans trimmed %}One line of a sale with the captured unit price at sale time.{% endblocktrans %}</td></tr>
+            <tr><td><code>StockMovement</code></td><td>{% blocktrans trimmed %}Append-only audit log of every stock change (sale, return, adjustment), with optional sale and user links.{% endblocktrans %}</td></tr>
+            <tr><td><code>AccountReceivable</code></td><td>{% blocktrans trimmed %}Amount owed by a person for an On Account sale.{% endblocktrans %}</td></tr>
+            <tr><td><code>Payment</code></td><td>{% blocktrans trimmed %}A payment applied to a receivable.{% endblocktrans %}</td></tr>
+            <tr><td><code>OnboardingProgress</code></td><td>{% blocktrans trimmed %}First-run guide state per account, including the resume step.{% endblocktrans %}</td></tr>
         </tbody>
     </table>
 </div>
 
-<h3>Business rules the application enforces</h3>
+<h3>{% blocktrans trimmed %}Business rules the application enforces{% endblocktrans %}</h3>
 <ul>
-    <li>Stock is never allowed to go negative — a database constraint backs the service-level checks.</li>
-    <li>Payments never exceed the outstanding balance, and cancelled receivables refuse new payments at multiple layers.</li>
-    <li>A completed sale keeps its captured prices; later catalog changes do not rewrite its history.</li>
-    <li>Product and person records referenced by sales are protected from deletion (<code>PROTECT</code>); the sale keeps a nullable link if a customer is removed (<code>SET_NULL</code>).</li>
-    <li>Monetary values keep two decimal places.</li>
-    <li>Stock movement history is append-only, so stock changes can always be reconstructed.</li>
+    <li>{% blocktrans trimmed %}Stock is never allowed to go negative — a database constraint backs the service-level checks.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Payments never exceed the outstanding balance, and cancelled receivables refuse new payments at multiple layers.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}A completed sale keeps its captured prices; later catalog changes do not rewrite its history.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Product and person records referenced by sales are protected from deletion (<code>PROTECT</code>); the sale keeps a nullable link if a customer is removed (<code>SET_NULL</code>).{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Monetary values keep two decimal places.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}Stock movement history is append-only, so stock changes can always be reconstructed.{% endblocktrans %}</li>
 </ul>
 
-<h3>Related repository documents</h3>
+<h3>{% blocktrans trimmed %}Related repository documents{% endblocktrans %}</h3>
 <ul>
-    <li><code>docs/data-model.md</code> — full schema, relationships, constraints, and migration practices.</li>
-    <li><code>docs/business-flows.md</code> — the workflows that read and write these entities.</li>
-    <li><code>docs/architecture.md</code> — project layout and request flow.</li>
+    <li>{% blocktrans trimmed %}<code>docs/data-model.md</code> — full schema, relationships, constraints, and migration practices.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<code>docs/business-flows.md</code> — the workflows that read and write these entities.{% endblocktrans %}</li>
+    <li>{% blocktrans trimmed %}<code>docs/architecture.md</code> — project layout and request flow.{% endblocktrans %}</li>
 </ul>
-<p class="doc-note">These files are the internal source of truth and are not served by the application. See also <a href="{% url 'frontend:documentation_topic' 'api' %}">API Reference</a>.</p>
+{% url 'frontend:documentation_topic' 'api' as _u1 %} <p class="doc-note">{% blocktrans trimmed %}These files are the internal source of truth and are not served by the application. See also <a href="{{ _u1 }}">API Reference</a>.{% endblocktrans %}</p>
 {% endblock %}

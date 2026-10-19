@@ -1,4 +1,10 @@
 """Template context shared by the application shell."""
+from urllib.parse import urlencode
+
+from django.utils import translation
+from django.utils.http import url_has_allowed_host_and_scheme
+
+from .i18n import LANGUAGE_CHOICES, UI_STRINGS
 from .listsearch import PAGE_SIZE_OPTIONS, resolve_page_size
 from .models import OnboardingProgress
 from .search import DOC_TOPICS
@@ -38,4 +44,47 @@ def onboarding(request):
     return {
         'onboarding_pending': progress.is_pending,
         'onboarding_step': progress.current_step,
+    }
+
+
+def _language_return_url(request):
+    """Current auth URL without an unsafe ``next`` destination.
+
+    The anonymous language selector posts this value back so switching
+    languages keeps the login/register route and its query string (including a
+    safe ``next``) while never rendering an open redirect.
+    """
+    next_values = request.GET.getlist('next')
+    if not next_values or all(
+        url_has_allowed_host_and_scheme(
+            value,
+            {request.get_host()},
+            require_https=request.is_secure(),
+        )
+        for value in next_values
+    ):
+        return request.get_full_path()
+
+    pairs = [
+        (key, value)
+        for key, values in request.GET.lists()
+        if key != 'next'
+        for value in values
+    ]
+    query = urlencode(pairs)
+    return request.path + (f'?{query}' if query else '')
+
+
+def i18n(request):
+    """Expose the active language and the JavaScript translation dictionary.
+
+    Values are resolved to plain strings here (after middleware activation) so
+    Django's ``json_script`` filter can serialize them safely; templates still
+    render through gettext directly.
+    """
+    return {
+        'current_language': translation.get_language() or 'en',
+        'language_choices': LANGUAGE_CHOICES,
+        'ui_strings': {key: str(value) for key, value in UI_STRINGS.items()},
+        'language_return_url': _language_return_url(request),
     }

@@ -1,27 +1,28 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}People{% endblock %}
+{% block title %}{% trans "People" %}{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">People</h1>
-        <p class="page-subtitle">People registration and lookup</p>
+        <h1 class="page-title">{% trans "People" %}</h1>
+        <p class="page-subtitle">{% trans "People registration and lookup" %}</p>
     </div>
 </div>
 
 <div class="section-card" style="margin-bottom: var(--space-4);">
     <div class="card-header">
-        <h3 class="card-title">New Registration</h3>
+        <h3 class="card-title">{% trans "New Registration" %}</h3>
     </div>
     <div class="card-body">
         <form id="person-form" method="post" action="{% url 'frontend:people' %}">
             {% csrf_token %}
             {% include "frontend/partials/person_form_fields.html" with form=form %}
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <button type="reset" class="btn btn-secondary">Clear</button>
+                <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+                <button type="reset" class="btn btn-secondary">{% trans "Clear" %}</button>
             </div>
         </form>
     </div>
@@ -29,24 +30,24 @@
 
 <div class="section-card">
     <div class="card-header list-header">
-        <h3 class="card-title">People List</h3>
+        <h3 class="card-title">{% trans "People List" %}</h3>
         <div class="list-toolbar">
             <form method="get" action="{% url 'frontend:people' %}" role="search" class="list-toolbar-form">
                 <div class="toolbar-field toolbar-search">
-                    <label class="toolbar-label" for="people-search">Search</label>
-                    <input type="search" id="people-search" name="q" value="{{ query }}" class="input" placeholder="Name or registration" aria-label="Search people by name or registration" autocomplete="off">
+                    <label class="toolbar-label" for="people-search">{% trans "Search" %}</label>
+                    <input type="search" id="people-search" name="q" value="{{ query }}" class="input" placeholder="{% trans "Name or registration" %}" aria-label="{% trans "Search people by name or registration" %}" autocomplete="off">
                 </div>
                 <div class="toolbar-field">
-                    <label class="toolbar-label" for="filter-type">Type</label>
+                    <label class="toolbar-label" for="filter-type">{% trans "Type" %}</label>
                     <select id="filter-type" name="type" class="select js-auto-submit">
-                        <option value="">All types</option>
+                        <option value="">{% trans "All types" %}</option>
                         {% for value, label in person_types %}
                         <option value="{{ value }}"{% if person_type == value %} selected{% endif %}>{{ label }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="toolbar-field">
-                    <label class="toolbar-label" for="filter-status">Status</label>
+                    <label class="toolbar-label" for="filter-status">{% trans "Status" %}</label>
                     <select id="filter-status" name="state" class="select js-auto-submit">
                         {% for value, label in state_options %}
                         <option value="{{ value }}"{% if state == value %} selected{% endif %}>{{ label }}</option>
@@ -54,14 +55,14 @@
                     </select>
                 </div>
                 <div class="toolbar-actions">
-                    <button type="submit" class="btn btn-secondary">Search</button>
+                    <button type="submit" class="btn btn-secondary">{% trans "Search" %}</button>
                     {% if filters_active %}
-                    <a class="btn btn-ghost" href="{% url 'frontend:people' %}">Clear filters</a>
+                    <a class="btn btn-ghost" href="{% url 'frontend:people' %}">{% trans "Clear filters" %}</a>
                     {% endif %}
                 </div>
             </form>
             <p class="list-count" role="status">
-                {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }}{% if query %} matching “{{ query }}”{% endif %}
+                {% if query %}{% blocktrans count total=page_obj.paginator.count with term=query %}{{ total }} result matching “{{ term }}”{% plural %}{{ total }} results matching “{{ term }}”{% endblocktrans %}{% else %}{% blocktrans count total=page_obj.paginator.count %}{{ total }} result{% plural %}{{ total }} results{% endblocktrans %}{% endif %}
             </p>
         </div>
     </div>
@@ -70,12 +71,12 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Type</th>
-                        <th>Registration</th>
-                        <th class="numeric">Balance</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Type" %}</th>
+                        <th>{% trans "Registration" %}</th>
+                        <th class="numeric">{% trans "Balance" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Action" %}</th>
                     </tr>
                 </thead>
                 <tbody id="people-table">
@@ -100,22 +101,22 @@
                         <span class="badge
                             {% if p.active %}badge-success{% else %}badge-neutral{% endif %}"
                             style="font-size: var(--font-size-xs);">
-                            {% if p.active %}Active{% else %}Inactive{% endif %}
+                            {% if p.active %}{% trans "Active" %}{% else %}{% trans "Inactive" %}{% endif %}
                         </span>
                     </td>
                     <td>
                         <div class="row-actions">
                             {% if can_manage %}
-                            <a class="btn btn-icon btn-ghost" href="{% url 'frontend:person_edit' p.id %}" title="Edit" aria-label="Edit {{ p.name }}">
+                            <a class="btn btn-icon btn-ghost" href="{% url 'frontend:person_edit' p.id %}" title="{% trans "Edit" %}" aria-label="{% blocktrans with name=p.name %}Edit {{ name }}{% endblocktrans %}">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                             </a>
                             {% if p.can_delete %}
-                            <form method="post" action="{% url 'frontend:person_delete' p.id %}" data-confirm-destructive="true" data-confirm-title="Delete person?" data-confirm-record="{{ p.name }}" data-confirm-detail="This removes {{ p.name }} from the registry. This action cannot be undone.">
+                            <form method="post" action="{% url 'frontend:person_delete' p.id %}" data-confirm-destructive="true" data-confirm-title="{% trans "Delete person?" %}" data-confirm-record="{{ p.name }}" data-confirm-detail="{% blocktrans with name=p.name %}This removes {{ name }} from the registry. This action cannot be undone.{% endblocktrans %}">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-icon btn-ghost btn-danger-ghost" title="Delete" aria-label="Delete {{ p.name }}">
+                                <button type="submit" class="btn btn-icon btn-ghost btn-danger-ghost" title="{% trans "Delete" %}" aria-label="{% blocktrans with name=p.name %}Delete {{ name }}{% endblocktrans %}">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="3 6 5 6 21 6"></polyline>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -123,9 +124,9 @@
                                 </button>
                             </form>
                             {% else %}
-                            <form method="post" action="{% url 'frontend:person_delete' p.id %}" data-confirm-destructive="true" data-confirm-blocked="true" data-confirm-title="Cannot delete person" data-confirm-record="{{ p.name }}" data-confirm-detail="{{ p.sales_count }} sale(s) and {{ p.receivables_count }} receivable(s) reference this person. Deactivate them instead so sales and receivables history stays intact.">
+                            <form method="post" action="{% url 'frontend:person_delete' p.id %}" data-confirm-destructive="true" data-confirm-blocked="true" data-confirm-title="{% trans "Cannot delete person" %}" data-confirm-record="{{ p.name }}" data-confirm-detail="{% blocktrans with sales=p.sales_count receivables=p.receivables_count %}This person is referenced by {{ sales }} sale(s) and {{ receivables }} receivable(s). Deactivate them instead so sales and receivables history stays intact.{% endblocktrans %}">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-icon btn-ghost row-action-blocked" title="Has history — deactivate instead" aria-label="Delete {{ p.name }} (blocked: referenced by history)">
+                                <button type="submit" class="btn btn-icon btn-ghost row-action-blocked" title="{% trans "Has history — deactivate instead" %}" aria-label="{% blocktrans with name=p.name %}Delete {{ name }} (blocked: referenced by history){% endblocktrans %}">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -134,7 +135,7 @@
                             </form>
                             {% endif %}
                             {% endif %}
-                            <button type="button" class="btn btn-icon btn-ghost" title="Copy registration" aria-label="Copy registration of {{ p.name }}" onclick="copyRegistration('{{ p.doc_id|escapejs }}')">
+                            <button type="button" class="btn btn-icon btn-ghost" title="{% trans "Copy registration" %}" aria-label="{% blocktrans with name=p.name %}Copy registration of {{ name }}{% endblocktrans %}" onclick="copyRegistration('{{ p.doc_id|escapejs }}')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -152,11 +153,11 @@
                             <line x1="12" y1="12" x2="12.01" y2="12"></line>
                         </svg>
                         {% if filters_active %}
-                        <div class="empty-state-title">No people match your search</div>
-                        <div class="empty-state-description">Nothing found for the active query or filters. <a href="{% url 'frontend:people' %}">Clear the search</a> to see everyone.</div>
+                        <div class="empty-state-title">{% trans "No people match your search" %}</div>
+                        <div class="empty-state-description">{% trans "Nothing found for the active query or filters." %} <a href="{% url 'frontend:people' %}">{% trans "Clear the search" %}</a> {% trans "to see everyone." %}</div>
                         {% else %}
-                        <div class="empty-state-title">No people registered</div>
-                        <div class="empty-state-description">Use the form above to register the first person</div>
+                        <div class="empty-state-title">{% trans "No people registered" %}</div>
+                        <div class="empty-state-description">{% trans "Use the form above to register the first person" %}</div>
                         {% endif %}
                     </td>
                 </tr>
@@ -164,7 +165,8 @@
                 </tbody>
             </table>
         </div>
-        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=list_qs page_param="page" aria_label="People pagination" %}
+        {% trans "People pagination" as pagination_label %}
+        {% include "frontend/partials/pagination.html" with page_obj=page_obj params=list_qs page_param="page" aria_label=pagination_label %}
     </div>
 </div>
 
@@ -172,8 +174,8 @@
 <div class="modal-overlay" id="person-edit-modal">
     <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="person-edit-title">
         <div class="modal-header">
-            <h2 class="modal-title" id="person-edit-title">Edit Person</h2>
-            <button type="button" class="modal-close" onclick="closeModal('person-edit-modal')" aria-label="Close">
+            <h2 class="modal-title" id="person-edit-title">{% trans "Edit Person" %}</h2>
+            <button type="button" class="modal-close" onclick="closeModal('person-edit-modal')" aria-label="{% trans "Close" %}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -186,8 +188,8 @@
                 {% include "frontend/partials/person_form_fields.html" with form=edit_form %}
             </div>
             <div class="modal-footer">
-                <a class="btn btn-secondary" href="{% url 'frontend:people' %}">Cancel</a>
-                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a class="btn btn-secondary" href="{% url 'frontend:people' %}">{% trans "Cancel" %}</a>
+                <button type="submit" class="btn btn-primary">{% trans "Save changes" %}</button>
             </div>
         </form>
     </div>

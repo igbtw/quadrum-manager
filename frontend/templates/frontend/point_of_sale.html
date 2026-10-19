@@ -1,13 +1,14 @@
 {% extends "frontend/base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block title %}New Sale{% endblock %}
+{% block title %}{% trans "New Sale" %}{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-title">New Sale</h1>
-        <p class="page-subtitle">Record a sale</p>
+        <h1 class="page-title">{% trans "New Sale" %}</h1>
+        <p class="page-subtitle">{% trans "Record a sale" %}</p>
     </div>
 </div>
 
@@ -16,11 +17,11 @@
     <div class="pos-products">
         <div class="card" style="margin-bottom: 0; border-radius: 0;">
             <div class="card-header">
-                <h3 class="card-title">Search Products</h3>
+                <h3 class="card-title">{% trans "Search Products" %}</h3>
             </div>
             <div class="card-body" style="padding: var(--space-3);">
                 <div class="search-input-wrapper">
-                    <input type="search" id="productSearch" class="search-input" placeholder="Search product name..." aria-label="Search product">
+                    <input type="search" id="productSearch" class="search-input" placeholder="{% trans "Search product name..." %}" aria-label="{% trans "Search product" %}">
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -44,11 +45,11 @@
                     <span class="product-card-name">{{ product.name }}</span>
                     <span class="product-card-price">R$ {{ product.price|floatformat:2 }}</span>
                 </div>
-                <div class="product-card-stock">Inventory: {{ product.stock_quantity }} | Min: {{ product.minimum_stock }}</div>
+                <div class="product-card-stock">{% blocktrans with stock=product.stock_quantity minimum=product.minimum_stock %}Inventory: {{ stock }} | Min: {{ minimum }}{% endblocktrans %}</div>
             </div>
             {% empty %}
             <div style="text-align: center; color: var(--color-text-muted); padding: var(--space-4);">
-                No products found
+                {% trans "No products found" %}
             </div>
             {% endfor %}
         </div>
@@ -57,7 +58,7 @@
     <!-- Right panel: Cart -->
     <div class="pos-cart">
         <div class="cart-header">
-            <h3 class="cart-title">Cart</h3>
+            <h3 class="cart-title">{% trans "Cart" %}</h3>
         </div>
         <div class="cart-items" id="cart-items">
             <div id="cart-empty" class="empty-state" style="padding: var(--space-8);">
@@ -66,32 +67,32 @@
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <path d="M16 10a4 4 0 0 1-8 0"></path>
                 </svg>
-                <div class="empty-state-title">Cart is empty</div>
-                <div class="empty-state-description">Add products by clicking on them</div>
+                <div class="empty-state-title">{% trans "Cart is empty" %}</div>
+                <div class="empty-state-description">{% trans "Add products by clicking on them" %}</div>
             </div>
             <table id="cart-table" class="table" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th class="numeric">Subtotal</th>
-                        <th>Action</th>
+                        <th>{% trans "Product" %}</th>
+                        <th>{% trans "Quantity" %}</th>
+                        <th class="numeric">{% trans "Subtotal" %}</th>
+                        <th>{% trans "Action" %}</th>
                     </tr>
                 </thead>
                 <tbody id="cart-table-body">
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" style="text-align: right; font-weight: var(--font-weight-semibold);">Subtotal</td>
-                        <td id="cart-subtotal" style="font-weight: var(--font-weight-bold); color: var(--color-primary);">R$ 0.00</td>
+                        <td colspan="3" style="text-align: right; font-weight: var(--font-weight-semibold);">{% trans "Subtotal" %}</td>
+                        <td id="cart-subtotal" style="font-weight: var(--font-weight-bold); color: var(--color-primary);">{% trans "R$ 0.00" %}</td>
                     </tr>
                 </tfoot>
             </table>
         </div>
         <div class="cart-footer">
             <div class="cart-summary">
-                <span class="cart-total-label">Total</span>
-                <span class="cart-total" id="cart-total">R$ 0.00</span>
+                <span class="cart-total-label">{% trans "Total" %}</span>
+                <span class="cart-total" id="cart-total">{% trans "R$ 0.00" %}</span>
             </div>
             <div class="cart-payment">
                 {% for code, label in payment_methods %}
@@ -102,8 +103,8 @@
                 {% endfor %}
             </div>
             <div class="cart-actions">
-                <button class="btn btn-secondary" onclick="clearCart()">Clear</button>
-                <button class="btn btn-primary" onclick="finalizeSale()">Finalize Sale</button>
+                <button class="btn btn-secondary" onclick="clearCart()">{% trans "Clear" %}</button>
+                <button class="btn btn-primary" onclick="finalizeSale()">{% trans "Finalize Sale" %}</button>
             </div>
         </div>
     </div>
@@ -231,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         renderCart();
-        quadrum.showToast('Added', `${name} added to cart`, 'success', 2000);
+        quadrum.showToast(quadrum.t('pos.added', 'Added'), quadrum.t('pos.addedMessage', '%(name)s added to cart', { name: name }), 'success', 2000);
     };
 
     window.removeCartItem = function(idx) {
@@ -275,12 +276,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 tr.innerHTML = `
                     <td>${item.name}</td>
                     <td style="display: flex; align-items: center; gap: var(--space-2);">
-                        <button onclick="decrementQuantity(${idx})" class="btn btn-icon-sm" aria-label="Decrease quantity">−</button>
+                        <button onclick="decrementQuantity(${idx})" class="btn btn-icon-sm" aria-label="${quadrum.t('pos.decrease', 'Decrease quantity')}">−</button>
                         <span style="min-width: 24px; text-align: center;">${item.quantity}</span>
-                        <button onclick="incrementQuantity(${idx})" class="btn btn-icon-sm" aria-label="Increase quantity">+</button>
+                        <button onclick="incrementQuantity(${idx})" class="btn btn-icon-sm" aria-label="${quadrum.t('pos.increase', 'Increase quantity')}">+</button>
                     </td>
                     <td class="numeric">R$ ${itemSubtotal.toFixed(2)}</td>
-                    <td><button class="btn btn-icon-sm btn-danger" onclick="removeCartItem(${idx})" aria-label="Remove item">×</button></td>
+                    <td><button class="btn btn-icon-sm btn-danger" onclick="removeCartItem(${idx})" aria-label="${quadrum.t('pos.remove', 'Remove item')}">×</button></td>
                 `;
                 tableBody.appendChild(tr);
             });
@@ -294,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (cart.length === 0) return;
         cart = [];
         renderCart();
-        quadrum.showToast('Cart cleared', 'All items removed', 'info');
+        quadrum.showToast(quadrum.t('pos.cartCleared', 'Cart cleared'), quadrum.t('pos.cartClearedMessage', 'All items removed'), 'info');
     };
 
     window.finalizeSale = function() {
@@ -312,12 +313,12 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) {}
         if (!payload) {
             if (cart.length === 0) {
-                quadrum.showToast('Cart empty', 'Add products before finalizing', 'warning');
+                quadrum.showToast(quadrum.t('pos.cartEmpty', 'Cart empty'), quadrum.t('pos.cartEmptyMessage', 'Add products before finalizing'), 'warning');
                 return;
             }
             paymentOption = document.querySelector('input[name="payment_method"]:checked');
             if (!paymentOption) {
-                quadrum.showToast('Payment method', 'Select a payment method', 'warning');
+                quadrum.showToast(quadrum.t('pos.paymentMethod', 'Payment method'), quadrum.t('pos.selectPayment', 'Select a payment method'), 'warning');
                 return;
             }
         }
@@ -348,13 +349,19 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 window._checkoutKey = null;
                 try { sessionStorage.removeItem('pos_checkout'); } catch (e) {}
-                quadrum.showToast('Sale finalized', 'Code: ' + data.code, 'success');
+                quadrum.showToast(quadrum.t('pos.finalized', 'Sale finalized'), quadrum.t('pos.finalizedMessage', 'Code: %(code)s', { code: data.code }), 'success');
                 clearCart();
             } else {
-                quadrum.showToast('Error', data.error || 'Failed to finalize', 'error');
+                const knownErrors = {
+                    'Insufficient stock': quadrum.t('pos.insufficientStock', 'Insufficient stock.'),
+                    'Empty cart': quadrum.t('pos.cartEmptyMessage', 'Add products before finalizing'),
+                    'Invalid payment method': quadrum.t('pos.invalidPayment', 'Invalid payment method.'),
+                    'Customer not found': quadrum.t('pos.customerNotFound', 'Customer not found.'),
+                };
+                quadrum.showToast(quadrum.t('common.error', 'Error'), knownErrors[data.error] || quadrum.t('pos.failed', 'Failed to finalize'), 'error');
             }
         })
-        .catch(err => { window._checkoutInProgress = false; quadrum.showToast('Error', 'Failed to finalize sale.', 'error'); try { sessionStorage.setItem('pos_checkout', JSON.stringify({idempotency_key: window._checkoutKey || null, payload: payload || null})); } catch (e) {} });
+        .catch(err => { window._checkoutInProgress = false; quadrum.showToast(quadrum.t('common.error', 'Error'), quadrum.t('pos.failedRetry', 'Failed to finalize sale.'), 'error'); try { sessionStorage.setItem('pos_checkout', JSON.stringify({idempotency_key: window._checkoutKey || null, payload: payload || null})); } catch (e) {} });
     };
 });
 </script>
