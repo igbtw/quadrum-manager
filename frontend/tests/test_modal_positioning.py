@@ -71,7 +71,7 @@ class ModalContainingBlockCssTests(SimpleTestCase):
     def test_modal_lifecycle_locks_and_restores_body_scroll(self):
         main_js = (Path(settings.BASE_DIR) / 'static' / 'js' / 'main.js').read_text()
         open_modal = main_js.split('window.openModal = function(modalId)', 1)[1]
-        open_modal = open_modal.split('window.closeModal', 1)[0]
+        open_modal = open_modal.split('window.closeModal = function', 1)[0]
         close_modal = main_js.split('window.closeModal = function(modalId)', 1)[1]
         close_modal = close_modal.split('// Close on overlay click', 1)[0]
 

@@ -13,25 +13,25 @@
     --color-border-light: #e0e0e0;
     --color-text: #171717;
     --color-text-secondary: #606060;
-    --color-text-muted: #909090;
+    --color-text-muted: #666666;
     --color-text-light: #606060;
 
     --color-surface: #f5f5f5;
     --color-popover: #f5f5f5;
 
-    --color-success: #16a34a;
+    --color-success: #166534;
     --color-success-bg: #e8f0e8;
     --color-success-border: #86efac;
 
-    --color-warning: #ca8a04;
+    --color-warning: #854d0e;
     --color-warning-bg: #fef9c3;
     --color-warning-border: #fde047;
 
-    --color-danger: #cc3333;
+    --color-danger: #b91c1c;
     --color-danger-bg: #fee2e2;
     --color-danger-border: #fca5a5;
 
-    --color-info: #0891b2;
+    --color-info: #155e75;
     --color-info-bg: #e0f2fe;
     --color-info-border: #7dd3fc;
 
@@ -90,14 +90,14 @@
     --color-border: #353535;
     --color-border-light: #303030;
     --color-text: #f5f5f5;
-    --color-text-secondary: #a0a0a0;
-    --color-text-muted: #707070;
-    --color-text-light: #a0a0a0;
+    --color-text-secondary: #b0b0b0;
+    --color-text-muted: #9a9a9a;
+    --color-text-light: #b0b0b0;
     --color-surface: #202020;
     --color-popover: #202020;
     --color-success: #6EE7A0; --color-success-bg: #122A1E; --color-success-border: #2A5A3F;
     --color-warning: #F0C070; --color-warning-bg: #3A2E10; --color-warning-border: #6B5220;
-    --color-danger: #E06666; --color-danger-bg: #3A1616; --color-danger-border: #7F2A2A;
+    --color-danger: #f08080; --color-danger-bg: #3A1616; --color-danger-border: #7F2A2A;
     --color-info: #90D4E8; --color-info-bg: #142A3D; --color-info-border: #2A5370;
     --color-focus: #a0a0a0; --color-focus-ring: rgba(160,160,160,0.22);
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.4); --shadow-md: 0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.4); --shadow-lg: 0 4px 6px -1px rgba(0,0,0,0.6), 0 2px 4px -1px rgba(0,0,0,0.5);
@@ -184,6 +184,10 @@
     --color-border-light: #a6a6a6;
     --color-bg-hover: #dedede;
     --color-focus-ring: rgba(0, 0, 0, 0.4);
+    --color-success: #14532d;
+    --color-warning: #713f12;
+    --color-danger: #7f1d1d;
+    --color-info: #164e63;
 }
 
 :root[data-theme="dark"][data-contrast="high"] {
@@ -195,6 +199,10 @@
     --color-border-light: #5f5f5f;
     --color-bg-hover: #3a3a3a;
     --color-focus-ring: rgba(255, 255, 255, 0.45);
+    --color-success: #a7f3d0;
+    --color-warning: #fde68a;
+    --color-danger: #fca5a5;
+    --color-info: #a5f3fc;
 }
 
 :root[data-contrast="high"] .nav-item.active,

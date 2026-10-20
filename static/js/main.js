@@ -322,6 +322,52 @@ function applyPreferences(prefs) {
         prefs.highContrast === 'enabled' ? 'high' : 'default'
     );
     document.documentElement.setAttribute('data-corners', prefs.cornerStyle);
+    notifyChartThemeChange();
+}
+
+/* ---------- Chart theming ----------
+   Charts read their colors from CSS custom properties so theme, contrast,
+   and token changes are reflected without duplicating hex values in each
+   inline chart script. `quadrum:themechange` fires whenever preferences are
+   applied so open charts can restyle and re-render. */
+function cssVar(name, fallback) {
+    if (typeof getComputedStyle !== 'function' || !document.documentElement) {
+        return fallback;
+    }
+    var value = getComputedStyle(document.documentElement).getPropertyValue(name);
+    value = value ? value.trim() : '';
+    return value || fallback;
+}
+
+function hexToRgba(color, alpha) {
+    var hex = String(color || '').trim().replace('#', '');
+    if (hex.length === 3) {
+        hex = hex.split('').map(function(part) { return part + part; }).join('');
+    }
+    if (!/^[0-9a-fA-F]{6}$/.test(hex)) return color;
+    var red = parseInt(hex.slice(0, 2), 16);
+    var green = parseInt(hex.slice(2, 4), 16);
+    var blue = parseInt(hex.slice(4, 6), 16);
+    return 'rgba(' + red + ',' + green + ',' + blue + ',' + alpha + ')';
+}
+
+function chartPalette() {
+    return {
+        line: cssVar('--chart-1', '#606060'),
+        alt: cssVar('--chart-2', '#476666'),
+        muted: cssVar('--chart-3', '#909090'),
+        text: cssVar('--color-text-secondary', '#606060'),
+        grid: cssVar('--color-border', '#d0d0d0'),
+        tooltipBackground: cssVar('--color-surface', '#f5f5f5'),
+        tooltipTitle: cssVar('--color-text', '#171717'),
+        tooltipBody: cssVar('--color-text-secondary', '#606060'),
+        tooltipBorder: cssVar('--color-border', '#d0d0d0')
+    };
+}
+
+function notifyChartThemeChange() {
+    if (typeof CustomEvent !== 'function') return;
+    document.dispatchEvent(new CustomEvent('quadrum:themechange'));
 }
 
 function initTheme() {
@@ -403,9 +449,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize modals
     initModals();
     
-    // Initialize filters
-    initFilters();
-
     // Initialize list toolbars (filters that re-run the GET form on change)
     initListToolbars();
 
@@ -425,43 +468,110 @@ document.addEventListener('DOMContentLoaded', function() {
     initDestructiveConfirmations();
 });
 
+var modalState = { open: null, opener: null };
+
+function modalContentFor(modal) {
+    return modal.querySelector('.modal-content') || modal;
+}
+
+// Inert the background without inerting ancestors that contain the modal:
+// walk up from the modal and mark every sibling at each level. Original
+// attribute state is remembered so nesting and repeated open/close stay safe.
+function setModalBackgroundInert(modal, inert) {
+    var current = modal;
+    while (current && current.parentElement && current !== document.body) {
+        var parent = current.parentElement;
+        Array.prototype.forEach.call(parent.children, function(sibling) {
+            if (sibling === current) return;
+            if (inert) {
+                if (sibling.hasAttribute('data-modal-inert')) return;
+                sibling.setAttribute('data-modal-inert', 'true');
+                sibling.setAttribute('inert', '');
+                if (!sibling.hasAttribute('aria-hidden')) {
+                    sibling.setAttribute('data-modal-aria-hidden', 'true');
+                    sibling.setAttribute('aria-hidden', 'true');
+                }
+            } else {
+                if (!sibling.hasAttribute('data-modal-inert')) return;
+                sibling.removeAttribute('data-modal-inert');
+                sibling.removeAttribute('inert');
+                if (sibling.hasAttribute('data-modal-aria-hidden')) {
+                    sibling.removeAttribute('data-modal-aria-hidden');
+                    sibling.removeAttribute('aria-hidden');
+                }
+            }
+        });
+        current = parent;
+    }
+}
+
 function initModals() {
     // Open modal
     window.openModal = function(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('open');
-            document.body.style.overflow = 'hidden';
+        var modal = document.getElementById(modalId);
+        if (!modal || modal.classList.contains('open')) return;
+        if (modalState.open && modalState.open !== modal) {
+            window.closeModal(modalState.open.id);
         }
+        var opener = document.activeElement;
+        if (!opener || opener === document.body || typeof opener.focus !== 'function') {
+            opener = null;
+        }
+        modalState.open = modal;
+        modalState.opener = opener;
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setModalBackgroundInert(modal, true);
+
+        var content = modalContentFor(modal);
+        requestAnimationFrame(function() {
+            if (modalState.open !== modal) return;
+            var focusable = getFocusableElements(content);
+            if (focusable.length) {
+                focusable[0].focus({ preventScroll: true });
+            } else if (typeof content.focus === 'function') {
+                content.setAttribute('tabindex', '-1');
+                content.focus({ preventScroll: true });
+            }
+        });
     };
 
     // Close modal
     window.closeModal = function(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.remove('open');
-            document.body.style.overflow = '';
+        var modal = typeof modalId === 'string'
+            ? document.getElementById(modalId)
+            : modalId;
+        if (!modal) return;
+        var wasOpen = modalState.open === modal;
+        modal.classList.remove('open');
+        if (!wasOpen) return;
+
+        setModalBackgroundInert(modal, false);
+        modalState.open = null;
+        document.body.style.overflow = '';
+        var opener = modalState.opener;
+        modalState.opener = null;
+        if (opener && document.contains(opener) && typeof opener.focus === 'function') {
+            opener.focus({ preventScroll: true });
         }
     };
 
     // Close on overlay click
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('open');
-                document.body.style.overflow = '';
-            }
+            if (e.target === this) window.closeModal(this);
         });
     });
 
-    // Close with ESC
+    // Close with ESC and keep Tab inside the dialog
     document.addEventListener('keydown', function(e) {
+        if (!modalState.open) return;
         if (e.key === 'Escape') {
-            document.querySelectorAll('.modal-overlay.open').forEach(modal => {
-                modal.classList.remove('open');
-            });
-            document.body.style.overflow = '';
+            e.preventDefault();
+            window.closeModal(modalState.open);
+            return;
         }
+        trapFocus(e, modalContentFor(modalState.open));
     });
 }
 
@@ -1790,40 +1900,6 @@ function initDocsPage() {
     apply();
 }
 
-function initFilters() {
-    // Filter search
-    const searchInputs = document.querySelectorAll('.search-input');
-    searchInputs.forEach(input => {
-        input.addEventListener('input', function() {
-            const term = this.value.toLowerCase();
-            const cards = this.closest('.card')?.querySelectorAll('.product-card') ||
-                       document.querySelectorAll('.product-card');
-
-            cards.forEach(card => {
-                const name = card.textContent.toLowerCase();
-                card.style.display = name.includes(term) ? 'block' : 'none';
-            });
-        });
-    });
-
-    // Filter by category
-    window.filterByCategory = function(categoryId) {
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        const activeBtn = document.querySelector(`.category-btn[onclick*="${categoryId}"]`);
-        if (activeBtn) activeBtn.classList.add('active');
-
-        document.querySelectorAll('.product-card').forEach(card => {
-            const category = card.dataset.category;
-            if (!categoryId || category == categoryId) {
-                card.style.display = '';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    };
-}
 
 function showNotification(title, message, type = 'info', duration = 5000) {
     const types = {
@@ -1836,6 +1912,7 @@ function showNotification(title, message, type = 'info', duration = 5000) {
     const config = types[type] || types.info;
     const notification = document.createElement('div');
     notification.className = 'toast toast-' + type;
+    notification.setAttribute('role', 'status');
     notification.style.cssText = `
         position: fixed;
         bottom: var(--space-4);
@@ -1851,10 +1928,12 @@ function showNotification(title, message, type = 'info', duration = 5000) {
         border: var(--border-width) solid ${config.border};
         max-width: 320px;
     `;
-    notification.innerHTML = `
-        <strong>${title || t('common.notice', 'Notice')}</strong>
-        <span style="margin-left: var(--space-2);">${message || ''}</span>
-    `;
+    const notificationTitle = document.createElement('strong');
+    notificationTitle.textContent = title || t('common.notice', 'Notice');
+    const notificationMessage = document.createElement('span');
+    notificationMessage.style.marginLeft = 'var(--space-2)';
+    notificationMessage.textContent = message || '';
+    notification.append(notificationTitle, notificationMessage);
 
     document.body.appendChild(notification);
 
@@ -1947,7 +2026,9 @@ window.quadrum = {
     toggleSidebar,
     toggleTheme,
     confirmDestructive,
-    t
+    t,
+    chartPalette,
+    hexToRgba
 };
 
 function setNotificationPanel(open) {

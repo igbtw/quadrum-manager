@@ -253,18 +253,22 @@
                 <div class="form-group">
                     <label for="id_account_receivable" class="form-label">{% trans "Account" %}</label>
                     {{ form.account_receivable }}
+                    {% if form.account_receivable.errors %}<div class="text-error" id="{{ form.account_receivable.auto_id }}_error">{{ form.account_receivable.errors }}</div>{% endif %}
                 </div>
                 <div class="form-group">
                     <label for="id_amount" class="form-label">{% trans "Amount" %}</label>
                     {{ form.amount }}
+                    {% if form.amount.errors %}<div class="text-error" id="{{ form.amount.auto_id }}_error">{{ form.amount.errors }}</div>{% endif %}
                 </div>
                 <div class="form-group">
                     <label for="id_method" class="form-label">{% trans "Method" %}</label>
                     {{ form.method }}
+                    {% if form.method.errors %}<div class="text-error" id="{{ form.method.auto_id }}_error">{{ form.method.errors }}</div>{% endif %}
                 </div>
                 <div class="form-group">
                     <label for="id_notes" class="form-label">{% trans "Reference" %}</label>
                     {{ form.notes }}
+                    {% if form.notes.errors %}<div class="text-error" id="{{ form.notes.auto_id }}_error">{{ form.notes.errors }}</div>{% endif %}
                 </div>
             </div>
             <div class="payment-form-actions">
@@ -278,6 +282,22 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() { window.registerPayment = function(id) { const form = document.getElementById('paymentForm'); const select = document.getElementById('id_account_receivable'); const amount = document.getElementById('id_amount'); if (!form || !select) return; select.value = String(id); if (select.value !== String(id)) return; form.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (amount) amount.focus({ preventScroll: true }); }; });
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('paymentForm');
+    const invalid = form ? form.querySelector('[aria-invalid="true"]') : null;
+    if (invalid) {
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        invalid.focus({ preventScroll: true });
+    }
+    window.registerPayment = function(id) {
+        const select = document.getElementById('id_account_receivable');
+        const amount = document.getElementById('id_amount');
+        if (!form || !select) return;
+        select.value = String(id);
+        if (select.value !== String(id)) return;
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (amount) amount.focus({ preventScroll: true });
+    };
+});
 </script>
 {% endblock %}

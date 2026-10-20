@@ -442,6 +442,13 @@ class FinanceViewPaymentTests(FinancialTestBase):
             response.context['form'].errors['account_receivable'],
         )
 
+    def test_invalid_field_errors_are_rendered_and_linked(self):
+        response = self.post_payment(amount='0.00', follow=False)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'aria-invalid="true"')
+        self.assertContains(response, 'id="id_amount_error"')
+        self.assertContains(response, 'Minimum value is 0.01.')
+
     def test_hidden_idempotency_field_is_rendered(self):
         response = self.client.get(reverse('frontend:finance'))
         self.assertContains(response, 'name="idempotency_key"')

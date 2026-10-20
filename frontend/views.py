@@ -124,9 +124,16 @@ def dashboard(request):
         )
     }
     chart_days = [week_start + timedelta(days=offset) for offset in range(7)]
+    chart_labels = [formats.date_format(day, 'D') for day in chart_days]
+    chart_units = [units_by_day.get(day, 0) for day in chart_days]
     sales_chart = {
-        'labels': [formats.date_format(day, 'D') for day in chart_days],
-        'units': [units_by_day.get(day, 0) for day in chart_days],
+        'labels': chart_labels,
+        'units': chart_units,
+        # Accessible text equivalent rendered beside the canvas.
+        'rows': [
+            {'label': label, 'units': units}
+            for label, units in zip(chart_labels, chart_units)
+        ],
     }
     stats = {
         'sales_today': sales_today,
@@ -305,15 +312,18 @@ def product_edit(request, pk):
     """Edit one product. Invalid submissions re-render the catalog with the
     modal open and the bound form, preserving values and showing errors."""
     product = get_object_or_404(Product, pk=pk)
+    # The edit form shares the page with the create modal, so it needs its own
+    # prefix: without it both forms render the same field IDs and the edit
+    # labels point at the hidden create inputs.
     if request.method == 'POST':
-        form = ProductForm(request.POST, request.FILES, instance=product)
+        form = ProductForm(request.POST, request.FILES, instance=product, prefix='edit')
         if form.is_valid():
             form.save()
             messages.success(request, _('Product “%(name)s” updated.') % {'name': product.name})
             return redirect('frontend:products')
         messages.error(request, _('Please check the fields.'))
     else:
-        form = ProductForm(instance=product)
+        form = ProductForm(instance=product, prefix='edit')
     return render(
         request, 'frontend/products.html',
         _products_context(request, edit_form=form, edit_product=product),
@@ -563,15 +573,17 @@ def person_edit(request, pk):
     """Edit one person. Invalid submissions re-render the modal with the
     bound form so valid field values survive and errors stay visible."""
     person = get_object_or_404(Person, pk=pk)
+    # The edit modal sits beside the page's inline create form; the prefix
+    # keeps their field IDs/labels unique and correctly associated.
     if request.method == 'POST':
-        form = PersonForm(request.POST, instance=person)
+        form = PersonForm(request.POST, instance=person, prefix='edit')
         if form.is_valid():
             form.save()
             messages.success(request, _('Person “%(name)s” updated.') % {'name': person.name})
             return redirect('frontend:people')
         messages.error(request, _('Please check the fields.'))
     else:
-        form = PersonForm(instance=person)
+        form = PersonForm(instance=person, prefix='edit')
     return render(
         request, 'frontend/people.html',
         _people_context(request, edit_form=form, edit_person=person),
@@ -1213,6 +1225,16 @@ def api_pos_finalize(request):
             return JsonResponse({'error': 'Invalid payment method'}, status=400)
         if not idempotency_key or len(idempotency_key) > 255 or not re.match(r'^[A-Za-z0-9_-]+$', idempotency_key):
             return JsonResponse({'error': 'Invalid idempotency key'}, status=400)
+        if customer_id is not None and (
+            isinstance(customer_id, bool)
+            or not isinstance(customer_id, int)
+            or customer_id <= 0
+        ):
+            return JsonResponse({'error': 'Customer not found'}, status=404)
+        if payment_method == 'ON_ACCOUNT' and customer_id is None:
+            return JsonResponse(
+                {'error': 'Customer required for on-account sales'}, status=400,
+            )
         import hashlib
         def _fingerprint():
             norm = {

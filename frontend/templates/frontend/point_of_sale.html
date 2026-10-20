@@ -1,5 +1,6 @@
 {% extends "frontend/base.html" %}
 {% load i18n %}
+{% load l10n %}
 {% load static %}
 
 {% block title %}{% trans "New Sale" %}{% endblock %}
@@ -31,8 +32,9 @@
         </div>
 
         <div class="pos-categories">
+            <button type="button" class="category-btn active" data-category-id="">{% trans "All" %}</button>
             {% for category in categories %}
-            <button class="category-btn" onclick="filterByCategory({{ category.id }})">
+            <button type="button" class="category-btn" data-category-id="{{ category.id }}">
                 {{ category.name }}
             </button>
             {% endfor %}
@@ -40,13 +42,13 @@
 
         <div class="pos-products-list" id="product-results">
             {% for product in products %}
-            <div class="product-card {% if not product.active %}inactive{% endif %}" data-category="{{ product.category_id }}" data-name="{{ product.name|lower }}" data-id="{{ product.id }}">
-                <div class="product-card-header">
+            <button type="button" class="product-card {% if not product.active %}inactive{% endif %}" data-category="{{ product.category_id }}" data-name="{{ product.name|lower }}" data-id="{{ product.id }}" data-price="{{ product.price|unlocalize }}"{% if not product.active %} disabled{% endif %}>
+                <span class="product-card-header">
                     <span class="product-card-name">{{ product.name }}</span>
                     <span class="product-card-price">R$ {{ product.price|floatformat:2 }}</span>
-                </div>
-                <div class="product-card-stock">{% blocktrans with stock=product.stock_quantity minimum=product.minimum_stock %}Inventory: {{ stock }} | Min: {{ minimum }}{% endblocktrans %}</div>
-            </div>
+                </span>
+                <span class="product-card-stock">{% blocktrans with stock=product.stock_quantity minimum=product.minimum_stock %}Inventory: {{ stock }} | Min: {{ minimum }}{% endblocktrans %}</span>
+            </button>
             {% empty %}
             <div style="text-align: center; color: var(--color-text-muted); padding: var(--space-4);">
                 {% trans "No products found" %}
@@ -94,6 +96,16 @@
                 <span class="cart-total-label">{% trans "Total" %}</span>
                 <span class="cart-total" id="cart-total">{% trans "R$ 0.00" %}</span>
             </div>
+            <div class="cart-customer">
+                <label class="form-label" for="selected-customer">{% trans "Customer" %}</label>
+                <select class="select" id="selected-customer" name="customer_id">
+                    <option value="">{% trans "Walk-in / no customer" %}</option>
+                    {% for person in people %}
+                    <option value="{{ person.id }}">{{ person.name }}</option>
+                    {% endfor %}
+                </select>
+                <p class="form-hint" id="customer-required-hint">{% trans "Required for On Account sales." %}</p>
+            </div>
             <div class="cart-payment">
                 {% for code, label in payment_methods %}
                 <label class="payment-option">
@@ -103,8 +115,8 @@
                 {% endfor %}
             </div>
             <div class="cart-actions">
-                <button class="btn btn-secondary" onclick="clearCart()">{% trans "Clear" %}</button>
-                <button class="btn btn-primary" onclick="finalizeSale()">{% trans "Finalize Sale" %}</button>
+                <button type="button" class="btn btn-secondary" onclick="clearCart()">{% trans "Clear" %}</button>
+                <button type="button" class="btn btn-primary" onclick="finalizeSale()">{% trans "Finalize Sale" %}</button>
             </div>
         </div>
     </div>
@@ -114,150 +126,212 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    try {
-        const saved = sessionStorage.getItem('pos_checkout');
-        if (saved) {
-            const data = JSON.parse(saved);
-            if (data && data.idempotency_key) window._checkoutKey = data.idempotency_key;
-        }
-    } catch (e) {}
     let cart = [];
-
-    const searchInput = document.getElementById('productSearch');
+    let activeCategoryId = '';
+    let checkoutKey = null;
+    let checkoutPayload = null;
     let searchTerm = '';
-
-    searchInput.addEventListener('input', function(e) {
-        searchTerm = e.target.value.toLowerCase();
-        filterProducts();
-    });
-
-    window.filterByCategory = function(categoryId) {
-        // Update active buttons
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        event.target.classList.add('active');
-
-        // Filter products
-        document.querySelectorAll('.product-card').forEach(card => {
-            const category = card.dataset.category;
-            if (!categoryId || category == categoryId) {
-                card.style.display = '';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    };
-
-    window.filterProducts = function() {
-        document.querySelectorAll('.product-card').forEach(card => {
-            const name = card.dataset.name;
-            const categoryMatches = card.style.display !== 'none';
-            if (name.includes(searchTerm) && categoryMatches) {
-                card.style.display = '';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    };
-
-    // Keyboard navigation for product list
-    const productList = document.getElementById('product-results');
     let highlightedIndex = -1;
-    const productCards = () => Array.from(productList.querySelectorAll('.product-card:not(.inactive):not([style*="display: none"])'));
 
-    searchInput.addEventListener('keydown', function(e) {
-        const cards = productCards();
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            highlightedIndex = Math.min(highlightedIndex + 1, cards.length - 1);
-            updateHighlight(cards);
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            highlightedIndex = Math.max(highlightedIndex - 1, -1);
-            updateHighlight(cards);
-        } else if (e.key === 'Enter' && highlightedIndex >= 0) {
-            e.preventDefault();
-            const card = cards[highlightedIndex];
-            if (card) {
-                const id = parseInt(card.dataset.id);
-                const name = card.querySelector('.product-card-name').textContent;
-                const price = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
-                addToCart(id, name, price);
-                searchInput.value = '';
-                searchTerm = '';
-                filterProducts();
-                highlightedIndex = -1;
-                updateHighlight(cards);
-            }
-        } else if (e.key === 'Escape') {
-            searchInput.blur();
-            highlightedIndex = -1;
-            updateHighlight(cards);
+    const checkoutStorageKey = 'pos_checkout';
+    const searchInput = document.getElementById('productSearch');
+    const productList = document.getElementById('product-results');
+    const customerSelect = document.getElementById('selected-customer');
+    const customerHint = document.getElementById('customer-required-hint');
+
+    function formatMoney(value) {
+        const amount = Number(value) || 0;
+        try {
+            const locale = document.documentElement.lang === 'pt-br' ? 'pt-BR' : 'en-US';
+            return new Intl.NumberFormat(locale, {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(amount);
+        } catch (e) {
+            return 'R$ ' + amount.toFixed(2);
         }
-    });
+    }
+
+    function selectedPaymentMethod() {
+        const selected = document.querySelector('input[name="payment_method"]:checked');
+        return selected ? selected.value : '';
+    }
+
+    function selectedCustomerId() {
+        return customerSelect ? (customerSelect.value || null) : null;
+    }
+
+    function generateCheckoutKey() {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+            return window.crypto.randomUUID();
+        }
+        return Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+    }
+
+    function payloadItems() {
+        return cart.map(function(item) {
+            return {
+                product_id: item.id,
+                quantity: item.quantity,
+                unit_price: item.price
+            };
+        });
+    }
+
+    function buildPayload(idempotencyKey) {
+        return {
+            items: payloadItems(),
+            customer_id: selectedCustomerId(),
+            payment_method: selectedPaymentMethod(),
+            idempotency_key: idempotencyKey
+        };
+    }
+
+    function payloadMatchesCurrent(payload) {
+        if (!payload || !Array.isArray(payload.items)) return false;
+        if (String(payload.payment_method || '') !== selectedPaymentMethod()) return false;
+        const payloadCustomer = payload.customer_id == null ? '' : String(payload.customer_id);
+        if (payloadCustomer !== (selectedCustomerId() || '')) return false;
+        const currentItems = payloadItems();
+        if (payload.items.length !== currentItems.length) return false;
+        return payload.items.every(function(item, index) {
+            return Number(item.product_id) === currentItems[index].product_id
+                && Number(item.quantity) === currentItems[index].quantity;
+        });
+    }
+
+    function persistCheckoutState() {
+        try {
+            sessionStorage.setItem(checkoutStorageKey, JSON.stringify({
+                cart: cart,
+                payment_method: selectedPaymentMethod(),
+                customer_id: selectedCustomerId(),
+                idempotency_key: checkoutKey,
+                payload: checkoutPayload
+            }));
+        } catch (e) {}
+    }
+
+    function clearCheckoutState() {
+        checkoutKey = null;
+        checkoutPayload = null;
+        window._checkoutKey = null;
+        try { sessionStorage.removeItem(checkoutStorageKey); } catch (e) {}
+    }
+
+    function invalidateCheckout() {
+        checkoutKey = null;
+        checkoutPayload = null;
+        window._checkoutKey = null;
+        persistCheckoutState();
+    }
+
+    function restoreCheckoutState() {
+        let stored = null;
+        try {
+            stored = JSON.parse(sessionStorage.getItem(checkoutStorageKey) || 'null');
+        } catch (e) {
+            stored = null;
+        }
+        if (!stored || !Array.isArray(stored.cart)) return;
+
+        cart = stored.cart.filter(function(item) {
+            return item
+                && Number.isInteger(item.id)
+                && typeof item.name === 'string'
+                && Number.isFinite(Number(item.price))
+                && Number.isInteger(item.quantity)
+                && item.quantity > 0;
+        }).map(function(item) {
+            return {
+                id: item.id,
+                name: item.name,
+                price: Number(item.price),
+                quantity: item.quantity
+            };
+        });
+
+        if (stored.payment_method) {
+            const radio = document.querySelector(
+                'input[name="payment_method"][value="' + String(stored.payment_method) + '"]'
+            );
+            if (radio) radio.checked = true;
+        }
+        if (stored.customer_id != null && customerSelect) {
+            customerSelect.value = String(stored.customer_id);
+            if (customerSelect.value !== String(stored.customer_id)) {
+                customerSelect.value = '';
+            }
+        }
+        if (stored.idempotency_key && stored.payload
+                && payloadMatchesCurrent(stored.payload)) {
+            checkoutKey = String(stored.idempotency_key);
+            checkoutPayload = stored.payload;
+            window._checkoutKey = checkoutKey;
+        }
+        if (!checkoutKey) persistCheckoutState();
+    }
+
+    function productCards() {
+        return Array.from(productList.querySelectorAll('.product-card')).filter(function(card) {
+            return !card.disabled && card.style.display !== 'none';
+        });
+    }
+
+    function productFromCard(card) {
+        return {
+            id: Number(card.dataset.id),
+            name: card.querySelector('.product-card-name').textContent,
+            price: Number(card.dataset.price)
+        };
+    }
 
     function updateHighlight(cards) {
-        cards.forEach((card, i) => {
-            card.style.background = i === highlightedIndex ? 'var(--color-primary-light)' : '';
-            card.style.borderColor = i === highlightedIndex ? 'var(--color-primary)' : '';
+        cards.forEach(function(card, index) {
+            card.style.background = index === highlightedIndex
+                ? 'var(--color-primary-light)' : '';
+            card.style.borderColor = index === highlightedIndex
+                ? 'var(--color-primary)' : '';
         });
         if (highlightedIndex >= 0 && cards[highlightedIndex]) {
             cards[highlightedIndex].scrollIntoView({ block: 'nearest' });
         }
     }
 
-    // Event delegation to add to cart
-    document.getElementById('product-results').addEventListener('click', function(e) {
-        const card = e.target.closest('.product-card');
-        if (card && !card.classList.contains('inactive')) {
-            const id = parseInt(card.dataset.id);
-            const name = card.querySelector('.product-card-name').textContent;
-            const price = card.querySelector('.product-card-price').textContent.replace('R$ ', '');
-            addToCart(id, name, price);
-        }
-    });
+    function filterProducts() {
+        productList.querySelectorAll('.product-card').forEach(function(card) {
+            const nameMatches = card.dataset.name.includes(searchTerm);
+            const categoryMatches = !activeCategoryId
+                || card.dataset.category === activeCategoryId;
+            card.style.display = nameMatches && categoryMatches ? '' : 'none';
+        });
+        highlightedIndex = -1;
+        updateHighlight(productCards());
+    }
 
-    // Add to cart
-    window.addToCart = function(productId, name, price) {
-        const existing = cart.find(i => i.id == productId);
-        if (existing) {
-            existing.quantity += 1;
-        } else {
-            cart.push({
-                id: productId,
-                name: name,
-                price: parseFloat(price),
-                quantity: 1
-            });
-        }
-        renderCart();
-        quadrum.showToast(quadrum.t('pos.added', 'Added'), quadrum.t('pos.addedMessage', '%(name)s added to cart', { name: name }), 'success', 2000);
-    };
+    function filterByCategory(categoryId, button) {
+        activeCategoryId = categoryId ? String(categoryId) : '';
+        document.querySelectorAll('.category-btn').forEach(function(control) {
+            control.classList.toggle('active', control === button);
+        });
+        filterProducts();
+    }
 
-    window.removeCartItem = function(idx) {
-        cart.splice(idx, 1);
-        renderCart();
-    };
-
-    window.incrementQuantity = function(idx) {
-        cart[idx].quantity += 1;
-        renderCart();
-    };
-
-    window.decrementQuantity = function(idx) {
-        if (cart[idx].quantity <= 1) {
-            removeCartItem(idx);
-        } else {
-            cart[idx].quantity -= 1;
-            renderCart();
-        }
-    };
+    function updateCustomerRequirement() {
+        if (!customerSelect) return;
+        const required = selectedPaymentMethod() === 'ON_ACCOUNT';
+        customerSelect.required = required;
+        customerSelect.setAttribute('aria-required', String(required));
+        if (customerHint) customerHint.hidden = !required;
+    }
 
     function renderCart() {
         const tableBody = document.getElementById('cart-table-body');
         const cartEmpty = document.getElementById('cart-empty');
         const table = document.getElementById('cart-table');
+        let subtotal = 0;
+
+        tableBody.innerHTML = '';
 
         if (cart.length === 0) {
             table.style.display = 'none';
@@ -265,104 +339,271 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             table.style.display = 'table';
             cartEmpty.style.display = 'none';
-            let subtotal = 0;
-            tableBody.innerHTML = '';
 
-            cart.forEach((item, idx) => {
+            cart.forEach(function(item, index) {
                 const itemSubtotal = item.price * item.quantity;
                 subtotal += itemSubtotal;
 
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${item.name}</td>
-                    <td style="display: flex; align-items: center; gap: var(--space-2);">
-                        <button onclick="decrementQuantity(${idx})" class="btn btn-icon-sm" aria-label="${quadrum.t('pos.decrease', 'Decrease quantity')}">−</button>
-                        <span style="min-width: 24px; text-align: center;">${item.quantity}</span>
-                        <button onclick="incrementQuantity(${idx})" class="btn btn-icon-sm" aria-label="${quadrum.t('pos.increase', 'Increase quantity')}">+</button>
-                    </td>
-                    <td class="numeric">R$ ${itemSubtotal.toFixed(2)}</td>
-                    <td><button class="btn btn-icon-sm btn-danger" onclick="removeCartItem(${idx})" aria-label="${quadrum.t('pos.remove', 'Remove item')}">×</button></td>
-                `;
-                tableBody.appendChild(tr);
-            });
+                const row = document.createElement('tr');
 
-            document.getElementById('cart-subtotal').textContent = 'R$ ' + subtotal.toFixed(2);
-            document.getElementById('cart-total').textContent = 'R$ ' + subtotal.toFixed(2);
+                const nameCell = document.createElement('td');
+                nameCell.textContent = item.name;
+
+                const quantityCell = document.createElement('td');
+                quantityCell.style.cssText = 'display: flex; align-items: center; gap: var(--space-2);';
+
+                const decrementButton = document.createElement('button');
+                decrementButton.type = 'button';
+                decrementButton.className = 'btn btn-icon-sm';
+                decrementButton.setAttribute('aria-label', quadrum.t('pos.decrease', 'Decrease quantity'));
+                decrementButton.textContent = '−';
+                decrementButton.addEventListener('click', function() { decrementQuantity(index); });
+
+                const quantityValue = document.createElement('span');
+                quantityValue.style.cssText = 'min-width: 24px; text-align: center;';
+                quantityValue.textContent = item.quantity;
+
+                const incrementButton = document.createElement('button');
+                incrementButton.type = 'button';
+                incrementButton.className = 'btn btn-icon-sm';
+                incrementButton.setAttribute('aria-label', quadrum.t('pos.increase', 'Increase quantity'));
+                incrementButton.textContent = '+';
+                incrementButton.addEventListener('click', function() { incrementQuantity(index); });
+
+                quantityCell.append(decrementButton, quantityValue, incrementButton);
+
+                const subtotalCell = document.createElement('td');
+                subtotalCell.className = 'numeric';
+                subtotalCell.textContent = formatMoney(itemSubtotal);
+
+                const removeCell = document.createElement('td');
+                const removeButton = document.createElement('button');
+                removeButton.type = 'button';
+                removeButton.className = 'btn btn-icon-sm btn-danger';
+                removeButton.setAttribute('aria-label', quadrum.t('pos.remove', 'Remove item'));
+                removeButton.textContent = '×';
+                removeButton.addEventListener('click', function() { removeCartItem(index); });
+                removeCell.appendChild(removeButton);
+
+                row.append(nameCell, quantityCell, subtotalCell, removeCell);
+                tableBody.appendChild(row);
+            });
         }
+
+        document.getElementById('cart-subtotal').textContent = formatMoney(subtotal);
+        document.getElementById('cart-total').textContent = formatMoney(subtotal);
     }
 
-    window.clearCart = function() {
-        if (cart.length === 0) return;
-        cart = [];
+    window.addToCart = function(productId, name, price) {
+        const numericPrice = Number(price);
+        if (!Number.isInteger(Number(productId)) || !Number.isFinite(numericPrice)) return;
+
+        const id = Number(productId);
+        const existing = cart.find(function(item) { return item.id === id; });
+        if (existing) {
+            existing.quantity += 1;
+        } else {
+            cart.push({ id: id, name: name, price: numericPrice, quantity: 1 });
+        }
+        invalidateCheckout();
         renderCart();
-        quadrum.showToast(quadrum.t('pos.cartCleared', 'Cart cleared'), quadrum.t('pos.cartClearedMessage', 'All items removed'), 'info');
+        quadrum.showToast(
+            quadrum.t('pos.added', 'Added'),
+            quadrum.t('pos.addedMessage', '%(name)s added to cart', { name: name }),
+            'success',
+            2000
+        );
+    };
+
+    window.removeCartItem = function(index) {
+        cart.splice(index, 1);
+        invalidateCheckout();
+        renderCart();
+    };
+
+    window.incrementQuantity = function(index) {
+        cart[index].quantity += 1;
+        invalidateCheckout();
+        renderCart();
+    };
+
+    window.decrementQuantity = function(index) {
+        if (cart[index].quantity <= 1) {
+            removeCartItem(index);
+        } else {
+            cart[index].quantity -= 1;
+            invalidateCheckout();
+            renderCart();
+        }
+    };
+
+    window.clearCart = function() {
+        const hadItems = cart.length > 0;
+        cart = [];
+        clearCheckoutState();
+        renderCart();
+        if (hadItems) {
+            quadrum.showToast(
+                quadrum.t('pos.cartCleared', 'Cart cleared'),
+                quadrum.t('pos.cartClearedMessage', 'All items removed'),
+                'info'
+            );
+        }
     };
 
     window.finalizeSale = function() {
         if (window._checkoutInProgress) return;
-        let payload = null;
-        let paymentOption = null;
-        try {
-            const saved = sessionStorage.getItem('pos_checkout');
-            if (saved && window._checkoutKey) {
-                const data = JSON.parse(saved);
-                if (data && data.idempotency_key === window._checkoutKey && data.payload) {
-                    payload = data.payload;
-                }
-            }
-        } catch (e) {}
-        if (!payload) {
-            if (cart.length === 0) {
-                quadrum.showToast(quadrum.t('pos.cartEmpty', 'Cart empty'), quadrum.t('pos.cartEmptyMessage', 'Add products before finalizing'), 'warning');
-                return;
-            }
-            paymentOption = document.querySelector('input[name="payment_method"]:checked');
-            if (!paymentOption) {
-                quadrum.showToast(quadrum.t('pos.paymentMethod', 'Payment method'), quadrum.t('pos.selectPayment', 'Select a payment method'), 'warning');
-                return;
-            }
+        if (cart.length === 0) {
+            quadrum.showToast(
+                quadrum.t('pos.cartEmpty', 'Cart empty'),
+                quadrum.t('pos.cartEmptyMessage', 'Add products before finalizing'),
+                'warning'
+            );
+            return;
         }
+
+        const paymentMethod = selectedPaymentMethod();
+        if (!paymentMethod) {
+            quadrum.showToast(
+                quadrum.t('pos.paymentMethod', 'Payment method'),
+                quadrum.t('pos.selectPayment', 'Select a payment method'),
+                'warning'
+            );
+            return;
+        }
+        if (paymentMethod === 'ON_ACCOUNT' && !selectedCustomerId()) {
+            quadrum.showToast(
+                quadrum.t('pos.customerRequiredTitle', 'Customer required'),
+                quadrum.t('pos.customerRequired', 'Choose a customer for On Account sales.'),
+                'warning'
+            );
+            if (customerSelect) customerSelect.focus();
+            return;
+        }
+
+        if (!checkoutKey || !checkoutPayload || !payloadMatchesCurrent(checkoutPayload)) {
+            checkoutKey = generateCheckoutKey();
+        }
+        checkoutPayload = buildPayload(checkoutKey);
+        window._checkoutKey = checkoutKey;
+        persistCheckoutState();
         window._checkoutInProgress = true;
-        const customerSelect = document.querySelector('#selected-customer');
-        const customerId = customerSelect ? (customerSelect.value || null) : null;
-        if (!payload) {
-            if (!window._checkoutKey) window._checkoutKey = crypto?.randomUUID ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2));
-            payload = {
-                items: cart.map(i => ({product_id: i.id, quantity: i.quantity, unit_price: i.price})),
-                customer_id: customerId,
-                payment_method: paymentOption.value,
-                idempotency_key: window._checkoutKey
-            };
-            try { sessionStorage.setItem('pos_checkout', JSON.stringify({idempotency_key: window._checkoutKey, payload: payload})); } catch (e) {}
-        }
+
         fetch('{% url "frontend:api_pos_finalize" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': (document.cookie.match('(^|;)\\s*csrftoken=([^;]+)') || []).pop() || ''
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(checkoutPayload)
         })
-        .then(r => r.json())
-        .then(data => {
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
             window._checkoutInProgress = false;
             if (data.success) {
-                window._checkoutKey = null;
-                try { sessionStorage.removeItem('pos_checkout'); } catch (e) {}
-                quadrum.showToast(quadrum.t('pos.finalized', 'Sale finalized'), quadrum.t('pos.finalizedMessage', 'Code: %(code)s', { code: data.code }), 'success');
-                clearCart();
-            } else {
-                const knownErrors = {
-                    'Insufficient stock': quadrum.t('pos.insufficientStock', 'Insufficient stock.'),
-                    'Empty cart': quadrum.t('pos.cartEmptyMessage', 'Add products before finalizing'),
-                    'Invalid payment method': quadrum.t('pos.invalidPayment', 'Invalid payment method.'),
-                    'Customer not found': quadrum.t('pos.customerNotFound', 'Customer not found.'),
-                };
-                quadrum.showToast(quadrum.t('common.error', 'Error'), knownErrors[data.error] || quadrum.t('pos.failed', 'Failed to finalize'), 'error');
+                clearCheckoutState();
+                cart = [];
+                renderCart();
+                quadrum.showToast(
+                    quadrum.t('pos.finalized', 'Sale finalized'),
+                    quadrum.t('pos.finalizedMessage', 'Code: %(code)s', { code: data.code }),
+                    'success'
+                );
+                return;
             }
+            persistCheckoutState();
+            const knownErrors = {
+                'Insufficient stock': quadrum.t('pos.insufficientStock', 'Insufficient stock.'),
+                'Empty cart': quadrum.t('pos.cartEmptyMessage', 'Add products before finalizing'),
+                'Invalid payment method': quadrum.t('pos.invalidPayment', 'Invalid payment method.'),
+                'Customer not found': quadrum.t('pos.customerNotFound', 'Customer not found.'),
+                'Customer required for on-account sales': quadrum.t('pos.customerRequired', 'Choose a customer for On Account sales.'),
+            };
+            quadrum.showToast(
+                quadrum.t('common.error', 'Error'),
+                knownErrors[data.error] || quadrum.t('pos.failed', 'Failed to finalize'),
+                'error'
+            );
         })
-        .catch(err => { window._checkoutInProgress = false; quadrum.showToast(quadrum.t('common.error', 'Error'), quadrum.t('pos.failedRetry', 'Failed to finalize sale.'), 'error'); try { sessionStorage.setItem('pos_checkout', JSON.stringify({idempotency_key: window._checkoutKey || null, payload: payload || null})); } catch (e) {} });
+        .catch(function() {
+            window._checkoutInProgress = false;
+            persistCheckoutState();
+            quadrum.showToast(
+                quadrum.t('common.error', 'Error'),
+                quadrum.t('pos.failedRetry', 'Failed to finalize sale.'),
+                'error'
+            );
+        });
     };
+
+    restoreCheckoutState();
+    renderCart();
+    updateCustomerRequirement();
+
+    document.querySelectorAll('.category-btn').forEach(function(button) {
+        button.addEventListener('click', function() {
+            filterByCategory(button.dataset.categoryId, button);
+        });
+    });
+
+    document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            document.querySelectorAll('.payment-option').forEach(function(option) {
+                const input = option.querySelector('input[name="payment_method"]');
+                option.classList.toggle('selected', Boolean(input && input.checked));
+            });
+            updateCustomerRequirement();
+            invalidateCheckout();
+        });
+    });
+
+    if (customerSelect) {
+        customerSelect.addEventListener('change', function() {
+            updateCustomerRequirement();
+            invalidateCheckout();
+        });
+    }
+
+    searchInput.addEventListener('input', function(event) {
+        searchTerm = event.target.value.toLowerCase();
+        filterProducts();
+    });
+
+    searchInput.addEventListener('keydown', function(event) {
+        const cards = productCards();
+        if (event.key === 'ArrowDown') {
+            event.preventDefault();
+            highlightedIndex = Math.min(highlightedIndex + 1, cards.length - 1);
+            updateHighlight(cards);
+        } else if (event.key === 'ArrowUp') {
+            event.preventDefault();
+            highlightedIndex = Math.max(highlightedIndex - 1, -1);
+            updateHighlight(cards);
+        } else if (event.key === 'Enter' && highlightedIndex >= 0) {
+            event.preventDefault();
+            const card = cards[highlightedIndex];
+            if (card) {
+                const product = productFromCard(card);
+                addToCart(product.id, product.name, product.price);
+                searchInput.value = '';
+                searchTerm = '';
+                filterProducts();
+                highlightedIndex = -1;
+                updateHighlight(cards);
+            }
+        } else if (event.key === 'Escape') {
+            searchInput.blur();
+            highlightedIndex = -1;
+            updateHighlight(cards);
+        }
+    });
+
+    productList.addEventListener('click', function(event) {
+        const card = event.target.closest('.product-card');
+        if (!card || card.disabled) return;
+        const product = productFromCard(card);
+        addToCart(product.id, product.name, product.price);
+    });
 });
 </script>
 {% endblock %}

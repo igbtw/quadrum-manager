@@ -147,7 +147,7 @@ review, but the code was not changed here.)
 `POST /api/pos/finalize/`
 
 Creates and completes a sale (with idempotency), reducing stock and, for
-on-account sales with a customer, creating a receivable.
+on-account sales, creating a receivable for the required customer.
 
 ### Request schema
 
@@ -157,7 +157,7 @@ on-account sales with a customer, creating a receivable.
 | `items[].product_id` | positive JSON integer | Yes | Integer `> 0`; used to load the product, price comes from the DB |
 | `items[].quantity` | positive JSON integer | Yes | Integer `> 0` (booleans, floats, strings, `null`, `0`, and negatives rejected); a **missing** quantity is rejected |
 | `items[].unit_price` | number | No | **Ignored**; the server always uses `Product.price` |
-| `customer_id` | integer | No | Must reference an existing `active` `Person`; required only to attach a customer/receivable |
+| `customer_id` | integer | Required for `ON_ACCOUNT`; optional otherwise | Must reference an existing `active` `Person`; on-account sales without one are rejected |
 | `payment_method` | string | No (default `"CASH"`) | Whitelisted: only `CASH`, `DEBIT`, `CREDIT`, `PIX`, `ON_ACCOUNT` (exact codes) |
 | `idempotency_key` | string | Yes | 1–255 chars matching `^[A-Za-z0-9_-]+$` |
 
@@ -173,10 +173,9 @@ be fingerprinted differently from how it is stored.
 casing (`cash`), and values with leading/trailing whitespace (`"CASH "`) are
 rejected with `400` rather than normalized into a valid classification.
 
-A customer is only mandatory in practice for `ON_ACCOUNT`; an `ON_ACCOUNT` sale
-without a customer completes but creates no receivable. (Whether `ON_ACCOUNT`
-should require a customer is a separate, unresolved product decision and is not
-enforced by this endpoint.)
+A customer is required for `ON_ACCOUNT`. An `ON_ACCOUNT` request without a
+valid `customer_id` is rejected with `400` before any sale, stock movement, or
+receivable is written, so every new on-account sale has a billable person.
 
 Minimal request:
 
@@ -211,6 +210,7 @@ replay (see below).
 | `400` | Malformed item: `items` not an array, an item not an object, or a non-positive/invalid `product_id` or `quantity` | `Invalid items` / `Invalid item` / `Invalid product_id` / `Invalid quantity` |
 | `400` | `payment_method` not one of the five declared codes | `Invalid payment method` |
 | `400` | Missing/empty key, longer than 255 chars, or containing disallowed characters | `Invalid idempotency key` |
+| `400` | `payment_method` is `ON_ACCOUNT` and `customer_id` is absent | `Customer required for on-account sales` |
 | `404` | `customer_id` provided but no active `Person` | `Customer not found` |
 | `403` | Key exists but belongs to another user (including legacy `NULL` responsible) | `Idempotency key not authorized` |
 | `409` | Key exists, sale is `COMPLETED`, and fingerprint differs | `Key conflict: request data changed` |
@@ -307,10 +307,8 @@ quantity is never truncated for fingerprinting
 
 ### Client payload
 
-The bundled template `frontend/templates/frontend/point_of_sale.html` sends the
-English payload documented above (`items`, `customer_id`, `payment_method`,
-`idempotency_key`) and reads `data.code` from the response. It references
-`#selected-customer`, an element the template does not render, so `customer_id`
-is always `null`; on-account sales created from this UI therefore have no
-customer and no receivable. The server contract above remains authoritative and
-is verified by the tests cited.
+The bundled template `frontend/templates/frontend/point_of_sale.html` renders
+`#selected-customer`, sends the English payload documented above (`items`,
+`customer_id`, `payment_method`, `idempotency_key`), and reads `data.code` from
+the response. The client requires a customer for `ON_ACCOUNT`, and the server
+enforces the same rule.

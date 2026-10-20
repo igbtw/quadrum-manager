@@ -597,16 +597,30 @@ def sales_trend(filters: ReportFilters, report: ResolvedReport):
     units = series(current_buckets, units_by_day)
     transactions = series(current_buckets, transactions_by_day)
 
+    labels = [_bucket_label(days) for days in current_buckets]
+    revenue_values = [float(value) for value in revenue]
     has_data = any(revenue) or any(units) or any(transactions)
     return {
         'granularity': granularity,
         'granularity_label': gettext(granularity),
-        'labels': [_bucket_label(days) for days in current_buckets],
+        'labels': labels,
         'prev_labels': [_bucket_label(days) for days in previous_buckets],
-        'revenue': [float(value) for value in revenue],
+        'revenue': revenue_values,
         'revenue_prev': [float(value) for value in revenue_prev],
         'units': units,
         'transactions': transactions,
+        # Accessible text equivalent rendered beside the canvases.
+        'rows': [
+            {
+                'label': label,
+                'revenue': revenue,
+                'units': units,
+                'transactions': transactions,
+            }
+            for label, revenue, units, transactions in zip(
+                labels, revenue_values, units, transactions,
+            )
+        ],
         'has_data': has_data,
         'bucket_count': len(current_buckets),
     }

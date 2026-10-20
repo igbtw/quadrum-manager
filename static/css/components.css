@@ -1501,6 +1501,11 @@
 }
 
 .product-card {
+    display: block;
+    width: 100%;
+    font: inherit;
+    text-align: left;
+    color: inherit;
     background: var(--color-bg);
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-md);

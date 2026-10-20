@@ -146,6 +146,25 @@ class EditRecordTests(RecordManagementTestBase):
         self.assertIn('value="Pessoa Limpa"', html)
         self.assertIn(reverse('frontend:person_edit', args=[self.clean_person.pk]), html)
 
+    def test_create_and_edit_forms_do_not_duplicate_field_ids(self):
+        client = self.login(self.manager)
+
+        people_html = client.get(
+            reverse('frontend:person_edit', args=[self.clean_person.pk]),
+        ).content.decode()
+        self.assertEqual(people_html.count('id="id_name"'), 1)
+        self.assertEqual(people_html.count('id="id_edit-name"'), 1)
+        self.assertEqual(people_html.count('for="id_name"'), 1)
+        self.assertEqual(people_html.count('for="id_edit-name"'), 1)
+
+        products_html = client.get(
+            reverse('frontend:product_edit', args=[self.clean_product.pk]),
+        ).content.decode()
+        self.assertEqual(products_html.count('id="id_name"'), 1)
+        self.assertEqual(products_html.count('id="id_edit-name"'), 1)
+        self.assertEqual(products_html.count('for="id_name"'), 1)
+        self.assertEqual(products_html.count('for="id_edit-name"'), 1)
+
     def test_edit_get_unknown_record_is_404(self):
         client = self.login(self.manager)
         self.assertEqual(
@@ -159,8 +178,9 @@ class EditRecordTests(RecordManagementTestBase):
         client = self.login(self.manager)
         response = client.post(
             reverse('frontend:person_edit', args=[self.clean_person.pk]),
-            {'name': 'Pessoa Renomeada', 'doc_id': 'CLEAN-1', 'person_type': 'TEACHER',
-             'email': 'p@example.com', 'phone': '555-0100', 'active': 'on'},
+            {'edit-name': 'Pessoa Renomeada', 'edit-doc_id': 'CLEAN-1',
+             'edit-person_type': 'TEACHER', 'edit-email': 'p@example.com',
+             'edit-phone': '555-0100', 'edit-active': 'on'},
             follow=True,
         )
         self.assertRedirects(response, reverse('frontend:people'))
@@ -175,8 +195,8 @@ class EditRecordTests(RecordManagementTestBase):
         client = self.login(self.manager)
         response = client.post(
             reverse('frontend:person_edit', args=[self.clean_person.pk]),
-            {'name': '', 'doc_id': 'KEEP-99', 'person_type': 'STUDENT',
-             'email': 'bad-email', 'phone': '', 'active': 'on'},
+            {'edit-name': '', 'edit-doc_id': 'KEEP-99', 'edit-person_type': 'STUDENT',
+             'edit-email': 'bad-email', 'edit-phone': '', 'edit-active': 'on'},
         )
         self.assertEqual(response.status_code, 200)
         html = response.content.decode()
@@ -190,8 +210,9 @@ class EditRecordTests(RecordManagementTestBase):
         client = self.login(self.manager)
         client.post(
             reverse('frontend:person_edit', args=[self.clean_person.pk]),
-            {'name': self.clean_person.name, 'doc_id': self.clean_person.doc_id,
-             'person_type': self.clean_person.person_type, 'email': '', 'phone': ''},
+            {'edit-name': self.clean_person.name, 'edit-doc_id': self.clean_person.doc_id,
+             'edit-person_type': self.clean_person.person_type, 'edit-email': '',
+             'edit-phone': ''},
         )
         self.clean_person.refresh_from_db()
         self.assertFalse(self.clean_person.active)
@@ -207,9 +228,11 @@ class EditRecordTests(RecordManagementTestBase):
         client = self.login(self.manager)
         response = client.post(
             reverse('frontend:product_edit', args=[self.clean_product.pk]),
-            {'name': 'Livre Editado', 'code': 'LIVRE-1', 'category': self.category.pk,
-             'price': '7.50', 'cost_price': '3.00', 'stock_quantity': 12,
-             'minimum_stock': 2, 'description': 'novo', 'active': 'on'},
+            {'edit-name': 'Livre Editado', 'edit-code': 'LIVRE-1',
+             'edit-category': self.category.pk, 'edit-price': '7.50',
+             'edit-cost_price': '3.00', 'edit-stock_quantity': 12,
+             'edit-minimum_stock': 2, 'edit-description': 'novo',
+             'edit-active': 'on'},
             follow=True,
         )
         self.assertRedirects(response, reverse('frontend:products'))
@@ -223,9 +246,11 @@ class EditRecordTests(RecordManagementTestBase):
         client = self.login(self.manager)
         response = client.post(
             reverse('frontend:product_edit', args=[self.clean_product.pk]),
-            {'name': '', 'code': 'KEEP-CODE', 'category': self.category.pk,
-             'price': '7.50', 'cost_price': '3.00', 'stock_quantity': 12,
-             'minimum_stock': 2, 'description': '', 'active': 'on'},
+            {'edit-name': '', 'edit-code': 'KEEP-CODE',
+             'edit-category': self.category.pk, 'edit-price': '7.50',
+             'edit-cost_price': '3.00', 'edit-stock_quantity': 12,
+             'edit-minimum_stock': 2, 'edit-description': '',
+             'edit-active': 'on'},
         )
         self.assertEqual(response.status_code, 200)
         html = response.content.decode()

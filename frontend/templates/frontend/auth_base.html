@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script defer src="https://unpkg.com/lucide@0.496.0/dist/umd/lucide.min.js"></script>
 </head>
 <body class="auth-body">
     <main class="auth-shell">
@@ -31,8 +31,8 @@
             </div>
         </section>
         <section class="auth-panel">
+            {% include "frontend/partials/language_switcher.html" %}
             <div class="auth-panel-inner">
-                {% include "frontend/partials/language_switcher.html" %}
                 {% for message in messages %}
                 <div class="alert{% if message.tags == 'success' %} alert-success{% elif message.tags == 'error' %} alert-danger{% elif message.tags == 'warning' %} alert-warning{% elif message.tags == 'info' %} alert-info{% endif %}" role="status" aria-live="polite">{{ message }}</div>
                 {% endfor %}

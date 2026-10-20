@@ -131,6 +131,8 @@ UI_STRINGS = {
     'pos.insufficientStock': _('Insufficient stock.'),
     'pos.invalidPayment': _('Invalid payment method.'),
     'pos.customerNotFound': _('Customer not found.'),
+    'pos.customerRequiredTitle': _('Customer required'),
+    'pos.customerRequired': _('Choose a customer for On Account sales.'),
     'common.error': _('Error'),
     'common.notice': _('Notice'),
     # Language switcher

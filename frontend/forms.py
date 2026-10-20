@@ -131,6 +131,15 @@ class PaymentForm(forms.ModelForm):
         self.fields['account_receivable'].widget.choices = choices
         if not self.is_bound:
             self.initial.setdefault('idempotency_key', uuid.uuid4().hex)
+        else:
+            for name in self.fields:
+                if not self.errors.get(name):
+                    continue
+                field = self[name]
+                field.field.widget.attrs['aria-invalid'] = 'true'
+                field.field.widget.attrs['aria-describedby'] = (
+                    f'{field.auto_id}_error'
+                )
 
     class Meta:
         model = Payment

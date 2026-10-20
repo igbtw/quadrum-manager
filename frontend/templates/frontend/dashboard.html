@@ -4,6 +4,10 @@
 
 {% block title %}{% trans "Dashboard" %} — quadrum{% endblock %}
 
+{% block extra_head %}
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
     <div>
@@ -51,9 +55,22 @@
         </div>
         <div class="panel-body">
             <div class="chart-area">
-                <canvas id="salesChart"></canvas>
+                <canvas id="salesChart" role="img" aria-label="{% trans "Sales in the last 7 days" %}" aria-describedby="sales-chart-summary"></canvas>
             </div>
             <div class="chart-caption" aria-label="{% trans "Chart legend" %}">{% trans "Last 7 days — units sold per day (Y axis: units). The trend indicates operational volume, not revenue." %}</div>
+            <div class="sr-only" id="sales-chart-summary">
+                <table>
+                    <caption>{% trans "Sales in the last 7 days, units per day" %}</caption>
+                    <thead>
+                        <tr><th scope="col">{% trans "Day" %}</th><th scope="col">{% trans "Units" %}</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in stats.sales_chart.rows %}
+                        <tr><td>{{ row.label }}</td><td>{{ row.units }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 
@@ -175,6 +192,97 @@
 {% block extra_js %}
 {{ stats.sales_chart|json_script:"sales-chart-data" }}
 <script>
-    document.addEventListener('DOMContentLoaded', () => { if (window.lucide) lucide.createIcons(); }); (function initSalesChart() { const canvas = document.getElementById('salesChart'); if (!canvas || typeof Chart === 'undefined') return; if (Chart.getChart(canvas)) return; const ctx = canvas.getContext('2d'); if (!ctx) return; const chartDataEl = document.getElementById('sales-chart-data'); if (!chartDataEl) return; let chartData; try { chartData = JSON.parse(chartDataEl.textContent); } catch (e) { return; } try { new Chart(ctx, { type: 'line', data: { labels: chartData.labels, datasets: [{ label: quadrum.t('chart.sales', 'Sales'), data: chartData.units, borderColor: '#606060', backgroundColor: 'rgba(96,96,96,0.08)', tension: 0.35, fill: true, pointBackgroundColor: '#f0f0f0', pointBorderColor: '#606060', pointRadius: 3, pointHoverRadius: 5, borderWidth: 1.5, }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#f5f5f5', titleColor: '#171717', bodyColor: '#606060', borderColor: '#d0d0d0', borderWidth: 1, cornerRadius: 4, padding: 8, titleFont: { size: 12, weight: 600 }, bodyFont: { size: 12 } } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(163,163,163,0.12)' }, ticks: { color: '#737373', font: { size: 11 }, maxTicksLimit: 5 } }, x: { grid: { display: false }, ticks: { color: '#737373', font: { size: 11 } } } }, interaction: { intersect: false, mode: 'index' } } }); } catch (e) { console.warn('Chart init skipped:', e); } })();
+(function () {
+    function initSalesChart() {
+        if (window.lucide) lucide.createIcons();
+
+        const canvas = document.getElementById('salesChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        if (Chart.getChart(canvas)) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const chartDataEl = document.getElementById('sales-chart-data');
+        if (!chartDataEl) return;
+
+        let chartData;
+        try { chartData = JSON.parse(chartDataEl.textContent); } catch (e) { return; }
+
+        const palette = quadrum.chartPalette();
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: quadrum.t('chart.sales', 'Sales'),
+                    data: chartData.units,
+                    borderColor: palette.line,
+                    backgroundColor: quadrum.hexToRgba(palette.line, 0.12),
+                    tension: 0.35,
+                    fill: true,
+                    pointBackgroundColor: palette.tooltipBackground,
+                    pointBorderColor: palette.line,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    borderWidth: 1.5,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: palette.tooltipBackground,
+                        titleColor: palette.tooltipTitle,
+                        bodyColor: palette.tooltipBody,
+                        borderColor: palette.tooltipBorder,
+                        borderWidth: 1,
+                        cornerRadius: 4,
+                        padding: 8,
+                        titleFont: { size: 12, weight: 600 },
+                        bodyFont: { size: 12 }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: quadrum.hexToRgba(palette.text, 0.15) },
+                        ticks: { color: palette.text, font: { size: 11 }, maxTicksLimit: 5 }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: palette.text, font: { size: 11 } }
+                    }
+                },
+                interaction: { intersect: false, mode: 'index' }
+            }
+        });
+
+        function applyChartTheme() {
+            const colors = quadrum.chartPalette();
+            const dataset = chart.data.datasets[0];
+            dataset.borderColor = colors.line;
+            dataset.backgroundColor = quadrum.hexToRgba(colors.line, 0.12);
+            dataset.pointBackgroundColor = colors.tooltipBackground;
+            dataset.pointBorderColor = colors.line;
+            chart.options.plugins.tooltip.backgroundColor = colors.tooltipBackground;
+            chart.options.plugins.tooltip.titleColor = colors.tooltipTitle;
+            chart.options.plugins.tooltip.bodyColor = colors.tooltipBody;
+            chart.options.plugins.tooltip.borderColor = colors.tooltipBorder;
+            chart.options.scales.y.grid.color = quadrum.hexToRgba(colors.text, 0.15);
+            chart.options.scales.y.ticks.color = colors.text;
+            chart.options.scales.x.ticks.color = colors.text;
+            chart.update();
+        }
+
+        document.addEventListener('quadrum:themechange', applyChartTheme);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSalesChart);
+    } else {
+        initSalesChart();
+    }
+})();
 </script>
 {% endblock %}

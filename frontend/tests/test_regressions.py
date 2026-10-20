@@ -368,6 +368,42 @@ class PosApiValidationTests(TestCase):
             if code == 'ON_ACCOUNT':
                 self.assertTrue(AccountReceivable.objects.filter(sale=sale).exists())
 
+    def test_finalize_on_account_requires_customer_without_writes(self):
+        before = self._db_state()
+        resp = self._finalize({
+            'items': [{'product_id': self.prod.pk, 'quantity': 1}],
+            'payment_method': 'ON_ACCOUNT', 'idempotency_key': 'NO-CUSTOMER-01',
+        })
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.json()['error'], 'Customer required for on-account sales')
+        self._assert_no_writes(before)
+
+    def test_finalize_on_account_with_customer_creates_receivable(self):
+        resp = self._finalize({
+            'items': [{'product_id': self.prod.pk, 'quantity': 2}],
+            'customer_id': self.person.pk,
+            'payment_method': 'ON_ACCOUNT', 'idempotency_key': 'WITH-CUSTOMER-01',
+        })
+        self.assertEqual(resp.status_code, 200)
+        sale = Sale.objects.get(idempotency_key='WITH-CUSTOMER-01')
+        receivable = AccountReceivable.objects.get(sale=sale)
+        self.assertEqual(receivable.person, self.person)
+        self.assertEqual(receivable.original_amount, Decimal('15.00'))
+
+    def test_finalize_rejects_invalid_customer_id_types(self):
+        before = self._db_state()
+        for index, bad in enumerate([True, '1', 0, -1, [], {}]):
+            with self.subTest(customer_id=bad):
+                resp = self._finalize({
+                    'items': [{'product_id': self.prod.pk, 'quantity': 1}],
+                    'customer_id': bad,
+                    'payment_method': 'CASH',
+                    'idempotency_key': f'BAD-CUSTOMER-{index}',
+                })
+                self.assertEqual(resp.status_code, 404)
+                self.assertEqual(resp.json()['error'], 'Customer not found')
+        self._assert_no_writes(before)
+
     def test_finalize_fingerprint_not_truncated(self):
         # A fractional quantity must not be truncated to 2 and persisted as 2.
         before = self._db_state()

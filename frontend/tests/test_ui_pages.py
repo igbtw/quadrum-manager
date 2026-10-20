@@ -239,7 +239,7 @@ class BrandMarkTests(TestCase):
     def test_auth_pages_load_lucide_and_initialize(self):
         for name in ['login', 'register']:
             html = self.client.get(reverse(f'frontend:{name}')).content.decode()
-            self.assertIn('unpkg.com/lucide@latest/dist/umd/lucide.min.js', html)
+            self.assertIn('unpkg.com/lucide@0.496.0/dist/umd/lucide.min.js', html)
             self.assertIn('lucide.createIcons()', html)
 
 

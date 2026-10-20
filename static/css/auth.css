@@ -97,6 +97,7 @@
 }
 
 .auth-panel {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -228,32 +229,108 @@
     }
 }
 
-/* Language switcher shown on anonymous login/registration pages. */
-.auth-language {
+/* Language switcher shown on anonymous login/registration pages. Absolute
+   positioning against the light panel keeps it out of the form flow entirely,
+   leaving the heading/form centered exactly as before. */
+.auth-panel > .auth-language {
+    position: absolute;
+    top: var(--space-6);
+    right: var(--space-6);
+    z-index: 2;
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-start;
     gap: var(--space-2);
-    margin-bottom: var(--space-4);
+    max-width: calc(100% - var(--space-12));
+    margin: 0;
     flex-wrap: wrap;
 }
 
-.auth-language-label {
-    font-size: var(--text-sm);
+.auth-language .auth-language-label {
+    flex: 0 0 auto;
+    margin: 0;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
     color: var(--color-text-muted);
-    font-weight: 500;
 }
 
 .auth-language-controls {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    flex: 1 1 12rem;
+    min-width: 0;
 }
 
 .auth-language-select {
-    min-width: 160px;
+    flex: 1 1 9rem;
+    width: auto;
+    min-width: 0;
+    max-width: 11rem;
+    height: var(--input-height-md);
+    font-size: var(--font-size-sm);
+}
+
+.auth-language-select:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+.auth-language-select:active:not(:disabled) {
+    border-color: var(--color-primary);
+}
+
+.auth-language-select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .auth-language-submit {
-    padding: var(--space-1) var(--space-3);
+    flex: 0 0 auto;
+    height: var(--btn-height-md);
+    padding: 0 var(--btn-padding-x-md);
+}
+
+@media (max-width: 880px) {
+    /* The split-screen collapses: the selector becomes a full-width utility
+       block above the form, with touch-sized controls. */
+    .auth-panel {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+    }
+
+    .auth-panel-inner {
+        align-self: center;
+    }
+
+    .auth-panel > .auth-language {
+        position: static;
+        top: auto;
+        right: auto;
+        width: 100%;
+        max-width: none;
+        margin: 0 0 var(--space-4);
+    }
+
+    .auth-language .auth-language-label,
+    .auth-language-controls {
+        flex-basis: 100%;
+    }
+
+    .auth-language-select {
+        max-width: none;
+        height: var(--input-height-lg);
+        font-size: max(16px, 1rem);
+    }
+
+    .auth-language-submit {
+        height: var(--btn-height-lg);
+    }
 }

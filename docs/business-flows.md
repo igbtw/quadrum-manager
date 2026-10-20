@@ -96,7 +96,9 @@ in `frontend/tests/test_regressions.py`; `test_invalid_product_id_in_api` in
    method (see [section C](#c-idempotency-and-retries)); the fingerprinted
    quantities are the values that will be persisted.
 8. If `customer_id` is provided, resolve `Person.objects.get(pk=..., active=True)`;
-   if not found, `404 {"error": "Customer not found"}`.
+   if not found, `404 {"error": "Customer not found"}`. `ON_ACCOUNT` requires a
+   customer: a missing or invalid id returns `400 {"error": "Customer required
+   for on-account sales"}` (or `404` for an invalid id) before any write.
 9. Open `transaction.atomic()` and look up an existing `Sale` by
    `idempotency_key`:
    - **Found, different owner** → `403 {"error": "Idempotency key not authorized"}`.
@@ -119,7 +121,7 @@ in `frontend/tests/test_regressions.py`; `test_invalid_product_id_in_api` in
     (`update_fields=['subtotal', 'total', 'request_fingerprint']`).
 13. `finalize_sale(sale, user=...)`: lock the sale, return early if already
     `COMPLETED`, otherwise set `status='COMPLETED'`, `completed_at=now`,
-    `responsible`, save, and — for `ON_ACCOUNT` sales with a customer — create an
+    `responsible`, save, and — for `ON_ACCOUNT` sales — create an
     `AccountReceivable` via `get_or_create` (`person`, `original_amount=total`,
     `due_date=completed_at.date()`, `status='PENDING'`).
 14. Return `200 {"success": true, "code": sale.code, "message": "Sale completed"}`.
@@ -370,10 +372,10 @@ guards.
 ## F. Accounts receivable and cancellation
 
 **Creation:** an `AccountReceivable` is created only by `finalize_sale()` for a
-sale whose `payment_method == 'ON_ACCOUNT'` **and** which has a customer. An
-`ON_ACCOUNT` sale without a customer completes and silently creates no
-receivable. The original amount is the sale total and the due date is the
-completion date.
+sale whose `payment_method == 'ON_ACCOUNT'`. New on-account sales require an
+active customer at the API boundary; legacy rows without a customer remain
+readable but cannot reach this creation path. The original amount is the sale
+total and the due date is the completion date.
 
 **Status transitions (from `AccountReceivable.update_status()`):**
 
@@ -450,10 +452,10 @@ coalesce to `0`).
 The dashboard/reports numbers come from the database and are accurate.
 `static/js/main.js` defines and exports the helpers used by the templates,
 including `showToast`, `copyToClipboard`, and `showNotification`, and initializes
-filters and notifications on `DOMContentLoaded`. The POS template
-`frontend/templates/frontend/point_of_sale.html` sends the English payload
-(`items`, `customer_id`, `payment_method`, `idempotency_key`) documented in the
-[API reference](api-reference.md). One pre-existing limitation remains: the
-template queries `#selected-customer`, which it does not render, so
-`customer_id` is always `null` and on-account sales created from this UI have no
-customer or receivable.
+notifications on `DOMContentLoaded`. The POS template
+`frontend/templates/frontend/point_of_sale.html` renders the customer selector
+and sends the English payload (`items`, `customer_id`, `payment_method`,
+`idempotency_key`) documented in the [API reference](api-reference.md). It reads
+raw prices from `data-price`, requires a customer for on-account sales, and
+invalidates stale checkout payloads whenever the cart, customer, or payment
+method changes.

@@ -4,6 +4,10 @@
 
 {% block title %}{% trans "Reports" %} — quadrum{% endblock %}
 
+{% block extra_head %}
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="page-header">
     <div>
@@ -117,8 +121,21 @@
         </div>
         <div class="panel-body">
             {% if trend.has_data %}
-            <div class="chart-area"><canvas id="revenueChart" aria-label="{% trans "Revenue over time with previous period comparison" %}" role="img"></canvas></div>
+            <div class="chart-area"><canvas id="revenueChart" aria-label="{% trans "Revenue over time with previous period comparison" %}" role="img" aria-describedby="revenue-chart-summary"></canvas></div>
             <div class="chart-caption">{% blocktrans with granularity=trend.granularity_label days=report.span_days %}Completed sales revenue per {{ granularity }} bucket. Dashed line: preceding {{ days }}-day period, aligned bucket by bucket.{% endblocktrans %}</div>
+            <div class="sr-only" id="revenue-chart-summary">
+                <table>
+                    <caption>{% trans "Revenue by period" %}</caption>
+                    <thead>
+                        <tr><th scope="col">{% trans "Period" %}</th><th scope="col">{% trans "Revenue" %}</th><th scope="col">{% trans "Units" %}</th><th scope="col">{% trans "Sales" %}</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in trend.rows %}
+                        <tr><td>{{ row.label }}</td><td>R$ {{ row.revenue|floatformat:2 }}</td><td>{{ row.units }}</td><td>{{ row.transactions }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             {% else %}
             <div class="empty-state">
                 <div class="empty-state-title">{% trans "No completed sales" %}</div>
@@ -137,8 +154,21 @@
         </div>
         <div class="panel-body">
             {% if trend.has_data %}
-            <div class="chart-area"><canvas id="volumeChart" aria-label="{% trans "Units sold over time" %}" role="img"></canvas></div>
+            <div class="chart-area"><canvas id="volumeChart" aria-label="{% trans "Units sold over time" %}" role="img" aria-describedby="volume-chart-summary"></canvas></div>
             <div class="chart-caption">{% trans "Units from sale items of completed sales. Tooltips also show the transaction count per bucket." %}</div>
+            <div class="sr-only" id="volume-chart-summary">
+                <table>
+                    <caption>{% trans "Units and sales by period" %}</caption>
+                    <thead>
+                        <tr><th scope="col">{% trans "Period" %}</th><th scope="col">{% trans "Units" %}</th><th scope="col">{% trans "Sales" %}</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in trend.rows %}
+                        <tr><td>{{ row.label }}</td><td>{{ row.units }}</td><td>{{ row.transactions }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             {% else %}
             <div class="empty-state">
                 <div class="empty-state-title">{% trans "No units sold" %}</div>
@@ -157,8 +187,21 @@
         </div>
         <div class="panel-body">
             {% if payment_mix.has_data %}
-            <div class="chart-area"><canvas id="paymentMixChart" aria-label="{% trans "Completed revenue by payment method" %}" role="img"></canvas></div>
+            <div class="chart-area"><canvas id="paymentMixChart" aria-label="{% trans "Completed revenue by payment method" %}" role="img" aria-describedby="payment-mix-chart-summary"></canvas></div>
             <div class="chart-caption">{% trans "Value paid per method on completed sales (On Account counts when the sale completes, not when it is later paid)." %}</div>
+            <div class="sr-only" id="payment-mix-chart-summary">
+                <table>
+                    <caption>{% trans "Revenue by payment method" %}</caption>
+                    <thead>
+                        <tr><th scope="col">{% trans "Payment method" %}</th><th scope="col">{% trans "Revenue" %}</th><th scope="col">{% trans "Sales" %}</th><th scope="col">{% trans "Share" %}</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for row in payment_mix.rows %}
+                        <tr><td>{{ row.label }}</td><td>R$ {{ row.revenue_display|floatformat:2 }}</td><td>{{ row.transactions }}</td><td>{% if row.share_pct is not None %}{{ row.share_pct }}%{% else %}—{% endif %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             {% else %}
             <div class="empty-state">
                 <div class="empty-state-title">{% trans "No revenue to split" %}</div>
@@ -544,186 +587,245 @@
         syncCustomDates();
     })();
 
-    (function initReportCharts() {
-        if (typeof Chart === 'undefined') return;
+    (function () {
+        function initReportCharts() {
+            if (typeof Chart === 'undefined') return;
 
-        const trendEl = document.getElementById('reports-trend-data');
-        let trend = null;
-        if (trendEl) {
-            try { trend = JSON.parse(trendEl.textContent); } catch (e) { trend = null; }
-        }
+            const palette = quadrum.chartPalette();
+            const tooltipStyle = {
+                backgroundColor: palette.tooltipBackground,
+                titleColor: palette.tooltipTitle,
+                bodyColor: palette.tooltipBody,
+                borderColor: palette.tooltipBorder,
+                borderWidth: 1,
+                cornerRadius: 4,
+                padding: 8,
+                titleFont: { size: 12, weight: 600 },
+                bodyFont: { size: 12 }
+            };
+            const scaleStyle = {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: quadrum.hexToRgba(palette.text, 0.15) },
+                    ticks: { color: palette.text, font: { size: 11 }, maxTicksLimit: 5 }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: palette.text, font: { size: 11 }, maxTicksLimit: 8 }
+                }
+            };
+            const charts = { revenue: null, volume: null, mix: null };
 
-        const tooltipStyle = {
-            backgroundColor: '#f5f5f5',
-            titleColor: '#171717',
-            bodyColor: '#606060',
-            borderColor: '#d0d0d0',
-            borderWidth: 1,
-            cornerRadius: 4,
-            padding: 8,
-            titleFont: { size: 12, weight: 600 },
-            bodyFont: { size: 12 }
-        };
-        const scaleStyle = {
-            y: {
-                beginAtZero: true,
-                grid: { color: 'rgba(163,163,163,0.12)' },
-                ticks: { color: '#737373', font: { size: 11 }, maxTicksLimit: 5 }
-            },
-            x: {
-                grid: { display: false },
-                ticks: { color: '#737373', font: { size: 11 }, maxTicksLimit: 8 }
+            function money(value) { return 'R$ ' + Number(value).toFixed(2); }
+
+            const trendEl = document.getElementById('reports-trend-data');
+            let trend = null;
+            if (trendEl) {
+                try { trend = JSON.parse(trendEl.textContent); } catch (e) { trend = null; }
             }
-        };
 
-        function money(value) { return 'R$ ' + Number(value).toFixed(2); }
-
-        if (trend && trend.bucket_count) {
-            const revenueCanvas = document.getElementById('revenueChart');
-            if (revenueCanvas && !Chart.getChart(revenueCanvas)) {
-                new Chart(revenueCanvas.getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: trend.labels,
-                        datasets: [
-                            {
-                                label: quadrum.t('chart.revenue', 'Revenue'),
-                                data: trend.revenue,
-                                borderColor: '#606060',
-                                backgroundColor: 'rgba(96,96,96,0.08)',
-                                tension: 0.35,
-                                fill: true,
-                                pointBackgroundColor: '#f0f0f0',
-                                pointBorderColor: '#606060',
-                                pointRadius: 3,
-                                pointHoverRadius: 5,
-                                borderWidth: 1.5
-                            },
-                            {
-                                label: quadrum.t('chart.previousPeriod', 'Previous period'),
-                                data: trend.revenue_prev,
-                                borderColor: 'rgba(96,96,96,0.55)',
-                                borderDash: [6, 4],
-                                tension: 0.35,
-                                fill: false,
-                                pointRadius: 0,
-                                pointHoverRadius: 4,
-                                borderWidth: 1.5
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: true, labels: { color: '#606060', boxWidth: 12, boxHeight: 12 } },
-                            tooltip: {
-                                ...tooltipStyle,
-                                callbacks: {
-                                    label: function (ctx) {
-                                        if (ctx.datasetIndex === 1) {
-                                            return quadrum.t('chart.previousTooltip', 'Previous (%(label)s): %(amount)s', { label: trend.prev_labels[ctx.dataIndex] || '', amount: money(ctx.parsed.y) });
+            if (trend && trend.bucket_count) {
+                const revenueCanvas = document.getElementById('revenueChart');
+                if (revenueCanvas && !Chart.getChart(revenueCanvas)) {
+                    charts.revenue = new Chart(revenueCanvas.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: trend.labels,
+                            datasets: [
+                                {
+                                    label: quadrum.t('chart.revenue', 'Revenue'),
+                                    data: trend.revenue,
+                                    borderColor: palette.line,
+                                    backgroundColor: quadrum.hexToRgba(palette.line, 0.12),
+                                    tension: 0.35,
+                                    fill: true,
+                                    pointBackgroundColor: palette.tooltipBackground,
+                                    pointBorderColor: palette.line,
+                                    pointRadius: 3,
+                                    pointHoverRadius: 5,
+                                    borderWidth: 1.5
+                                },
+                                {
+                                    label: quadrum.t('chart.previousPeriod', 'Previous period'),
+                                    data: trend.revenue_prev,
+                                    borderColor: quadrum.hexToRgba(palette.line, 0.55),
+                                    borderDash: [6, 4],
+                                    tension: 0.35,
+                                    fill: false,
+                                    pointRadius: 0,
+                                    pointHoverRadius: 4,
+                                    borderWidth: 1.5
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: true, labels: { color: palette.text, boxWidth: 12, boxHeight: 12 } },
+                                tooltip: {
+                                    ...tooltipStyle,
+                                    callbacks: {
+                                        label: function (ctx) {
+                                            if (ctx.datasetIndex === 1) {
+                                                return quadrum.t('chart.previousTooltip', 'Previous (%(label)s): %(amount)s', { label: trend.prev_labels[ctx.dataIndex] || '', amount: money(ctx.parsed.y) });
+                                            }
+                                            return quadrum.t('chart.revenueTooltip', 'Revenue (%(label)s): %(amount)s', { label: trend.labels[ctx.dataIndex], amount: money(ctx.parsed.y) });
                                         }
-                                        return quadrum.t('chart.revenueTooltip', 'Revenue (%(label)s): %(amount)s', { label: trend.labels[ctx.dataIndex], amount: money(ctx.parsed.y) });
                                     }
                                 }
-                            }
-                        },
-                        scales: scaleStyle,
-                        interaction: { intersect: false, mode: 'index' }
-                    }
-                });
-            }
-
-            const volumeCanvas = document.getElementById('volumeChart');
-            if (volumeCanvas && !Chart.getChart(volumeCanvas)) {
-                new Chart(volumeCanvas.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: trend.labels,
-                        datasets: [{
-                            label: quadrum.t('chart.units', 'Units'),
-                            data: trend.units,
-                            backgroundColor: 'rgba(96,96,96,0.35)',
-                            borderColor: '#606060',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                ...tooltipStyle,
-                                callbacks: {
-                                    label: function (ctx) {
-                                        const txn = trend.transactions[ctx.dataIndex];
-                                        return quadrum.t(txn === 1 ? 'chart.unitsTooltipOne' : 'chart.unitsTooltipMany',
-                                            txn === 1 ? 'Units: %(units)s · %(count)s transaction' : 'Units: %(units)s · %(count)s transactions',
-                                            { units: ctx.parsed.y, count: txn });
-                                    }
-                                }
-                            }
-                        },
-                        scales: scaleStyle,
-                        interaction: { intersect: false, mode: 'index' }
-                    }
-                });
-            }
-        }
-
-        const mixEl = document.getElementById('reports-payment-mix-data');
-        const mixCanvas = document.getElementById('paymentMixChart');
-        if (mixEl && mixCanvas && !Chart.getChart(mixCanvas)) {
-            let mix = null;
-            try { mix = JSON.parse(mixEl.textContent); } catch (e) { mix = null; }
-            if (mix && mix.rows && mix.rows.length) {
-                new Chart(mixCanvas.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: mix.rows.map(function (row) { return row.label; }),
-                        datasets: [{
-                            label: quadrum.t('chart.revenue', 'Revenue'),
-                            data: mix.rows.map(function (row) { return row.revenue; }),
-                            backgroundColor: 'rgba(96,96,96,0.35)',
-                            borderColor: '#606060',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                ...tooltipStyle,
-                                callbacks: {
-                                    label: function (ctx) {
-                                        const row = mix.rows[ctx.dataIndex];
-                                        const share = row.share_pct === null ? '—' : Number(row.share_pct).toFixed(1) + '%';
-                                        return quadrum.t(row.transactions === 1 ? 'chart.paymentTooltipOne' : 'chart.paymentTooltipMany',
-                                            row.transactions === 1 ? '%(amount)s · %(count)s sale · %(share)s of revenue' : '%(amount)s · %(count)s sales · %(share)s of revenue',
-                                            { amount: money(ctx.parsed.x), count: row.transactions, share: share });
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                grid: { color: 'rgba(163,163,163,0.12)' },
-                                ticks: { color: '#737373', font: { size: 11 }, maxTicksLimit: 5 }
                             },
-                            y: {
-                                grid: { display: false },
-                                ticks: { color: '#737373', font: { size: 11 } }
+                            scales: scaleStyle,
+                            interaction: { intersect: false, mode: 'index' }
+                        }
+                    });
+                }
+
+                const volumeCanvas = document.getElementById('volumeChart');
+                if (volumeCanvas && !Chart.getChart(volumeCanvas)) {
+                    charts.volume = new Chart(volumeCanvas.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: trend.labels,
+                            datasets: [{
+                                label: quadrum.t('chart.units', 'Units'),
+                                data: trend.units,
+                                backgroundColor: quadrum.hexToRgba(palette.line, 0.35),
+                                borderColor: palette.line,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    ...tooltipStyle,
+                                    callbacks: {
+                                        label: function (ctx) {
+                                            const txn = trend.transactions[ctx.dataIndex];
+                                            return quadrum.t(txn === 1 ? 'chart.unitsTooltipOne' : 'chart.unitsTooltipMany',
+                                                txn === 1 ? 'Units: %(units)s · %(count)s transaction' : 'Units: %(units)s · %(count)s transactions',
+                                                { units: ctx.parsed.y, count: txn });
+                                        }
+                                    }
+                                }
+                            },
+                            scales: scaleStyle,
+                            interaction: { intersect: false, mode: 'index' }
+                        }
+                    });
+                }
+            }
+
+            const mixEl = document.getElementById('reports-payment-mix-data');
+            const mixCanvas = document.getElementById('paymentMixChart');
+            if (mixEl && mixCanvas && !Chart.getChart(mixCanvas)) {
+                let mix = null;
+                try { mix = JSON.parse(mixEl.textContent); } catch (e) { mix = null; }
+                if (mix && mix.rows && mix.rows.length) {
+                    charts.mix = new Chart(mixCanvas.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: mix.rows.map(function (row) { return row.label; }),
+                            datasets: [{
+                                label: quadrum.t('chart.revenue', 'Revenue'),
+                                data: mix.rows.map(function (row) { return row.revenue; }),
+                                backgroundColor: quadrum.hexToRgba(palette.line, 0.35),
+                                borderColor: palette.line,
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    ...tooltipStyle,
+                                    callbacks: {
+                                        label: function (ctx) {
+                                            const row = mix.rows[ctx.dataIndex];
+                                            const share = row.share_pct === null ? '—' : Number(row.share_pct).toFixed(1) + '%';
+                                            return quadrum.t(row.transactions === 1 ? 'chart.paymentTooltipOne' : 'chart.paymentTooltipMany',
+                                                row.transactions === 1 ? '%(amount)s · %(count)s sale · %(share)s of revenue' : '%(amount)s · %(count)s sales · %(share)s of revenue',
+                                                { amount: money(ctx.parsed.x), count: row.transactions, share: share });
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    grid: { color: quadrum.hexToRgba(palette.text, 0.15) },
+                                    ticks: { color: palette.text, font: { size: 11 }, maxTicksLimit: 5 }
+                                },
+                                y: {
+                                    grid: { display: false },
+                                    ticks: { color: palette.text, font: { size: 11 } }
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             }
+
+            function styleTooltip(chart, colors) {
+                const tooltip = chart.options.plugins.tooltip;
+                if (!tooltip) return;
+                tooltip.backgroundColor = colors.tooltipBackground;
+                tooltip.titleColor = colors.tooltipTitle;
+                tooltip.bodyColor = colors.tooltipBody;
+                tooltip.borderColor = colors.tooltipBorder;
+            }
+
+            function applyChartTheme() {
+                const colors = quadrum.chartPalette();
+                if (charts.revenue) {
+                    const revenue = charts.revenue;
+                    revenue.data.datasets[0].borderColor = colors.line;
+                    revenue.data.datasets[0].backgroundColor = quadrum.hexToRgba(colors.line, 0.12);
+                    revenue.data.datasets[0].pointBackgroundColor = colors.tooltipBackground;
+                    revenue.data.datasets[0].pointBorderColor = colors.line;
+                    revenue.data.datasets[1].borderColor = quadrum.hexToRgba(colors.line, 0.55);
+                    revenue.options.plugins.legend.labels.color = colors.text;
+                    styleTooltip(revenue, colors);
+                    revenue.options.scales.y.grid.color = quadrum.hexToRgba(colors.text, 0.15);
+                    revenue.options.scales.y.ticks.color = colors.text;
+                    revenue.options.scales.x.ticks.color = colors.text;
+                    revenue.update();
+                }
+                if (charts.volume) {
+                    const volume = charts.volume;
+                    volume.data.datasets[0].backgroundColor = quadrum.hexToRgba(colors.line, 0.35);
+                    volume.data.datasets[0].borderColor = colors.line;
+                    styleTooltip(volume, colors);
+                    volume.options.scales.y.grid.color = quadrum.hexToRgba(colors.text, 0.15);
+                    volume.options.scales.y.ticks.color = colors.text;
+                    volume.options.scales.x.ticks.color = colors.text;
+                    volume.update();
+                }
+                if (charts.mix) {
+                    const mix = charts.mix;
+                    mix.data.datasets[0].backgroundColor = quadrum.hexToRgba(colors.line, 0.35);
+                    mix.data.datasets[0].borderColor = colors.line;
+                    styleTooltip(mix, colors);
+                    mix.options.scales.x.grid.color = quadrum.hexToRgba(colors.text, 0.15);
+                    mix.options.scales.x.ticks.color = colors.text;
+                    mix.options.scales.y.ticks.color = colors.text;
+                    mix.update();
+                }
+            }
+
+            document.addEventListener('quadrum:themechange', applyChartTheme);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initReportCharts);
+        } else {
+            initReportCharts();
         }
     })();
 </script>

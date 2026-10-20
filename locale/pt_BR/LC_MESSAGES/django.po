@@ -2930,8 +2930,8 @@ msgid "The listing header has a search box that filters by name or registration;
 msgstr "O cabeçalho da listagem tem uma caixa de busca que filtra por nome ou cadastro; o parâmetro da URL é preservado, então links podem abrir uma listagem filtrada diretamente."
 
 #: T:frontend/templates/frontend/partials/onboarding.html
-msgid "The point of sale: pick products by category, set quantities, optionally choose the customer, select the payment method, then finalize. Finalizing records the sale and deducts stock; an On Account sale with a customer also creates an account receivable."
-msgstr "O ponto de venda: escolha produtos por categoria, defina quantidades, opcionalmente escolha o cliente, selecione a forma de pagamento e finalize. A finalização registra a venda e deduz o estoque; uma venda A prazo com cliente também cria uma conta a receber."
+msgid "The point of sale: pick products by category, set quantities, choose the customer, select the payment method, then finalize. Finalizing records the sale and deducts stock; an On Account sale requires a customer and also creates an account receivable."
+msgstr "O ponto de venda: escolha produtos por categoria, defina quantidades, escolha o cliente, selecione a forma de pagamento e finalize. A finalização registra a venda e deduz o estoque; uma venda A prazo exige um cliente e também cria uma conta a receber."
 
 #: P:frontend/search.py
 msgid "The preferences that actually exist and verified fixes for common situations."
@@ -3530,3 +3530,44 @@ msgstr "O pagamento não pode exceder o saldo restante."
 
 msgid "This payment submission key was already used for a different request."
 msgstr "Esta chave de envio de pagamento já foi usada para uma solicitação diferente."
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Sales in the last 7 days"
+msgstr "Vendas nos últimos 7 dias"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Sales in the last 7 days, units per day"
+msgstr "Vendas nos últimos 7 dias, unidades por dia"
+
+#: T:frontend/templates/frontend/dashboard.html
+msgid "Day"
+msgstr "Dia"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Revenue by period"
+msgstr "Receita por período"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Units and sales by period"
+msgstr "Unidades e vendas por período"
+
+#: T:frontend/templates/frontend/reports.html
+msgid "Revenue by payment method"
+msgstr "Receita por forma de pagamento"
+
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Walk-in / no customer"
+msgstr "Cliente avulso / sem cliente"
+
+#: T:frontend/templates/frontend/point_of_sale.html
+msgid "Required for On Account sales."
+msgstr "Obrigatório para vendas A prazo."
+
+#: P:frontend/i18n.py
+msgid "Customer required"
+msgstr "Cliente obrigatório"
+
+#: P:frontend/i18n.py
+msgid "Choose a customer for On Account sales."
+msgstr "Escolha um cliente para vendas A prazo."

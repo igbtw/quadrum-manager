@@ -65,7 +65,7 @@ Access the app at `http://localhost:8000`.
 
 ## Testing
 
-Run the full test suite (538 verified tests; the JavaScript regression tests
+Run the full test suite (559 verified tests; the JavaScript regression tests
 run automatically when `node` is available and otherwise skip):
 
 ```bash
